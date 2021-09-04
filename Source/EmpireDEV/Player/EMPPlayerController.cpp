@@ -15,5 +15,8 @@ void AEMPPlayerController::SetupInputComponent()
 void AEMPPlayerController::HandleCancelActionPressed()
 {
     ABasicLevelGameModeEMP* basicLevelMode = Cast<ABasicLevelGameModeEMP>(UGameplayStatics::GetGameMode(GetWorld()));
-    basicLevelMode->HandleCancelActionPressed();
+    if (basicLevelMode)
+    {
+        basicLevelMode->HandleCancelActionPressed();
+    }
 }

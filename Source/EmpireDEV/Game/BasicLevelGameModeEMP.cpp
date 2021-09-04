@@ -29,14 +29,14 @@ void ABasicLevelGameModeEMP::BeginPlay()
 	
 
 	EnemyCombatPlayer = GetWorld()->SpawnActor<AEMPCombatPlayer>();
-	for (int squadNum = 0; squadNum < 1; squadNum++)
+	for (int squadNum = 0; squadNum < 4; squadNum++)
 	{
 		AEMPSquad* enemySquad = EnemyCombatPlayer->CreateSquad();
-		enemySquad->SetStartingAreaCoordinate(FIntPoint(4, squadNum));
+		enemySquad->SetStartingAreaCoordinate(FIntPoint(2, squadNum));
 		for (int i = 0; i < 5; i++)
 		{
 			AEMPCombatUnit* combatUnit = enemySquad->CreateCombatUnit(CombatUnitClass);
-			FIntPoint gridLocation = FIntPoint(4 * GridAreaSize, i + squadNum * GridAreaSize);
+			FIntPoint gridLocation = FIntPoint(2 * GridAreaSize, i + squadNum * GridAreaSize);
 			combatUnit->InitializeToGridSquare(gridLocation);
 		}
 	}
@@ -429,4 +429,220 @@ void ABasicLevelGameModeEMP::HandleCombatUnitAnimationFinished()
 	{
 		ResolveCurrentCombatAction();
 	}
+	else if (CurrentGameState == EBasicLevelGameStateEMP::GS_RESOLVING_COMBAT)
+	{
+		TryStartCombatRound();
+	}
+	else if (CurrentGameState == EBasicLevelGameStateEMP::GS_RESET_SQUAD_AFTER_COMBAT)
+	{
+		EndCombat();
+	}
+}
+
+void ABasicLevelGameModeEMP::SimulateCombatDamage(AEMPSquad* squadOne, AEMPSquad* squadTwo)
+{
+	FIntPoint squadOneAttackingDirection = squadTwo->GetCurrentAreaCoordinate() - squadOne->GetCurrentAreaCoordinate();
+	FIntPoint squadTwoAttackingDirection = squadOneAttackingDirection * -1;
+
+	// Calculate who attacks who and damage
+	SimulateSquadAttacks(squadOne, squadTwo, squadOneAttackingDirection);
+	SimulateSquadAttacks(squadTwo, squadOne, squadTwoAttackingDirection);
+
+	// Update unit states
+	for (AEMPCombatUnit* unit : squadOne->GetCombatUnitsInSquad())
+	{
+		unit->ResolvedCachedDamage();
+	}
+
+	for (AEMPCombatUnit* unit : squadTwo->GetCombatUnitsInSquad())
+	{
+		unit->ResolvedCachedDamage();
+	}
+}
+
+bool ABasicLevelGameModeEMP::UpdateCombatMovement(AEMPSquad* squadOne, AEMPSquad* squadTwo)
+{
+	FIntPoint squadOneAttackingDirection = squadTwo->GetCurrentAreaCoordinate() - squadOne->GetCurrentAreaCoordinate();
+	FIntPoint squadTwoAttackingDirection = squadOneAttackingDirection * -1;
+
+	FIntPoint startingGridCoodinate = squadOne->GetCurrentAreaCoordinate() * 5;
+	if (squadOneAttackingDirection.X == -1)
+	{
+		startingGridCoodinate.X += 4;
+		startingGridCoodinate.Y += 4;
+	}
+	else if (squadOneAttackingDirection.Y == 1)
+	{
+		startingGridCoodinate.X += 4;
+	}
+	else if (squadOneAttackingDirection.Y == -1)
+	{
+		startingGridCoodinate.Y += 4;
+	}
+
+	bool bHasAnyUnitMoved = false;
+
+	for (int lineIndex = 0; lineIndex < 5; lineIndex++) 
+	{
+		AEMPCombatUnit* mostAdvancedUnit = nullptr;
+		bool bIsSpaceAvailableToAdvance = false;
+		bool bIsSpaceContested = false;
+
+		for (int i = 9; i >= 0; i--)
+		{
+			FIntPoint lineIndexOffset = GetPerpendicularOfIntPoint_CounterClockwise(squadOneAttackingDirection) * lineIndex;
+			mostAdvancedUnit = squadOne->GetCombatUnitAtGridCoordinate((startingGridCoodinate + squadOneAttackingDirection * i) + lineIndexOffset);
+			if (mostAdvancedUnit)
+			{
+				AEMPCombatUnit* potentialUnitInFront = squadTwo->GetCombatUnitAtGridCoordinate(mostAdvancedUnit->GetGridCoordinate() + squadOneAttackingDirection);
+				AEMPCombatUnit* potentialUnitTwoSpacesInFront = squadTwo->GetCombatUnitAtGridCoordinate(mostAdvancedUnit->GetGridCoordinate() + squadOneAttackingDirection * 2);
+
+				bIsSpaceAvailableToAdvance = potentialUnitInFront == nullptr;
+				bIsSpaceContested = potentialUnitTwoSpacesInFront != nullptr;
+				break;
+			}
+		}
+
+		// Handle if no units in column
+		bool bHasUnitInColumn = mostAdvancedUnit != nullptr;
+		if (!bHasUnitInColumn)
+		{
+			// Let other team try to advance
+			bHasAnyUnitMoved = squadTwo->AdvanceCombatUnits_SingleLine(squadTwoAttackingDirection, 4 - lineIndex, 1, !bHasAnyUnitMoved) || bHasAnyUnitMoved;
+		}
+
+		if (bIsSpaceAvailableToAdvance)
+		{
+			if (!bIsSpaceContested)
+			{
+				// Advance units in both squads
+				if (bEnableDebugMode) UE_LOG(LogTemp, Warning, TEXT("No space contested, both squads moving on line index %i"), lineIndex);
+				bHasAnyUnitMoved = squadOne->AdvanceCombatUnits_SingleLine(squadOneAttackingDirection, lineIndex, 1, !bHasAnyUnitMoved) || bHasAnyUnitMoved;
+				bHasAnyUnitMoved = squadTwo->AdvanceCombatUnits_SingleLine(squadTwoAttackingDirection, 4 - lineIndex, 1, !bHasAnyUnitMoved) || bHasAnyUnitMoved;
+			}
+			else if (bIsSpaceContested)
+			{
+				// If contested, roll for advancement (rule can change in future)
+				float moveRoll = FMath::RandRange(0.0f, 1.0f);
+				if (bEnableDebugMode) UE_LOG(LogTemp, Warning, TEXT("Space contested, roll result: %f"), moveRoll);
+				if (moveRoll > 0.5f)
+				{
+					// Move squad one
+					bHasAnyUnitMoved = squadOne->AdvanceCombatUnits_SingleLine(squadOneAttackingDirection, lineIndex, 1, !bHasAnyUnitMoved) || bHasAnyUnitMoved;
+				}
+				else {
+					// Move squad two
+					bHasAnyUnitMoved = squadTwo->AdvanceCombatUnits_SingleLine(squadTwoAttackingDirection, 4 - lineIndex, 1, !bHasAnyUnitMoved) || bHasAnyUnitMoved;
+				}
+			}
+		}
+	}
+
+	if (bEnableDebugMode) UE_LOG(LogTemp, Warning, TEXT("Movement calculation finished, has any unit moved? %s"), bHasAnyUnitMoved ? TEXT("yes") : TEXT("no"));
+
+	return bHasAnyUnitMoved;
+}
+
+void ABasicLevelGameModeEMP::SimulateSquadAttacks(AEMPSquad* attackingSquad, AEMPSquad* defendingSquad, FIntPoint attackingDirection)
+{
+	TArray<AEMPCombatUnit*> attackingSquadCombatUnits = attackingSquad->GetCombatUnitsInSquad();
+	for (AEMPCombatUnit* unit : attackingSquadCombatUnits)
+	{
+		FIntPoint unitPosition = unit->GetGridCoordinate();
+
+		// First check space in front of unit
+		AEMPCombatUnit* potentialEnemy = defendingSquad->GetCombatUnitAtGridCoordinate(unitPosition + attackingDirection);
+
+		// Check in front and over in both directions
+		if (!potentialEnemy)
+		{
+			potentialEnemy = defendingSquad->GetCombatUnitAtGridCoordinate(unitPosition + attackingDirection + GetPerpendicularOfIntPoint_Clockwise(attackingDirection));
+
+			if (!potentialEnemy)
+			{
+				potentialEnemy = defendingSquad->GetCombatUnitAtGridCoordinate(unitPosition + attackingDirection + GetPerpendicularOfIntPoint_CounterClockwise(attackingDirection));
+
+				if (!potentialEnemy)
+				{
+					// This unit has no enemies to attack, check next unit
+					continue;
+				}
+			}
+		}
+		// Enemy has been found, simulate attack (Roll chance. If hits, die)
+
+		float hitRoll = FMath::RandRange(0.0f, 1.0f);
+		if (bEnableDebugMode) UE_LOG(LogTemp, Warning, TEXT("Unit (%s) rolling to hit (%s). Result: %f"), *unit->GetName(), *potentialEnemy->GetName(), hitRoll);
+		if (hitRoll > .5f)
+		{
+			potentialEnemy->TakeCachedDamage(10);
+		}
+	}
+}
+
+FIntPoint ABasicLevelGameModeEMP::GetPerpendicularOfIntPoint_Clockwise(FIntPoint inIntPoint)
+{
+	return FIntPoint(inIntPoint.Y, -inIntPoint.X);
+}
+
+FIntPoint ABasicLevelGameModeEMP::GetPerpendicularOfIntPoint_CounterClockwise(FIntPoint inIntPoint)
+{
+	return FIntPoint(-inIntPoint.Y, inIntPoint.X);
+}
+
+void ABasicLevelGameModeEMP::InitializeCombat(AEMPSquad* squadOne, AEMPSquad* squadTwo)
+{
+	InCombatSquadOne = squadOne;
+	InCombatSquadTwo = squadTwo;
+
+	SetCurrentGameState(EBasicLevelGameStateEMP::GS_RESOLVING_COMBAT);
+	CurrentCombatRound = 5;
+	TryStartCombatRound();
+}
+
+void ABasicLevelGameModeEMP::TryStartCombatRound()
+{
+	bool bHasAnyUnitMoved = false;
+
+	if (CurrentCombatRound >= 1) 
+	{
+		SimulateCombatDamage(InCombatSquadOne, InCombatSquadTwo);
+		bHasAnyUnitMoved = UpdateCombatMovement(InCombatSquadOne, InCombatSquadTwo);
+
+		CurrentCombatRound -= 1;
+
+		// Normally, the next combat is started when unit animations are finished, but if there are no animations, start it here.
+		if (!bHasAnyUnitMoved)
+		{
+			TryStartCombatRound();
+		}
+	}
+	else
+	{
+		ResetSquadAfterCombat();
+	}
+}
+
+void ABasicLevelGameModeEMP::ResetSquadAfterCombat()
+{
+	SetCurrentGameState(EBasicLevelGameStateEMP::GS_RESET_SQUAD_AFTER_COMBAT);
+	FIntPoint squadOneAttackingDirection = InCombatSquadTwo->GetCurrentAreaCoordinate() - InCombatSquadOne->GetCurrentAreaCoordinate();
+
+	bool bHasAnyUnitMoved = false;
+	bHasAnyUnitMoved = InCombatSquadOne->ResetCombatUnitsAfterCombat(squadOneAttackingDirection, !bHasAnyUnitMoved) || bHasAnyUnitMoved;
+	bHasAnyUnitMoved = InCombatSquadTwo->ResetCombatUnitsAfterCombat(squadOneAttackingDirection * -1, !bHasAnyUnitMoved) || bHasAnyUnitMoved;
+
+	if (!bHasAnyUnitMoved)
+	{
+		EndCombat();
+	}
+}
+
+void ABasicLevelGameModeEMP::EndCombat()
+{
+	InCombatSquadOne = nullptr;
+	InCombatSquadTwo = nullptr;
+
+	SetCurrentGameState(EBasicLevelGameStateEMP::GS_RESOLVING_ORDERS);
+	ResolveCurrentCombatAction();
 }

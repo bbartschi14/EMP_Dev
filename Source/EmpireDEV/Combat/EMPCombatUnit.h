@@ -12,11 +12,17 @@ class EMPIREDEV_API AEMPCombatUnit : public AActor
 	GENERATED_BODY()
 	
 public:	
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCombatUnitDeath, AEMPCombatUnit*, DeadUnit);
+
 	// Sets default values for this actor's properties
 	AEMPCombatUnit();
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	/** Called when the combat unit dies */
+	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
+		FOnCombatUnitDeath OnCombatUnitDeath;
 
 	/** */
 	UFUNCTION()
@@ -24,6 +30,14 @@ public:
 
 	UFUNCTION()
 		FIntPoint GetGridCoordinate() const;
+
+	/** */
+	UFUNCTION()
+		void TakeCachedDamage(int32 damageToCache);
+
+	/** */
+	UFUNCTION()
+		void ResolvedCachedDamage();
 
 	/** */
 	UFUNCTION()
@@ -44,7 +58,20 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		FIntPoint GridCoordinate = FIntPoint(0);
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		int32 MaxHealth = 10;
+
+	UPROPERTY(Transient)
+		int32 CurrentHealth;
+
+	UPROPERTY(Transient)
+		int32 CachedDamage;
+
 	/** */
 	UFUNCTION()
 	void SetGridCoordinate(FIntPoint inCoordinate);
+
+	/** */
+	UFUNCTION()
+		void HandleCombatUnitDeath();
 };

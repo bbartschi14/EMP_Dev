@@ -13,6 +13,7 @@ void UEMPMovementAction::ExecuteAction(ABasicLevelGameModeEMP* owningGameMode)
 	if (enemySquad)
 	{
 		// Handle combat
+		owningGameMode->InitializeCombat(SquadToMove, enemySquad);
 	}
 	else if (friendlySquad)
 	{

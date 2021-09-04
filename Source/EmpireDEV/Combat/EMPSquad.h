@@ -39,6 +39,18 @@ public:
 
 	/** */
 	UFUNCTION()
+		TArray<class AEMPCombatUnit*> GetCombatUnitsInSquad() const;
+
+	/** Used in combat to advance troop by a grid space. Returns true if any unit moves */
+	UFUNCTION()
+		bool AdvanceCombatUnits_SingleLine(FIntPoint direction, int lineIndex, int numberOfSpacesToMove, bool bShouldNotifyWhenFinished);
+
+	/**  */
+	UFUNCTION()
+		bool ResetCombatUnitsAfterCombat(FIntPoint direction, bool bShouldNotifyWhenFinished);
+
+	/** */
+	UFUNCTION()
 		void SetStartingAreaCoordinate(FIntPoint areaCoordinate);
 
 	/** */
@@ -67,6 +79,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;	
 
+	UFUNCTION()
+		void HandleCombatUnitDeath(class AEMPCombatUnit* combatUnit);
+
 	UPROPERTY(Transient)
 		TArray<class AEMPCombatUnit*> CombatUnits;
 
@@ -75,4 +90,7 @@ protected:
 
 	UPROPERTY()
 		ESquadStateEMP CurrentSquadState;
+
+	UPROPERTY()
+		bool bEnableDebugMode = false;
 };

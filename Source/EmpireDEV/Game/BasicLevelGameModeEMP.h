@@ -15,6 +15,9 @@ enum class EBasicLevelGameStateEMP : uint8
 	GS_REARRANGING_SQUAD      UMETA(DisplayName = "Rearranging a Squad"),
 	GS_MOVING_UNIT      UMETA(DisplayName = "Moving a Unit"),
 	GS_RESOLVING_ORDERS   UMETA(DisplayName = "Resolving Orders"),
+	GS_RESOLVING_COMBAT   UMETA(DisplayName = "Resolving Combat"),
+	GS_RESET_SQUAD_AFTER_COMBAT   UMETA(DisplayName = "Reset Squad After Combat"),
+
 };
 
 USTRUCT() 
@@ -75,6 +78,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
 		FOnSimpleChange OnSquadDeselected;
 
+	UPROPERTY(EditDefaultsOnly)
+		bool bEnableDebugMode;
+
 	UFUNCTION(BlueprintCallable)
 	EBasicLevelGameStateEMP GetCurrentGameState() const;
 
@@ -87,6 +93,10 @@ public:
 
 	UFUNCTION()
 		class AEMPSquad* GetEnemySquadAtAreaCoordinate(FIntPoint areaCoordinate);
+
+	/** Initialize combat between two squad */
+	UFUNCTION()
+		void InitializeCombat(class AEMPSquad* squadOne, class AEMPSquad* squadTwo);
 
 protected:
 	virtual void BeginPlay() override;
@@ -180,6 +190,15 @@ protected:
 	UPROPERTY(Transient)
 		class AEMPCombatUnit* SelectedUnit;
 
+	UPROPERTY(Transient)
+		class AEMPSquad* InCombatSquadOne;
+
+	UPROPERTY(Transient)
+		class AEMPSquad* InCombatSquadTwo;
+
+	UPROPERTY(Transient)
+		int32 CurrentCombatRound;
+
 	UPROPERTY()
 		TArray<class UEMPCombatAction*> CombatActionsQueue;
 
@@ -212,10 +231,47 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 		void HandleCombatUnitAnimationFinished();
+	
+	UFUNCTION()
+		void TryStartCombatRound();
+
+	UFUNCTION()
+		void EndCombat();
+
+	UFUNCTION()
+		void ResetSquadAfterCombat();
+
+	/** Simulate damage round of combat */
+	UFUNCTION()
+		void SimulateCombatDamage(class AEMPSquad* squadOne, class AEMPSquad* squadTwo);
+
+	/** Update positions of combat units (typically after damage phase). Returns true if any units move */
+	UFUNCTION()
+		bool UpdateCombatMovement(class AEMPSquad* squadOne, class AEMPSquad* squadTwo);
+
+	/** Simulate squad attacks */
+	UFUNCTION()
+		void SimulateSquadAttacks(class AEMPSquad* attackingSquad, class AEMPSquad* defendingSquad, FIntPoint attackingDirection);
+
 #pragma endregion Combat
+
+#pragma region MathHelpers
+	/** */
+	UFUNCTION()
+		FIntPoint GetPerpendicularOfIntPoint_Clockwise(FIntPoint inIntPoint);
+
+	/** */
+	UFUNCTION()
+		FIntPoint GetPerpendicularOfIntPoint_CounterClockwise(FIntPoint inIntPoint);
+#pragma endregion MathHelpers
+
+#pragma region GameStateControls
+
+#pragma endregion GameStateControls
 
 private:
 
 	/** Holds the current "state machine" style state */
+	UPROPERTY()
 	EBasicLevelGameStateEMP CurrentGameState = EBasicLevelGameStateEMP::GS_SELECTING_SQUAD;
 };
