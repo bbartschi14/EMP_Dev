@@ -26,10 +26,18 @@ public:
 
 	/** */
 	UFUNCTION()
-	void InitializeToGridSquare(FIntPoint inCoordinate);
+		void InitializeCombatUnitData(class UEMPCombatUnitData* combatUnitData);
+
+	/** */
+	UFUNCTION()
+		void InitializeToGridSquare(FIntPoint inCoordinate);
 
 	UFUNCTION()
 		FIntPoint GetGridCoordinate() const;
+
+	UFUNCTION()
+		class UEMPCombatUnitData* GetCombatUnitData() const;
+
 
 	/** */
 	UFUNCTION()
@@ -41,11 +49,11 @@ public:
 
 	/** */
 	UFUNCTION()
-	void MoveToGridSquare(FIntPoint inCoordinate, bool bNotifyWhenFinished);
+		void MoveToGridSquare(FIntPoint inCoordinate, bool bNotifyWhenFinished);
 
 	/** Play animation or other indicator of moving to a location */
 	UFUNCTION(BlueprintImplementableEvent, Category = "EMP|Combat Unit")
-	void HandleMoveToLocation(bool bNotifyWhenFinished);
+		void HandleMoveToLocation(bool bNotifyWhenFinished);
 
 	/** Play animation or other indicator of a failed movement */
 	UFUNCTION(BlueprintImplementableEvent, Category = "EMP|Combat Unit")
@@ -56,7 +64,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		FIntPoint GridCoordinate = FIntPoint(0);
+		FIntPoint GridCoordinate = FIntPoint(-1, -1);
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		int32 MaxHealth = 10;
@@ -67,9 +75,12 @@ protected:
 	UPROPERTY(Transient)
 		int32 CachedDamage;
 
+	UPROPERTY(Transient)
+		class UEMPCombatUnitData* CombatUnitData;
+
 	/** */
 	UFUNCTION()
-	void SetGridCoordinate(FIntPoint inCoordinate);
+		void SetGridCoordinate(FIntPoint inCoordinate);
 
 	/** */
 	UFUNCTION()

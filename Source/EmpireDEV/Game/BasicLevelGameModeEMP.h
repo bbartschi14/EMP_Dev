@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BaseGameModeEMP.h"
+#include "EMPGridGameMode.h"
 #include "BasicLevelGameModeEMP.generated.h"
 
 UENUM(BlueprintType)
@@ -47,7 +47,7 @@ public:
 ***********************************************************************************/
 
 UCLASS(Abstract, Blueprintable)
-class EMPIREDEV_API ABasicLevelGameModeEMP : public ABaseGameModeEMP
+class EMPIREDEV_API ABasicLevelGameModeEMP : public AEMPGridGameMode
 {
 	GENERATED_BODY()
 
@@ -101,71 +101,17 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-#pragma region Grid
-	/** Create grid squares from member properties */
-	UFUNCTION()
-	void SpawnGrid();
-
-	UFUNCTION(BlueprintCallable)
-	FVector GetWorldLocationFromGridLocation(FIntPoint gridLocation);
-
-	UFUNCTION()
-	void HandleGridSquareClicked(class AEMPGridSquare* inGridSquare);
-
-	UFUNCTION()
-	void HandleGridSquareHovered(class AEMPGridSquare* inGridSquare);
-
-	UFUNCTION()
-	void HandleGridSquareUnhovered(class AEMPGridSquare* inGridSquare);
-
-	UFUNCTION()
-		void HandleSetGridHighlighted(class AEMPGridSquare* inGridSquare, bool isHighlighted);
-
-	UFUNCTION()
-		void HandleSetGridAreaHighlighted(FIntPoint areaCoordinate, bool isHighlighted);
-
-	UFUNCTION()
-		bool IsGridCoordinateInAreaCoordinate(FIntPoint gridCoordinate, FIntPoint areaCoordinate);
+	UPROPERTY()
+		FIntPoint GridAreaEditing;
 
 	UFUNCTION()
 		FGridDataEMP GetGridDataForSquare(class AEMPGridSquare* inGridSquare);
 
-	/** Helper function for getting the grid square in 1D array from 2D coordinate */
-	UFUNCTION()
-		AEMPGridSquare* GetGridSquareAtCoordinate(FIntPoint gridCoordinate) const;
+	// ~ Begin Grid Game Mode Overrides
+	void HandleGridSquareClicked(class AEMPGridSquare* inGridSquare) override;
 
-	/** An area coordinate is the coordinate of the 5x5 section. I.e., the first 5 grid squares in the first 5 columns is in area (0, 0) */
-	UFUNCTION()
-	FIntPoint GetAreaCoordinateOfGridCoordinate(FIntPoint gridCoordinate) const;
-
-	UFUNCTION()
-		TArray<class AEMPGridSquare*> GetGridSquaresInArea(FIntPoint areaCoordinate) const;
-
-	UPROPERTY(Transient)
-		TArray<class AEMPGridSquare*> GridSquares;
-
-	UPROPERTY(EditDefaultsOnly)
-		TSubclassOf<class AEMPGridSquare> GridSquareClass;
-
-	UPROPERTY(EditDefaultsOnly)
-		FIntPoint GridDimensions;
-
-	UPROPERTY(EditDefaultsOnly)
-		FVector2D SingleGridSquareSize;
-
-	UPROPERTY(EditDefaultsOnly)
-		float GridBaseHeight;
-
-	UPROPERTY()
-		int32 GridAreaSize = 5;
-
-	UPROPERTY()
-		FIntPoint GridAreaEditing;
-
-	UPROPERTY(Transient)
-		class AEMPGridSquare* HoveredGridSquare;
-
-#pragma endregion Grid
+	void HandleSetGridHighlighted(class AEMPGridSquare* inGridSquare, bool isHighlighted) override;
+	// ~ End Grid Game Mode Overrides
 
 #pragma region GridStateConditions
 
@@ -175,13 +121,11 @@ protected:
 #pragma endregion GridStateConditions
 
 #pragma region Combat
-	UPROPERTY(EditDefaultsOnly)
-		TSubclassOf<class AEMPCombatUnit> CombatUnitClass;
 
-	UPROPERTY(Transient)
+	UPROPERTY(Transient, BlueprintReadOnly)
 		class AEMPCombatPlayer* FriendlyCombatPlayer;
 
-	UPROPERTY(Transient)
+	UPROPERTY(Transient, BlueprintReadOnly)
 		class AEMPCombatPlayer* EnemyCombatPlayer;
 
 	UPROPERTY(Transient)
@@ -201,6 +145,17 @@ protected:
 
 	UPROPERTY()
 		TArray<class UEMPCombatAction*> CombatActionsQueue;
+
+	UFUNCTION(BlueprintCallable)
+		void LoadSquad(class AEMPCombatPlayer* owningCombatPlayer, class UEMPSquadData* squadData, FIntPoint areaCoordinate);
+
+	/** Allow squad setup in blueprints */
+	UFUNCTION(BlueprintImplementableEvent)
+		void LoadFriendlySquads(class AEMPCombatPlayer* friendlyPlayer);
+
+	/** Allow squad setup in blueprints */
+	UFUNCTION(BlueprintImplementableEvent)
+		void LoadEnemySquads(class AEMPCombatPlayer* enemyPlayer);
 
 	UFUNCTION()
 		void SelectSquad(class AEMPSquad* squadToSelect);

@@ -21,7 +21,7 @@ void AEMPGridSquare::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AEMPGridSquare::InitializeGridSquare(FIntPoint inGridCoordinate, FVector2D inGridSize)
+void AEMPGridSquare::InitializeGridSquare(FIntPoint inGridCoordinate)
 {
 	GridCoordinate = inGridCoordinate;
 
@@ -31,21 +31,6 @@ void AEMPGridSquare::InitializeGridSquare(FIntPoint inGridCoordinate, FVector2D 
 FIntPoint AEMPGridSquare::GetGridCoordinate() const
 {
 	return GridCoordinate;
-}
-
-void AEMPGridSquare::SetCombatUnitOnGridSquare(AEMPCombatUnit* combatUnit)
-{
-	CombatUnitOnGridSquare = combatUnit;
-}
-
-void AEMPGridSquare::ClearCombatUnitOnSquare()
-{
-	CombatUnitOnGridSquare = nullptr;
-}
-
-bool AEMPGridSquare::IsGridSquareOccupied()
-{
-	return CombatUnitOnGridSquare != nullptr;
 }
 
 // Called every frame

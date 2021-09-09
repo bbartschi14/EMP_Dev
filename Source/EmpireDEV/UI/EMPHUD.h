@@ -16,17 +16,23 @@ class EMPIREDEV_API AEMPHUD : public AHUD
 	GENERATED_BODY()
 
 	UFUNCTION(BlueprintCallable)
-		void ShowMainUI();
+		void ShowCombatUI();
 	UFUNCTION(BlueprintCallable)
-		void HideMainUI();
+		void ShowBetweenGameUI();
+
+	UFUNCTION(BlueprintCallable)
+		void HideUI();
 
 protected:
 	void BeginPlay() override;
 
 	UPROPERTY(EditDefaultsOnly)
-		TSubclassOf<class UUserWidget> MainUIClass;
+		TSubclassOf<class UUserWidget> CombatUIClass;
+
+	UPROPERTY(EditDefaultsOnly)
+		TSubclassOf<class UUserWidget> BetweenGameMenuClass;
 
 	// Keep a pointer to be able to hide it
 	UPROPERTY()
-		class UUserWidget* MainUI;
+		class UUserWidget* CurrentRoot;
 };

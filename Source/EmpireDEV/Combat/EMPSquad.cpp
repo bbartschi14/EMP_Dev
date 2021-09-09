@@ -159,6 +159,16 @@ void AEMPSquad::SetStartingAreaCoordinate(FIntPoint areaCoordinate)
 	CurrentAreaCoordinate = areaCoordinate;
 }
 
+void AEMPSquad::SetSquadData(UEMPSquadData* squadData)
+{
+	SquadData = squadData;
+}
+
+UEMPSquadData* AEMPSquad::GetSquadData() const
+{
+	return SquadData;
+}
+
 void AEMPSquad::MoveToAreaCoordinate(FIntPoint areaCoordinate)
 {
 	FIntPoint areaCoordinateDelta = areaCoordinate - CurrentAreaCoordinate;

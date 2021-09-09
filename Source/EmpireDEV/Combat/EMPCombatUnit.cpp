@@ -25,6 +25,17 @@ void AEMPCombatUnit::Tick(float DeltaTime)
 
 }
 
+void AEMPCombatUnit::InitializeCombatUnitData(class UEMPCombatUnitData* combatUnitData)
+{
+	CombatUnitData = combatUnitData;
+}
+
+UEMPCombatUnitData* AEMPCombatUnit::GetCombatUnitData() const
+{
+	return CombatUnitData;
+}
+
+
 void AEMPCombatUnit::InitializeToGridSquare(FIntPoint inCoordinate)
 {
 	SetGridCoordinate(inCoordinate);

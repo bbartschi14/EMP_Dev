@@ -10,6 +10,7 @@
 * The base game mode to use for the game. 
 * Inherited by:
 *	- AMenuGameModeEMP (for menu navigation)
+*	- AEMPBetweenGameMenuMode (for squad management, level selection)
 *	- ABasicLevelGameModeEMP (for in game combat mode)
 * 
 ***********************************************************************************/

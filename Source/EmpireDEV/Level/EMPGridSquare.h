@@ -39,26 +39,18 @@ public:
 
 	/** Call after spawning to setup grid coordinate and other info */
 	UFUNCTION()
-		void InitializeGridSquare(FIntPoint inGridCoordinate, FVector2D inGridSize);
+		void InitializeGridSquare(FIntPoint inGridCoordinate);
 
 	UFUNCTION()
 		FIntPoint GetGridCoordinate() const;
 
 	/** Blueprint response to setting highlighted */
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "EMP|Grid")
-		void SetHighlighted(bool bIsHighlighted);
+		void SetHighlighted(bool isHighlighted);
 
-	/** */
-	UFUNCTION()
-		void SetCombatUnitOnGridSquare(class AEMPCombatUnit* combatUnit);
-
-	/** */
-	UFUNCTION()
-		void ClearCombatUnitOnSquare();
-
-	/** */
-	UFUNCTION()
-		bool IsGridSquareOccupied();
+	/** Blueprint response to setting selected */
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "EMP|Grid")
+		void SetSelected(bool isSelected);
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -104,4 +96,10 @@ protected:
 
 	UPROPERTY(Transient)
 		class AEMPCombatUnit* CombatUnitOnGridSquare;
+
+	UPROPERTY(BlueprintReadWrite)
+		bool bIsHighlighted;
+
+	UPROPERTY(BlueprintReadWrite)
+		bool bIsSelected;
 };

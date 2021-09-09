@@ -14,7 +14,12 @@ class EMPIREDEV_API UGameInstanceBaseEMP : public UGameInstance
 {
 	GENERATED_BODY()
 
+public:
+	UPROPERTY(EditDefaultsOnly)
+		class UEMPSquadsDatabase* TestOnlySquadsDatabase;
+
 protected:
 	void Init() override;
-	
+
+
 };

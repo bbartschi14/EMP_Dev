@@ -53,6 +53,12 @@ public:
 	UFUNCTION()
 		void SetStartingAreaCoordinate(FIntPoint areaCoordinate);
 
+	UFUNCTION()
+		void SetSquadData(class UEMPSquadData* squadData);
+
+	UFUNCTION()
+		class UEMPSquadData* GetSquadData() const;
+
 	/** */
 	UFUNCTION()
 		void MoveToAreaCoordinate(FIntPoint areaCoordinate);
@@ -93,4 +99,7 @@ protected:
 
 	UPROPERTY()
 		bool bEnableDebugMode = false;
+
+	UPROPERTY()
+		class UEMPSquadData* SquadData;
 };

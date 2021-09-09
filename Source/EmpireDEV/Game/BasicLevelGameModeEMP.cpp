@@ -7,6 +7,8 @@
 #include "../Combat/EMPSquad.h"
 #include "../Combat/EMPCombatUnit.h"
 #include "../Combat/CombatActions/EMPMovementAction.h"
+#include "../Combat/Structs/FEMPSquadData.h"
+#include "../Combat/Structs/FEMPCombatUnitData.h"
 
 void ABasicLevelGameModeEMP::BeginPlay()
 {
@@ -15,50 +17,10 @@ void ABasicLevelGameModeEMP::BeginPlay()
 	SpawnGrid();
 
 	FriendlyCombatPlayer = GetWorld()->SpawnActor<AEMPCombatPlayer>();
-	for (int squadNum = 0; squadNum < 4; squadNum++)
-	{
-		AEMPSquad* friendlySquad = FriendlyCombatPlayer->CreateSquad();
-		friendlySquad->SetStartingAreaCoordinate(FIntPoint(0, squadNum));
-		for (int i = 0; i < 5; i++)
-		{
-			AEMPCombatUnit* combatUnit = friendlySquad->CreateCombatUnit(CombatUnitClass);
-			FIntPoint gridLocation = FIntPoint(0, i + squadNum * GridAreaSize);
-			combatUnit->InitializeToGridSquare(gridLocation);
-		}
-	}
-	
-
 	EnemyCombatPlayer = GetWorld()->SpawnActor<AEMPCombatPlayer>();
-	for (int squadNum = 0; squadNum < 4; squadNum++)
-	{
-		AEMPSquad* enemySquad = EnemyCombatPlayer->CreateSquad();
-		enemySquad->SetStartingAreaCoordinate(FIntPoint(2, squadNum));
-		for (int i = 0; i < 5; i++)
-		{
-			AEMPCombatUnit* combatUnit = enemySquad->CreateCombatUnit(CombatUnitClass);
-			FIntPoint gridLocation = FIntPoint(2 * GridAreaSize, i + squadNum * GridAreaSize);
-			combatUnit->InitializeToGridSquare(gridLocation);
-		}
-	}
-}
 
-void ABasicLevelGameModeEMP::SpawnGrid()
-{
-	
-	for (int j = 0; j < GridDimensions.Y; j++)
-	{
-		for (int i = 0; i < GridDimensions.X; i++)
-		{
-			FVector location = GetWorldLocationFromGridLocation(FIntPoint(i, j));
-			AEMPGridSquare* GridSquareActor = GetWorld()->SpawnActor<AEMPGridSquare>(GridSquareClass, location, FRotator(0, 0, 0));
-			GridSquareActor->SetActorScale3D(FVector(SingleGridSquareSize.X, SingleGridSquareSize.Y, 1));
-			GridSquareActor->InitializeGridSquare(FIntPoint(i, j), SingleGridSquareSize);
-			GridSquareActor->OnGridSquareClicked.AddUniqueDynamic(this, &ABasicLevelGameModeEMP::HandleGridSquareClicked);
-			GridSquareActor->OnGridSquareBeginCursorOver.AddUniqueDynamic(this, &ABasicLevelGameModeEMP::HandleGridSquareHovered);
-			GridSquareActor->OnGridSquareEndCursorOver.AddUniqueDynamic(this, &ABasicLevelGameModeEMP::HandleGridSquareUnhovered);
-			GridSquares.Add(GridSquareActor);
-		}
-	}
+	LoadFriendlySquads(FriendlyCombatPlayer);
+	LoadEnemySquads(EnemyCombatPlayer);
 }
 
 void ABasicLevelGameModeEMP::HandleGridSquareClicked(AEMPGridSquare* inGridSquare)
@@ -107,18 +69,6 @@ void ABasicLevelGameModeEMP::HandleGridSquareClicked(AEMPGridSquare* inGridSquar
 	}
 }
 
-void ABasicLevelGameModeEMP::HandleGridSquareHovered(AEMPGridSquare* inGridSquare)
-{
-	HoveredGridSquare = inGridSquare;
-	HandleSetGridHighlighted(inGridSquare, true);
-}
-
-void ABasicLevelGameModeEMP::HandleGridSquareUnhovered(AEMPGridSquare* inGridSquare)
-{
-	HoveredGridSquare = nullptr;
-	HandleSetGridHighlighted(inGridSquare, false);
-}
-
 void ABasicLevelGameModeEMP::HandleSetGridHighlighted(AEMPGridSquare* inGridSquare, bool isHighlighted)
 {
 	FGridDataEMP gridData = GetGridDataForSquare(inGridSquare);
@@ -151,24 +101,6 @@ void ABasicLevelGameModeEMP::HandleSetGridHighlighted(AEMPGridSquare* inGridSqua
 	}
 }
 
-void ABasicLevelGameModeEMP::HandleSetGridAreaHighlighted(FIntPoint areaCoordinate, bool isHighlighted)
-{
-	TArray<AEMPGridSquare*> gridSquaresToHighlight = GetGridSquaresInArea(areaCoordinate);
-
-	for (AEMPGridSquare* gridSquare : gridSquaresToHighlight)
-	{
-		gridSquare->SetHighlighted(isHighlighted);
-	}
-}
-
-bool ABasicLevelGameModeEMP::IsGridCoordinateInAreaCoordinate(FIntPoint gridCoordinate, FIntPoint areaCoordinate)
-{
-	bool bIsInX = gridCoordinate.X >= areaCoordinate.X * GridAreaSize && gridCoordinate.X < (areaCoordinate.X + 1) * GridAreaSize;
-	bool bIsInY = gridCoordinate.Y >= areaCoordinate.Y * GridAreaSize && gridCoordinate.Y < (areaCoordinate.Y + 1)* GridAreaSize;
-
-	return bIsInX && bIsInY;
-}
-
 FGridDataEMP ABasicLevelGameModeEMP::GetGridDataForSquare(AEMPGridSquare* inGridSquare)
 {
 	FGridDataEMP data;
@@ -180,38 +112,6 @@ FGridDataEMP ABasicLevelGameModeEMP::GetGridDataForSquare(AEMPGridSquare* inGrid
 	data.squadAtArea = GetFriendlySquadAtAreaCoordinate(data.areaCoordinate);
 
 	return data;
-}
-
-
-AEMPGridSquare* ABasicLevelGameModeEMP::GetGridSquareAtCoordinate(FIntPoint gridCoordinate) const
-{
-	int32 transformedIndex = GridDimensions.X * gridCoordinate.Y + gridCoordinate.X;
-	check(transformedIndex < GridSquares.Num()); // Sanity check array index
-
-	return GridSquares[transformedIndex];
-}
-
-
-FIntPoint ABasicLevelGameModeEMP::GetAreaCoordinateOfGridCoordinate(FIntPoint gridCoordinate) const
-{
-	return FIntPoint(gridCoordinate.X / GridAreaSize, gridCoordinate.Y / GridAreaSize);
-}
-
-TArray<AEMPGridSquare*> ABasicLevelGameModeEMP::GetGridSquaresInArea(FIntPoint areaCoordinate) const
-{
-	TArray<AEMPGridSquare*> gridSquaresInArea;
-	int32 startingX = areaCoordinate.X * GridAreaSize;
-	int32 startingY = areaCoordinate.Y * GridAreaSize;
-
-	for (int i = startingX; i < startingX + GridAreaSize; i++)
-	{
-		for (int j = startingY; j < startingY + GridAreaSize; j++)
-		{
-			gridSquaresInArea.Add(GetGridSquareAtCoordinate(FIntPoint(i, j)));
-		}
-	}
-
-	return gridSquaresInArea;
 }
 
 bool ABasicLevelGameModeEMP::IsGridConditionMetForGivenState(EBasicLevelGameStateEMP givenState, FGridDataEMP gridData)
@@ -244,6 +144,21 @@ bool ABasicLevelGameModeEMP::IsGridConditionMetForGivenState(EBasicLevelGameStat
 		return gridDistance == 1;
 	}
 	return false;
+}
+
+void ABasicLevelGameModeEMP::LoadSquad(AEMPCombatPlayer* owningCombatPlayer, UEMPSquadData* squadData, FIntPoint areaCoordinate)
+{
+	AEMPSquad* squad = owningCombatPlayer->CreateSquad();
+	squad->SetStartingAreaCoordinate(areaCoordinate);
+	squad->SetSquadData(squadData);
+
+	for (UEMPCombatUnitData* combatUnitData : squadData->CombatUnitsInSquad)
+	{
+		AEMPCombatUnit* combatUnit = squad->CreateCombatUnit(CombatUnitClass);
+		FIntPoint gridLocation = FIntPoint(combatUnitData->DesiredLocationX + areaCoordinate.X * 5, combatUnitData->DesiredLocationY + areaCoordinate.Y * 5);
+		combatUnit->InitializeToGridSquare(gridLocation);
+		combatUnit->InitializeCombatUnitData(combatUnitData);
+	}
 }
 
 void ABasicLevelGameModeEMP::SelectSquad(AEMPSquad* squadToSelect)
@@ -320,11 +235,6 @@ AEMPSquad* ABasicLevelGameModeEMP::GetEnemySquadAtAreaCoordinate(FIntPoint areaC
 
 	// If area coordinate is empty
 	return nullptr;
-}
-
-FVector ABasicLevelGameModeEMP::GetWorldLocationFromGridLocation(FIntPoint gridLocation)
-{
-	return FVector(SingleGridSquareSize.X * gridLocation.X, SingleGridSquareSize.Y * gridLocation.Y, GridBaseHeight);
 }
 
 EBasicLevelGameStateEMP ABasicLevelGameModeEMP::GetCurrentGameState() const
