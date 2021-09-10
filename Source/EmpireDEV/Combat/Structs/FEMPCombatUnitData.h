@@ -134,17 +134,17 @@ protected:
 	// Stats
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		int32 Health;
+		int32 Health = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		int32 Damage;
+		int32 Damage = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		int32 Armor;
+		int32 Armor = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		int32 Speed;
+		int32 Speed = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		int32 Range;
+		int32 Range = 1;
 };

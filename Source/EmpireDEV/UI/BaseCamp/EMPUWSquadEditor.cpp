@@ -7,11 +7,11 @@
 #include "../Core/UserWidgets/EMPUWRadioButtonList.h"
 #include <Kismet/GameplayStatics.h>
 #include "EMPUWCombatUnitInspector.h"
+#include "EMPUWSquadInspector.h"
 
 void UEMPUWSquadEditor::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
-
 
 	SynchSquadData();
 
@@ -65,6 +65,7 @@ void UEMPUWSquadEditor::HandleRadioButtonSelected(UEMPUWRadioButton* radioButton
 	if (betweenGameMode && squadRadioButton)
 	{
 		betweenGameMode->SelectSquad(squadRadioButton->GetSquadData());
+		SquadInspector->SetSquadData(squadRadioButton->GetSquadData());
 	}
 }
 
@@ -81,7 +82,16 @@ void UEMPUWSquadEditor::HandleGameStateChanged(EBaseCampGameStateEMP newState)
 	}
 	else
 	{
-		CombatUnitInspector->SetVisibility(ESlateVisibility::Collapsed);
+		CombatUnitInspector->SetVisibility(ESlateVisibility::Hidden);
+	}
+
+	if (newState != EBaseCampGameStateEMP::BC_SELECTING_SQUAD)
+	{
+		SquadInspector->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	}
+	else
+	{
+		SquadInspector->SetVisibility(ESlateVisibility::Hidden);
 	}
 
 }

@@ -2,7 +2,7 @@
 
 
 #include "EMPUWRadioButton.h"
-#include "Components/Button.h"
+#include "EMPUWButtonBase.h"
 
 void UEMPUWRadioButton::NativeConstruct()
 {
@@ -11,8 +11,8 @@ void UEMPUWRadioButton::NativeConstruct()
 	if (MainButton)
 	{
 		// Remove first to avoid duplicate
-		MainButton->OnClicked.RemoveDynamic(this, &UEMPUWRadioButton::HandleMainButtonClicked);
-		MainButton->OnClicked.AddUniqueDynamic(this, &UEMPUWRadioButton::HandleMainButtonClicked);
+		MainButton->OnClick.RemoveDynamic(this, &UEMPUWRadioButton::HandleMainButtonClicked);
+		MainButton->OnClick.AddUniqueDynamic(this, &UEMPUWRadioButton::HandleMainButtonClicked);
 	}
 }
 

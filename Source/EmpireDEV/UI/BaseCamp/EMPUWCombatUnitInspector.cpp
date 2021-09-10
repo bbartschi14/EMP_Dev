@@ -3,9 +3,23 @@
 
 #include "EMPUWCombatUnitInspector.h"
 #include "../../Combat/Structs/FEMPCombatUnitData.h"
-#include "Components/TextBlock.h"
+#include "../Core/UserWidgets/EMPUWText.h"
+#include "../Core/UserWidgets/EMPUWNumberPropertyDisplay.h"
 
 void UEMPUWCombatUnitInspector::SetCombatUnitData(UEMPCombatUnitData* combatUnit)
 {
-	NativeText->SetText(FText::FromString(combatUnit->CombatUnitName));
+	CombatUnitRepresented = combatUnit;
+
+	SynchronizeDisplayToStoredData();
+}
+
+void UEMPUWCombatUnitInspector::SynchronizeDisplayToStoredData()
+{
+	CombatUnitNameText->SetText(FText::FromString(CombatUnitRepresented->CombatUnitName));
+
+	HealthDisplay->SetNumber(CombatUnitRepresented->Health);
+	DamageDisplay->SetNumber(CombatUnitRepresented->Damage);
+	ArmorDisplay->SetNumber(CombatUnitRepresented->Armor);
+	SpeedDisplay->SetNumber(CombatUnitRepresented->Speed);
+	RangeDisplay->SetNumber(CombatUnitRepresented->Range);
 }

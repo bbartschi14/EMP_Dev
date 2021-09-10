@@ -45,5 +45,5 @@ protected:
 		bool bIsToggleOn;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-		class UButton* MainButton;
+		class UEMPUWButtonBase* MainButton;
 };

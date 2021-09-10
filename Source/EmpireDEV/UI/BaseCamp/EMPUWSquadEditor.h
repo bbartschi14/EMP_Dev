@@ -29,6 +29,9 @@ protected:
 		class UEMPUWRadioButtonList* SquadRadioButtonList;
 
 	UPROPERTY(meta = (BindWidget))
+		class UEMPUWSquadInspector* SquadInspector;
+
+	UPROPERTY(meta = (BindWidget))
 		class UEMPUWCombatUnitInspector* CombatUnitInspector;
 
 	UPROPERTY(EditAnywhere)

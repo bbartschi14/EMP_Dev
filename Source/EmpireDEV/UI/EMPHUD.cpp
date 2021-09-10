@@ -39,6 +39,8 @@ void AEMPHUD::HideUI()
 
 void AEMPHUD::BeginPlay()
 {
+	Super::BeginPlay();
+
 	ABasicLevelGameModeEMP* basicLevelMode = Cast<ABasicLevelGameModeEMP>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (basicLevelMode)
 	{

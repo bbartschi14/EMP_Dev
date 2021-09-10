@@ -2,13 +2,17 @@
 
 
 #include "EMPUWSquadRadioButton.h"
-#include "Components/TextBlock.h"
+#include "../Core/UserWidgets/EMPUWTextButtonTemplate.h"
 
 void UEMPUWSquadRadioButton::SetSquadData(UEMPSquadData* inSquad)
 {
 	SquadRepresented = inSquad;
 
-	NativeText->SetText(FText::FromString(SquadRepresented->SquadName));
+	UEMPUWTextButtonTemplate* textButton = Cast<UEMPUWTextButtonTemplate>(MainButton);
+	if (textButton)
+	{
+		textButton->SetButtonText(FText::FromString(SquadRepresented->SquadName));
+	}
 }
 
 UEMPSquadData* UEMPUWSquadRadioButton::GetSquadData() const

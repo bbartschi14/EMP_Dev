@@ -28,7 +28,4 @@ protected:
 	/** Reference to the squad that this button represents */
 	UPROPERTY(Transient)
 		UEMPSquadData* SquadRepresented;
-	
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-		class UTextBlock* NativeText;
 };

@@ -6,6 +6,9 @@
 #include "../EMPUserWidget.h"
 #include "EMPUWCombatUnitInspector.generated.h"
 
+class UEMPUWNumberPropertyDisplay;
+class UEMPUWText;
+class UEMPCombatUnitData;
 /**
  * 
  */
@@ -22,9 +25,28 @@ public:
 protected:
 	/** Reference to the combat unit that this inspector is displaying */
 	UPROPERTY(Transient)
-		class UEMPCombatUnitData* CombatUnitRepresented;
+		UEMPCombatUnitData* CombatUnitRepresented;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-		class UTextBlock* NativeText;
+		UEMPUWText* CombatUnitNameText;
 
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+		UEMPUWNumberPropertyDisplay* HealthDisplay;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+		UEMPUWNumberPropertyDisplay* DamageDisplay;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+		UEMPUWNumberPropertyDisplay* ArmorDisplay;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+		UEMPUWNumberPropertyDisplay* SpeedDisplay;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+		UEMPUWNumberPropertyDisplay* RangeDisplay;
+
+private:
+	/** Update all of the property displays to the data currently stored in CombatUnitRepresented */
+	UFUNCTION()
+		void SynchronizeDisplayToStoredData();
 };
