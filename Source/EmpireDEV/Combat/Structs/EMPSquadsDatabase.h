@@ -18,4 +18,7 @@ class EMPIREDEV_API UEMPSquadsDatabase : public UDataAsset
 public:
 	UPROPERTY(EditAnywhere)
 		TArray<FEMPSquadDataStruct> Squads;
+
+	UPROPERTY(EditAnywhere)
+		TArray<FEMPCombatUnitDataStruct> UnassignedCombatUnits;
 };

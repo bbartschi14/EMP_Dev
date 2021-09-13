@@ -29,6 +29,7 @@ class EMPIREDEV_API AEMPBetweenGameMenuMode : public AEMPGridGameMode
 
 public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCombatUnitSelected, class UEMPCombatUnitData*, combatUnitData);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSquadSelected, class UEMPSquadData*, squadData);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameStateChanged, EBaseCampGameStateEMP, NewState);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSimpleChange);
 
@@ -40,13 +41,24 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
 		FOnGameStateChanged OnGameStateChanged;
 
+	/** Called when the squad is selected */
+	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
+		FOnSquadSelected OnSquadSelected;
+
 	/** Called when the squad is deselected */
 	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
 		FOnSimpleChange OnSquadDeselected;
 
+	/** */
+	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
+		FOnSimpleChange OnCombatUnitDeselected;
+
 	/** Loads a squad onto the preview grid, allowing for editing and maintenance */
 	UFUNCTION()
 		void SelectSquad(class UEMPSquadData* squadToLoad);
+
+	UFUNCTION()
+		void SelectCombatUnit(class UEMPCombatUnitData* combatUnitToLoad);
 
 	UFUNCTION()
 		void HandleCancelActionPressed();
@@ -56,6 +68,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void TryToExitSquadRearranging();
+
+	UFUNCTION(BlueprintCallable)
+		bool IsCombatUnitInSelectedSquad(class UEMPCombatUnitData* combatUnit);
 protected:
 	virtual void BeginPlay() override;
 
@@ -72,7 +87,7 @@ protected:
 		class UEMPSquadData* SelectedSquad;
 
 	UPROPERTY(Transient)
-		class AEMPCombatUnit* SelectedCombatUnit;
+		class UEMPCombatUnitData* SelectedCombatUnit;
 
 	UPROPERTY(Transient)
 		TArray<class AEMPCombatUnit*> CombatUnits;

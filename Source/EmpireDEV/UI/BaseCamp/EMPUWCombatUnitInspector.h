@@ -23,6 +23,8 @@ public:
 		void SetCombatUnitData(class UEMPCombatUnitData* combatUnit);
 
 protected:
+	void NativeOnInitialized() override;
+
 	/** Reference to the combat unit that this inspector is displaying */
 	UPROPERTY(Transient)
 		UEMPCombatUnitData* CombatUnitRepresented;

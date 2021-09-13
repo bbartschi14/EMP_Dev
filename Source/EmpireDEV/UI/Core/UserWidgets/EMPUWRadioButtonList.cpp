@@ -2,8 +2,9 @@
 
 
 #include "EMPUWRadioButtonList.h"
-#include "EMPUWRadioButton.h"
+#include "Buttons/EMPUWRadioButton.h"
 #include "Components/PanelWidget.h"
+#include "Buttons/EMPUWButtonBase.h"
 
 void UEMPUWRadioButtonList::AddRadioButtonToList(UEMPUWRadioButton* radioButtonWidget)
 {
@@ -26,12 +27,66 @@ void UEMPUWRadioButtonList::ClearSelected()
 	}
 }
 
-void UEMPUWRadioButtonList::HandleRadioButtonClicked(UEMPUWRadioButton* radioButtonClicked)
+void UEMPUWRadioButtonList::SetSelectedIndex(int32 indexToSelect)
 {
-	if (SelectedRadioButton) SelectedRadioButton->SetToggleOnOff(false);
+	ClearSelected();
 
-	radioButtonClicked->SetToggleOnOff(true);
-	SelectedRadioButton = radioButtonClicked;
-	OnRadioButtonSelected.Broadcast(SelectedRadioButton);
+	int32 currentIndex = 0;
+	for (UWidget* child : RadioButtonsContainer->GetAllChildren())
+	{
+		UEMPUWRadioButton* radioButton = Cast<UEMPUWRadioButton>(child);
+		if (radioButton)
+		{
+			if (currentIndex == indexToSelect) HandleRadioButtonClicked(radioButton);
+			currentIndex++;
+		}
+	}
 }
 
+TArray<UEMPUWRadioButton*> UEMPUWRadioButtonList::GetRadioButtons() const
+{
+	TArray<UEMPUWRadioButton*> radioButtons;
+	for (UWidget* child : RadioButtonsContainer->GetAllChildren())
+	{
+		UEMPUWRadioButton* radioButton = Cast<UEMPUWRadioButton>(child);
+		if (radioButton)
+		{
+			radioButtons.Add(radioButton);
+		}
+	}
+	return radioButtons;
+}
+
+
+UEMPUWRadioButton* UEMPUWRadioButtonList::GetSelectedRadioButton()
+{
+	return SelectedRadioButton;
+}
+
+void UEMPUWRadioButtonList::HandleRadioButtonClicked(UEMPUWRadioButton* radioButtonClicked)
+{
+	OnRadioButtonSelected.Broadcast(radioButtonClicked, GetIndexOfButton(radioButtonClicked));
+
+	if (bTogglesSelf)
+	{
+		if (SelectedRadioButton) SelectedRadioButton->SetToggleOnOff(false);
+
+		radioButtonClicked->SetToggleOnOff(true);
+		SelectedRadioButton = radioButtonClicked;
+	}
+}
+
+int32 UEMPUWRadioButtonList::GetIndexOfButton(UEMPUWRadioButton* buttonToGetIndex)
+{
+	int32 currentIndex = 0;
+	for (UWidget* child : RadioButtonsContainer->GetAllChildren())
+	{
+		UEMPUWRadioButton* radioButton = Cast<UEMPUWRadioButton>(child);
+		if (radioButton)
+		{
+			if (radioButton == buttonToGetIndex) return currentIndex;
+			currentIndex++;
+		}
+	}
+	return -1;
+}

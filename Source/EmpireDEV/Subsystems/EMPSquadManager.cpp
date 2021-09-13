@@ -16,10 +16,13 @@ void UEMPSquadManager::Initialize(FSubsystemCollectionBase& Collection)
 		UEMPSquadData* dataToStore = squadData.GetSquadData();
 		bool bSquadValidated = ValidateSquad(dataToStore);
 		if (bSquadValidated) Squads.Add(dataToStore);
+	}
 
+	for (FEMPCombatUnitDataStruct unitData : gameInstance->TestOnlySquadsDatabase->UnassignedCombatUnits)
+	{
+		UnassignedCombatUnits.Add(unitData.GetCombatUnitData());
 	}
 }
-
 
 void UEMPSquadManager::Deinitialize()
 {
@@ -31,6 +34,40 @@ TArray<UEMPSquadData*> UEMPSquadManager::GetSquadData() const
 	return Squads;
 }
 
+TArray<class UEMPCombatUnitData*> UEMPSquadManager::GetUnassignedCombatUnitData() const
+{
+	return UnassignedCombatUnits;
+}
+
+bool UEMPSquadManager::RemoveCombatUnitFromSquad(UEMPCombatUnitData* combatUnit, class UEMPSquadData* squad)
+{
+	if (squad->CombatUnitsInSquad.Contains(combatUnit))
+	{
+		squad->CombatUnitsInSquad.Remove(combatUnit);
+		UnassignedCombatUnits.Add(combatUnit);
+		return true;
+	}
+
+	return false;
+}
+
+bool UEMPSquadManager::AssignCombatUnitToSquad(UEMPCombatUnitData* combatUnit, UEMPSquadData* squad)
+{
+	if (UnassignedCombatUnits.Contains(combatUnit) && squad->CombatUnitsInSquad.Num() < MaxSquadSize)
+	{
+		squad->CombatUnitsInSquad.Add(combatUnit);
+		if (!DoesCombatUnitHaveUniqueLocationInSquad(squad, combatUnit))
+		{
+			FIntPoint newLocation = FindUniqueLocationInSquad(squad);
+			combatUnit->SetDesiredLocation(newLocation);
+		}
+		return true;
+	}
+
+	return false;
+}
+
+#pragma region Helpers
 bool UEMPSquadManager::ValidateSquad(UEMPSquadData* squadToValidate)
 {
 	// Check and update combat unit locations
@@ -88,5 +125,4 @@ FIntPoint UEMPSquadManager::FindUniqueLocationInSquad(class UEMPSquadData* squad
 	// If no positions available, return a failure point
 	return FIntPoint(-1, -1);
 }
-
-
+#pragma endregion Helpers

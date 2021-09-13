@@ -6,6 +6,12 @@
 #include "../Core/UserWidgets/EMPUWText.h"
 #include "../Core/UserWidgets/EMPUWNumberPropertyDisplay.h"
 
+void UEMPUWCombatUnitInspector::NativeOnInitialized()
+{
+	Super::NativeOnInitialized();
+}
+
+
 void UEMPUWCombatUnitInspector::SetCombatUnitData(UEMPCombatUnitData* combatUnit)
 {
 	CombatUnitRepresented = combatUnit;

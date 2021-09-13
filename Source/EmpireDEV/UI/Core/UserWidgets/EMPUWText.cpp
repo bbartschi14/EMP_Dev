@@ -29,12 +29,12 @@ const FText& UEMPUWText::GetText() const
 	return Text;
 }
 
-void UEMPUWText::SetFontSize(int32 InFontSize)
+void UEMPUWText::SetFontSize(EEMPFontSize InFontSize)
 {
 	FontSize = InFontSize;
 	if (NativeText) {
 		FSlateFontInfo newFont = NativeText->Font;
-		newFont.Size = FontSize;
+		newFont.Size = UEMPStylesheetLibrary::GetFontSize(FontSize);
 		NativeText->SetFont(newFont);
 	}
 }

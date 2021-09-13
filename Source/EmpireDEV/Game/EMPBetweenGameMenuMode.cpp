@@ -31,6 +31,15 @@ void AEMPBetweenGameMenuMode::HandleCancelActionPressed()
 	}
 }
 
+bool AEMPBetweenGameMenuMode::IsCombatUnitInSelectedSquad(UEMPCombatUnitData* combatUnit)
+{
+	if (SelectedSquad && SelectedSquad->CombatUnitsInSquad.Contains(combatUnit))
+	{
+		return true;
+	}
+	return false;
+}
+
 void AEMPBetweenGameMenuMode::BeginPlay()
 {
 	Super::BeginPlay();
@@ -50,9 +59,7 @@ void AEMPBetweenGameMenuMode::HandleGridSquareClicked(AEMPGridSquare* inGridSqua
 	}
 	else if (CurrentGameState == EBaseCampGameStateEMP::BC_SELECTING_UNIT || CurrentGameState == EBaseCampGameStateEMP::BC_EDITING_UNIT || CurrentGameState == EBaseCampGameStateEMP::BC_REARRANGING_SQUAD)
 	{
-		ClearSelectedCombatUnit();
-		SelectedCombatUnit = unit;
-		inGridSquare->SetSelected(true);
+		SelectCombatUnit(unit->GetCombatUnitData());
 
 		// "Rearranging squad" has the same behavior, except that it transitions to "moving unit" state
 		if (CurrentGameState == EBaseCampGameStateEMP::BC_REARRANGING_SQUAD) 
@@ -63,26 +70,34 @@ void AEMPBetweenGameMenuMode::HandleGridSquareClicked(AEMPGridSquare* inGridSqua
 		{
 			SetCurrentGameState(EBaseCampGameStateEMP::BC_EDITING_UNIT);
 		}
-
-		OnCombatUnitSelected.Broadcast(SelectedCombatUnit->GetCombatUnitData());
 	}
 	else if (CurrentGameState == EBaseCampGameStateEMP::BC_MOVING_UNIT)
 	{
-		FIntPoint newLocation = inGridSquare->GetGridCoordinate();
-		AEMPCombatUnit* tempSelectedUnitPointer = SelectedCombatUnit;
-		ClearSelectedCombatUnit();
-
-		if (unit) 
+		if (unit == nullptr || unit->GetCombatUnitData() != SelectedCombatUnit)
 		{
-			// Swap other unit position
-			FIntPoint originalLocation = tempSelectedUnitPointer->GetGridCoordinate();
-			unit->GetCombatUnitData()->SetDesiredLocation(originalLocation);
-			unit->MoveToGridSquare(originalLocation, false);
+			FIntPoint newLocation = inGridSquare->GetGridCoordinate();
+			FIntPoint oldLocation = SelectedCombatUnit->GetDesiredLocation();
+
+			AEMPCombatUnit* selectedUnitActor = GetCombatUnitAtLocation(oldLocation);
+
+			if (unit)
+			{
+				// Swap other unit position
+				unit->GetCombatUnitData()->SetDesiredLocation(oldLocation);
+				unit->MoveToGridSquare(oldLocation, false);
+			}
+
+			// Move selected unit to position
+			AEMPGridSquare* gridSquareToDeselect = GetGridSquareAtCoordinate(SelectedCombatUnit->GetDesiredLocation());
+			if (gridSquareToDeselect) gridSquareToDeselect->SetSelected(false);
+			SelectedCombatUnit->SetDesiredLocation(newLocation);
+			if (selectedUnitActor)
+			{
+				selectedUnitActor->MoveToGridSquare(newLocation, false);
+			}
 		}
 		
-		// Move selected unit to position
-		tempSelectedUnitPointer->GetCombatUnitData()->SetDesiredLocation(newLocation);
-		tempSelectedUnitPointer->MoveToGridSquare(newLocation, false);
+		ClearSelectedCombatUnit();
 
 		SetCurrentGameState(EBaseCampGameStateEMP::BC_REARRANGING_SQUAD);
 	}
@@ -131,13 +146,19 @@ void AEMPBetweenGameMenuMode::SelectSquad(UEMPSquadData* squadToLoad)
 	check(squadToLoad);
 
 	if (squadToLoad == SelectedSquad) return;
-	ClearSelectedSquad(false);
+
+	if (SelectedSquad && SelectedCombatUnit && SelectedSquad->CombatUnitsInSquad.Contains(SelectedCombatUnit))
+	{
+		ClearSelectedCombatUnit();
+	}
 
 	// Update state and selected squad
 	if (CurrentGameState != EBaseCampGameStateEMP::BC_SELECTING_UNIT)
 	{
 		SetCurrentGameState(EBaseCampGameStateEMP::BC_SELECTING_UNIT);
 	}
+	ClearSelectedSquad(false);
+
 	SelectedSquad = squadToLoad;
 
 	// Spawn Combat Units
@@ -158,6 +179,30 @@ void AEMPBetweenGameMenuMode::SelectSquad(UEMPSquadData* squadToLoad)
 		check (IsLocationEmpty(desiredLocation)) // Sanity check, because the squad manager should already guarantee that desired positions are unique
 		unitToPlace->InitializeToGridSquare(desiredLocation);
 	}
+
+	OnSquadSelected.Broadcast(SelectedSquad);
+}
+
+void AEMPBetweenGameMenuMode::SelectCombatUnit(UEMPCombatUnitData* combatUnitToLoad)
+{
+	ClearSelectedCombatUnit();
+	SelectedCombatUnit = combatUnitToLoad;
+
+	// Check if selected unit is unassigned
+	if (SelectedSquad && SelectedSquad->CombatUnitsInSquad.Contains(SelectedCombatUnit))
+	{
+		AEMPGridSquare* potentialGridSquare = GetGridSquareAtCoordinate(SelectedCombatUnit->GetDesiredLocation());
+		if (potentialGridSquare)
+		{
+			potentialGridSquare->SetSelected(true);
+		}
+	}
+	else if (CurrentGameState == EBaseCampGameStateEMP::BC_REARRANGING_SQUAD || CurrentGameState == EBaseCampGameStateEMP::BC_MOVING_UNIT)
+	{
+		SetCurrentGameState(EBaseCampGameStateEMP::BC_SELECTING_UNIT);
+	}
+
+	OnCombatUnitSelected.Broadcast(SelectedCombatUnit);
 }
 
 void AEMPBetweenGameMenuMode::SetCurrentGameState(EBaseCampGameStateEMP newGameState)
@@ -169,13 +214,18 @@ void AEMPBetweenGameMenuMode::SetCurrentGameState(EBaseCampGameStateEMP newGameS
 	}
 	else if (newGameState == EBaseCampGameStateEMP::BC_SELECTING_UNIT)
 	{
-		ClearSelectedCombatUnit();
+		if (SelectedSquad && SelectedCombatUnit && SelectedSquad->CombatUnitsInSquad.Contains(SelectedCombatUnit))
+		{
+			ClearSelectedCombatUnit();
+		}
 	}
 	else if (newGameState == EBaseCampGameStateEMP::BC_REARRANGING_SQUAD)
 	{
 		ClearSelectedCombatUnit();
+		
 		if (HoveredGridSquare) HoveredGridSquare->SetHighlighted(false);
 	}
+
 
 	CurrentGameState = newGameState;
 	OnGameStateChanged.Broadcast(CurrentGameState);
@@ -185,7 +235,7 @@ void AEMPBetweenGameMenuMode::TryToEnterSquadRearranging()
 {
 	if (SelectedSquad)
 	{
-		if (SelectedCombatUnit)
+		if (SelectedCombatUnit && SelectedSquad->CombatUnitsInSquad.Contains(SelectedCombatUnit))
 		{
 			SetCurrentGameState(EBaseCampGameStateEMP::BC_MOVING_UNIT);
 		}
@@ -223,10 +273,12 @@ void AEMPBetweenGameMenuMode::ClearSelectedCombatUnit()
 {
 	if (SelectedCombatUnit)
 	{
-		AEMPGridSquare* gridSquare = GetGridSquareAtCoordinate(SelectedCombatUnit->GetGridCoordinate());
+		AEMPGridSquare* gridSquare = GetGridSquareAtCoordinate(SelectedCombatUnit->GetDesiredLocation());
 		gridSquare->SetSelected(false);
 
 		SelectedCombatUnit = nullptr;
+
+		OnCombatUnitDeselected.Broadcast();
 	}
 }
 void AEMPBetweenGameMenuMode::ClearSelectedSquad(bool bShouldBroadcast)

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../Core/UserWidgets/EMPUWRadioButton.h"
+#include "../Core/UserWidgets/Buttons/EMPUWRadioButton.h"
 #include "../../Combat/Structs/FEMPSquadData.h"
 #include "EMPUWSquadRadioButton.generated.h"
 
@@ -17,11 +17,11 @@ class EMPIREDEV_API UEMPUWSquadRadioButton : public UEMPUWRadioButton
 
 public:
 	/** Assign the squad that this button should represent */
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void SetSquadData(UEMPSquadData* inSquad);
 
 	/** Get the squad that this button represents */
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		UEMPSquadData* GetSquadData() const;
 
 protected:

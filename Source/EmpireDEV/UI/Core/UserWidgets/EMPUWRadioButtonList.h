@@ -16,7 +16,7 @@ class EMPIREDEV_API UEMPUWRadioButtonList : public UEMPUserWidget
 	GENERATED_BODY()
 
 public:
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnRadioButtonSelected, class UEMPUWRadioButton*, radioButtonSelected);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnRadioButtonSelected, class UEMPUWRadioButton*, radioButtonSelected, int32, indexSelected);
 
 	/** Called when the a radio button is selected. Broadcasts the new selected radio button */
 	UPROPERTY(BlueprintAssignable, Category = "EMP UI Events")
@@ -31,15 +31,32 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void ClearSelected();
 
+	UFUNCTION(BlueprintCallable)
+		void SetSelectedIndex(int32 indexToSelect);
+
+	UFUNCTION(BlueprintCallable)
+		TArray<class UEMPUWRadioButton*> GetRadioButtons() const;
+
+	UFUNCTION(BlueprintCallable)
+		class UEMPUWRadioButton* GetSelectedRadioButton();
+
 protected:
 	/** Updates visuals of controlled radio buttons. Can override to implement additional logic. If overriden, must call Super to maintain core logic */
 	UFUNCTION()
 		virtual void HandleRadioButtonClicked(class UEMPUWRadioButton* radioButtonClicked);
+
+	/** When true, clicking a radio button while cause it to toggle on. When false, it will wait for an external event to toggle on */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		bool bTogglesSelf;
 
 	UPROPERTY(meta = (BindWidget))
 		class UPanelWidget* RadioButtonsContainer;
 
 	UPROPERTY(Transient)
 		class UEMPUWRadioButton* SelectedRadioButton;
+
+private:
+	UFUNCTION()
+		int32 GetIndexOfButton(class UEMPUWRadioButton* buttonToGetIndex);
 
 };

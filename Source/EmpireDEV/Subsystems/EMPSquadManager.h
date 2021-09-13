@@ -22,10 +22,24 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		TArray<class UEMPSquadData*> GetSquadData() const;
-private:
 
+	UFUNCTION(BlueprintCallable)
+		TArray<class UEMPCombatUnitData*> GetUnassignedCombatUnitData() const;
+
+	/** Return true if successful */
+	UFUNCTION()
+		bool RemoveCombatUnitFromSquad(class UEMPCombatUnitData* combatUnit, class UEMPSquadData* squad);
+
+	/** Return true if successful. Combat Unit should not already be in a squad */
+	UFUNCTION()
+		bool AssignCombatUnitToSquad(class UEMPCombatUnitData* combatUnit, class UEMPSquadData* squad);
+
+private:
 	UPROPERTY(Transient)
 		TArray<class UEMPSquadData*> Squads;
+
+	UPROPERTY(Transient)
+		TArray<class UEMPCombatUnitData*> UnassignedCombatUnits;
 
 	/** When loading a squad, the squad manager uses this to check that the squad data is valid.
 	  * If possible, it fixes invalid data and proceeds. For example, if two units in a squad have
@@ -39,4 +53,7 @@ private:
 
 	UFUNCTION()
 		FIntPoint FindUniqueLocationInSquad(class UEMPSquadData* squad);
+
+	UPROPERTY()
+		int32 MaxSquadSize = 15;
 };

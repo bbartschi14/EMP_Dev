@@ -21,7 +21,7 @@ public:
 		void SetText(const FText& InText);
 
 	UFUNCTION(BlueprintCallable)
-		void SetFontSize(int32 InFontSize);
+		void SetFontSize(EEMPFontSize InFontSize);
 
 	UFUNCTION(BlueprintCallable)
 		void SetJustification(TEnumAsByte<ETextJustify::Type> InJustification);
@@ -32,7 +32,7 @@ public:
 protected:
 	// Style parameters
 	UPROPERTY(EditAnywhere, Category = "BYC UI Style")
-		int32 FontSize = 12;
+		EEMPFontSize FontSize = EEMPFontSize::FS_SMALL;
 
 	UPROPERTY(EditAnywhere, Category = "BYC UI Style")
 		TEnumAsByte<ETextJustify::Type> Justification;

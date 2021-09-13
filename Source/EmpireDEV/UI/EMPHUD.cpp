@@ -6,7 +6,7 @@
 #include <Blueprint/UserWidget.h>
 #include <Kismet/GameplayStatics.h>
 #include "../Game/BasicLevelGameModeEMP.h"
-#include "../Game/EMPBetweenGameMenuMode.h"
+#include "../Game/EMPBaseCampGameMode.h"
 
 void AEMPHUD::ShowCombatUI()
 {
@@ -17,10 +17,10 @@ void AEMPHUD::ShowCombatUI()
 	CurrentRoot->AddToViewport();
 }
 
-void AEMPHUD::ShowBetweenGameUI()
+void AEMPHUD::ShowBaseCampUI()
 {
 	APlayerController* PC = Cast<APlayerController>(GetOwner());
-	CurrentRoot = CreateWidget<UUserWidget>(PC, BetweenGameMenuClass);
+	CurrentRoot = CreateWidget<UUserWidget>(PC, BaseCampMenuClass);
 
 	CurrentRoot->AddToViewport();
 }
@@ -51,13 +51,13 @@ void AEMPHUD::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("When loading main UI, game mode was not ABasicLevelGameModeEMP"));
 	}
 
-	AEMPBetweenGameMenuMode* betweenGameMode = Cast<AEMPBetweenGameMenuMode>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (betweenGameMode)
+	AEMPBaseCampGameMode* baseCampGameMode = Cast<AEMPBaseCampGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (baseCampGameMode)
 	{
-		ShowBetweenGameUI();
+		ShowBaseCampUI();
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("When loading main UI, game mode was not AEMPBetweenGameMenuMode"));
+		UE_LOG(LogTemp, Warning, TEXT("When loading main UI, game mode was not AEMPBaseCampGameMode"));
 	}
 }

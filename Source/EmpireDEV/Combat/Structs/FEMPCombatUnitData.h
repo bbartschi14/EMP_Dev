@@ -45,6 +45,12 @@ public:
 		DesiredLocationY = newLocation.Y;
 	}
 
+	UFUNCTION()
+		FIntPoint GetDesiredLocation()
+	{
+		return FIntPoint(DesiredLocationX, DesiredLocationY);
+	}
+
 	UPROPERTY(Transient, BlueprintReadWrite)
 		FString CombatUnitName;
 
@@ -53,6 +59,10 @@ public:
 
 	UPROPERTY(Transient, BlueprintReadWrite)
 		int32 DesiredLocationY;
+
+	// If null, this unit is currently unassigned
+	UPROPERTY(Transient, BlueprintReadWrite)
+		class UEMPSquadData* OwningSquad;
 
 	// Classes and Ranks
 	

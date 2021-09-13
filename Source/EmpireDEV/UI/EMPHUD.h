@@ -18,7 +18,7 @@ class EMPIREDEV_API AEMPHUD : public AHUD
 	UFUNCTION(BlueprintCallable)
 		void ShowCombatUI();
 	UFUNCTION(BlueprintCallable)
-		void ShowBetweenGameUI();
+		void ShowBaseCampUI();
 
 	UFUNCTION(BlueprintCallable)
 		void HideUI();
@@ -30,7 +30,7 @@ protected:
 		TSubclassOf<class UUserWidget> CombatUIClass;
 
 	UPROPERTY(EditDefaultsOnly)
-		TSubclassOf<class UUserWidget> BetweenGameMenuClass;
+		TSubclassOf<class UUserWidget> BaseCampMenuClass;
 
 	// Keep a pointer to be able to hide it
 	UPROPERTY()

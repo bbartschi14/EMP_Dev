@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Stylesheet/EMPStylesheetLibrary.h"
 #include "EMPUserWidget.generated.h"
 
 /**

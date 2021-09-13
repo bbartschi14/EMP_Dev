@@ -10,7 +10,7 @@
 /**
  * Class version of Squad Data
  */
-UCLASS()
+UCLASS(BlueprintType)
 class EMPIREDEV_API UEMPSquadData : public UObject
 {
 	GENERATED_BODY()
@@ -38,7 +38,9 @@ public:
 		squadData->SquadName = SquadName;
 		for (FEMPCombatUnitDataStruct combatUnit : CombatUnitsInSquad)
 		{
-			squadData->CombatUnitsInSquad.Add(combatUnit.GetCombatUnitData());
+			UEMPCombatUnitData* combatUnitData = combatUnit.GetCombatUnitData();
+			combatUnitData->OwningSquad = squadData;
+			squadData->CombatUnitsInSquad.Add(combatUnitData);
 		}
 		return squadData;
 	}
