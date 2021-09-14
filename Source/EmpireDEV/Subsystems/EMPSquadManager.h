@@ -20,6 +20,18 @@ public:
 	virtual void Deinitialize() override;
 	// End USubsystem
 
+#pragma region Delegates
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSquadChanged, class UEMPSquadData*, squadCreated);
+
+	/** Called when a new squad is created */
+	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
+		FOnSquadChanged OnSquadCreated;
+
+	/** Called when a squad is dissolved */
+	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
+		FOnSquadChanged OnSquadDissolved;
+#pragma endregion Delegates
+
 	UFUNCTION(BlueprintCallable)
 		TArray<class UEMPSquadData*> GetSquadData() const;
 
@@ -27,12 +39,20 @@ public:
 		TArray<class UEMPCombatUnitData*> GetUnassignedCombatUnitData() const;
 
 	/** Return true if successful */
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		bool RemoveCombatUnitFromSquad(class UEMPCombatUnitData* combatUnit, class UEMPSquadData* squad);
 
 	/** Return true if successful. Combat Unit should not already be in a squad */
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		bool AssignCombatUnitToSquad(class UEMPCombatUnitData* combatUnit, class UEMPSquadData* squad);
+
+	/** Create a new squad, given a random-esque name */
+	UFUNCTION(BlueprintCallable)
+		void CreateNewSquad();
+
+	/** Dissolve a squad. Returns true if successful. Can fail if the squad requested doesn't match any squads in this manager */
+	UFUNCTION(BlueprintCallable)
+		bool DissolveSquad(class UEMPSquadData* squadToDissolve);
 
 private:
 	UPROPERTY(Transient)

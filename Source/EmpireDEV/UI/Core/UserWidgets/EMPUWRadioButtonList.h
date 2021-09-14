@@ -40,6 +40,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 		class UEMPUWRadioButton* GetSelectedRadioButton();
 
+	UFUNCTION(BlueprintCallable)
+		void RemoveRadioButton(class UEMPUWRadioButton* radioButtonToRemove);
+
 protected:
 	/** Updates visuals of controlled radio buttons. Can override to implement additional logic. If overriden, must call Super to maintain core logic */
 	UFUNCTION()
@@ -58,5 +61,8 @@ protected:
 private:
 	UFUNCTION()
 		int32 GetIndexOfButton(class UEMPUWRadioButton* buttonToGetIndex);
+
+	UFUNCTION()
+		void SetAsSelected(class UEMPUWRadioButton* buttonToSetSelected);
 
 };

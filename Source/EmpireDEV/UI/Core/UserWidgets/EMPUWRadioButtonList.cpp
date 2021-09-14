@@ -37,7 +37,7 @@ void UEMPUWRadioButtonList::SetSelectedIndex(int32 indexToSelect)
 		UEMPUWRadioButton* radioButton = Cast<UEMPUWRadioButton>(child);
 		if (radioButton)
 		{
-			if (currentIndex == indexToSelect) HandleRadioButtonClicked(radioButton);
+			if (currentIndex == indexToSelect) SetAsSelected(radioButton);
 			currentIndex++;
 		}
 	}
@@ -63,18 +63,40 @@ UEMPUWRadioButton* UEMPUWRadioButtonList::GetSelectedRadioButton()
 	return SelectedRadioButton;
 }
 
+void  UEMPUWRadioButtonList::RemoveRadioButton(class UEMPUWRadioButton* radioButtonToRemove)
+{
+	for (UWidget* child : RadioButtonsContainer->GetAllChildren())
+	{
+		UEMPUWRadioButton* radioButton = Cast<UEMPUWRadioButton>(child);
+		if (radioButton && radioButton == radioButtonToRemove)
+		{
+			// Found button to remove. Check if it is currently the selected one
+			if (radioButton == SelectedRadioButton) ClearSelected();
+
+			radioButtonToRemove->RemoveFromParent();
+			break;
+		}
+	}
+}
+
+
 void UEMPUWRadioButtonList::HandleRadioButtonClicked(UEMPUWRadioButton* radioButtonClicked)
 {
 	OnRadioButtonSelected.Broadcast(radioButtonClicked, GetIndexOfButton(radioButtonClicked));
-
 	if (bTogglesSelf)
 	{
-		if (SelectedRadioButton) SelectedRadioButton->SetToggleOnOff(false);
-
-		radioButtonClicked->SetToggleOnOff(true);
-		SelectedRadioButton = radioButtonClicked;
+		SetAsSelected(radioButtonClicked);
 	}
 }
+
+void UEMPUWRadioButtonList::SetAsSelected(class UEMPUWRadioButton* buttonToSetSelected)
+{
+	if (SelectedRadioButton) SelectedRadioButton->SetToggleOnOff(false);
+
+	buttonToSetSelected->SetToggleOnOff(true);
+	SelectedRadioButton = buttonToSetSelected;
+}
+
 
 int32 UEMPUWRadioButtonList::GetIndexOfButton(UEMPUWRadioButton* buttonToGetIndex)
 {

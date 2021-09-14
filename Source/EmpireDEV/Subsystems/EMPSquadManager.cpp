@@ -67,6 +67,40 @@ bool UEMPSquadManager::AssignCombatUnitToSquad(UEMPCombatUnitData* combatUnit, U
 	return false;
 }
 
+void UEMPSquadManager::CreateNewSquad()
+{
+	UEMPSquadData* newSquad = NewObject<UEMPSquadData>();
+	newSquad->SquadName = FString::Printf(TEXT("New Squad %i"), Squads.Num());
+	Squads.Add(newSquad);
+	OnSquadCreated.Broadcast(newSquad);
+}
+
+bool UEMPSquadManager::DissolveSquad(UEMPSquadData* squadToDissolve)
+{
+	for (UEMPSquadData* squad : Squads)
+	{
+		if (squad == squadToDissolve)
+		{
+			// Remove all the combat units to maintain as a part of the army
+			TArray < UEMPCombatUnitData*> unitsToRemove;
+			for (UEMPCombatUnitData* combatUnit : squad->CombatUnitsInSquad)
+			{
+				unitsToRemove.Add(combatUnit);
+			}
+			for (UEMPCombatUnitData* unitToRemove : unitsToRemove)
+			{
+				RemoveCombatUnitFromSquad(unitToRemove, squad);
+			}
+			// Remove squad from squads array then broadcast
+			Squads.Remove(squad);
+			OnSquadDissolved.Broadcast(squad);
+
+			return true;
+		}
+	}
+	return false; // Squad did not exist in this manager
+}
+
 #pragma region Helpers
 bool UEMPSquadManager::ValidateSquad(UEMPSquadData* squadToValidate)
 {
