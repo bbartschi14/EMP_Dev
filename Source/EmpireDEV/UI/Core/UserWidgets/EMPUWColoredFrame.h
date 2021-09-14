@@ -29,6 +29,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void SetBorderThickness(float inThickness);
+
+	UFUNCTION(BlueprintCallable)
+		void SetBorderOpacity(float inOpacity);
 protected:
 
 	/** Override to draw border lines (nice and antialiased)*/

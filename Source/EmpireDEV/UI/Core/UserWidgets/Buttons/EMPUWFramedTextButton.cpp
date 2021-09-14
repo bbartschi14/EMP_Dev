@@ -13,6 +13,7 @@ void UEMPUWFramedTextButton::SynchronizeProperties()
 	SetButtonColor(ButtonColor);
 	SetUseOptionalImage(bUseOptionalIcon);
 	SetOptionalImageResource(OptionalIconImage);
+	SetFadeFrame(bHideFrame);
 }
 
 void UEMPUWFramedTextButton::SetButtonColor(FLinearColor inColor)
@@ -40,5 +41,21 @@ void UEMPUWFramedTextButton::SetOptionalImageResource(UObject* inObject)
 	{
 		OptionalIconImage = inObject;
 		IconImage->SetBrushResourceObject(OptionalIconImage);
+	}
+}
+
+void UEMPUWFramedTextButton::SetFadeFrame(bool inHideFrame)
+{
+	if (ColoredFrame)
+	{
+		bHideFrame = inHideFrame;
+		if (bHideFrame)
+		{
+			ColoredFrame->SetStaticBorderOpacity(0.35f);
+		}
+		else
+		{
+			ColoredFrame->SetStaticBorderOpacity(1.0f);
+		}
 	}
 }

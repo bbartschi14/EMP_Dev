@@ -30,6 +30,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void SetOptionalImageResource(UObject* inObject);
 
+	UFUNCTION(BlueprintCallable)
+		void SetFadeFrame(bool inHideFrame);
 protected:
 	// Style parameters
 
@@ -42,6 +44,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "EMP UI Style", meta = (editcondition = "bUseOptionalIcon"))
 		UObject* OptionalIconImage;
 
+	UPROPERTY(EditAnywhere, Category = "EMP UI Style")
+		bool bHideFrame;
 	// Bound Widgets
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))

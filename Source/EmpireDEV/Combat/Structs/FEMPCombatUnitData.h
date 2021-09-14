@@ -32,7 +32,7 @@ enum class EEMPCombatClass : uint8
 /**
  * Class version of Combat Unit Data
  */
-UCLASS()
+UCLASS(BlueprintType)
 class EMPIREDEV_API UEMPCombatUnitData : public UObject
 {
 	GENERATED_BODY()

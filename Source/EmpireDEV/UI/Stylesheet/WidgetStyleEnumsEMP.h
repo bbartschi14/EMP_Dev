@@ -14,6 +14,7 @@ enum class EEMPFontSize : uint8 {
 // Used to pick available padding sizes
 UENUM(BlueprintType)
 enum class EEMPPaddingSize : uint8 {
+	PS_EXTRALARGE		UMETA(DisplayName = "Extra Large"),
 	PS_LARGE		UMETA(DisplayName = "Large"),
 	PS_MEDIUM		UMETA(DisplayName = "Medium"),
 	PS_SMALL		UMETA(DisplayName = "Small"),

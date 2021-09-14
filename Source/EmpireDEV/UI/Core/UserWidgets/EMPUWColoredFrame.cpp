@@ -31,6 +31,10 @@ void UEMPUWColoredFrame::SetBorderThickness(float inThickness)
 	borderThickness = inThickness;
 }
 
+void UEMPUWColoredFrame::SetBorderOpacity(float inOpacity)
+{
+	borderOpacity = inOpacity;
+}
 
 int32 UEMPUWColoredFrame::NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
 {

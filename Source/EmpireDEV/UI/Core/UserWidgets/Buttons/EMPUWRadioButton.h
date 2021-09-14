@@ -30,7 +30,7 @@ public:
 protected:
 	void NativeOnInitialized() override;
 
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 		class UEMPUWTextButtonBase* TextButton;
 
 private:

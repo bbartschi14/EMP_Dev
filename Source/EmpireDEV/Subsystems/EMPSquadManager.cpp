@@ -45,6 +45,7 @@ bool UEMPSquadManager::RemoveCombatUnitFromSquad(UEMPCombatUnitData* combatUnit,
 	{
 		squad->CombatUnitsInSquad.Remove(combatUnit);
 		UnassignedCombatUnits.Add(combatUnit);
+		OnCombatUnitRemovedFromSquad.Broadcast(combatUnit, squad);
 		return true;
 	}
 
@@ -61,6 +62,7 @@ bool UEMPSquadManager::AssignCombatUnitToSquad(UEMPCombatUnitData* combatUnit, U
 			FIntPoint newLocation = FindUniqueLocationInSquad(squad);
 			combatUnit->SetDesiredLocation(newLocation);
 		}
+		OnCombatUnitAssignedToSquad.Broadcast(combatUnit, squad);
 		return true;
 	}
 

@@ -7,7 +7,7 @@
 void UEMPUWCombatUnitRadioButton::SetCombatUnitData(UEMPCombatUnitData* inCombatUnit)
 {
 	CombatUnitRepresented = inCombatUnit;
-	SetText(FText::FromString(CombatUnitRepresented->CombatUnitName));
+	//SetText(FText::FromString(CombatUnitRepresented->CombatUnitName));
 }
 
 UEMPCombatUnitData* UEMPUWCombatUnitRadioButton::GetCombatUnitData() const

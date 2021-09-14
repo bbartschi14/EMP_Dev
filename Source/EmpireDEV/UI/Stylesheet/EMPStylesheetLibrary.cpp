@@ -24,6 +24,9 @@ int32 UEMPStylesheetLibrary::GetPaddingSize(const EEMPPaddingSize& paddingSize)
 {
 	switch (paddingSize)
 	{
+	case EEMPPaddingSize::PS_EXTRALARGE:
+		return 36;
+
 	case EEMPPaddingSize::PS_LARGE:
 		return 18;
 

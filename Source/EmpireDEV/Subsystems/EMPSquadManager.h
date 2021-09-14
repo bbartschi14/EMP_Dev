@@ -22,6 +22,7 @@ public:
 
 #pragma region Delegates
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSquadChanged, class UEMPSquadData*, squadCreated);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCombatUnitSquadInteraction, class UEMPCombatUnitData*, unit, class UEMPSquadData*, squad);
 
 	/** Called when a new squad is created */
 	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
@@ -30,6 +31,15 @@ public:
 	/** Called when a squad is dissolved */
 	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
 		FOnSquadChanged OnSquadDissolved;
+
+	/** Called when a combat unit is added to a squad */
+	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
+		FOnCombatUnitSquadInteraction OnCombatUnitAssignedToSquad;
+
+	/** Called when a combat unit is removed from a squad */
+	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
+		FOnCombatUnitSquadInteraction OnCombatUnitRemovedFromSquad;
+
 #pragma endregion Delegates
 
 	UFUNCTION(BlueprintCallable)

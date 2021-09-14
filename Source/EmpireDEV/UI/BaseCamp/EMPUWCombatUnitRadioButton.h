@@ -16,11 +16,11 @@ class EMPIREDEV_API UEMPUWCombatUnitRadioButton : public UEMPUWRadioButton
 	GENERATED_BODY()
 public:
 	/** Assign the unit that this button should represent */
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void SetCombatUnitData(UEMPCombatUnitData* inCombatUnit);
 
 	/** Get the unit that this button represents */
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		UEMPCombatUnitData* GetCombatUnitData() const;
 
 protected:

@@ -25,6 +25,14 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void DeactivateBorder();
 
+	UFUNCTION(BlueprintCallable)
+		void ActivateStaticBorder();
+	UFUNCTION(BlueprintCallable)
+		void DeactivateStaticBorder();
+
+	UFUNCTION(BlueprintCallable)
+		void SetStaticBorderOpacity(float opacity);
+
 protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 		class UEMPUWColoredFrame* StaticFrame = nullptr;

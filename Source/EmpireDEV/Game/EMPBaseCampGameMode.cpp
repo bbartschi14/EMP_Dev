@@ -15,10 +15,28 @@ void AEMPBaseCampGameMode::SelectSquad(UEMPSquadData* squadToLoad)
 
 void AEMPBaseCampGameMode::ClearSelectedSquad()
 {
+	ClearSelectedCombatUnit();
+
 	if (SelectedSquad)
 	{
 		SelectedSquad = nullptr;
 		OnSquadDeselected.Broadcast();
+	}
+}
+
+void AEMPBaseCampGameMode::SelectCombatUnit(UEMPCombatUnitData* combatUnitToLoad)
+{
+	ClearSelectedCombatUnit();
+	SelectedCombatUnit = combatUnitToLoad;
+	OnCombatUnitSelected.Broadcast(SelectedCombatUnit);
+}
+
+void AEMPBaseCampGameMode::ClearSelectedCombatUnit()
+{
+	if (SelectedCombatUnit)
+	{
+		SelectedCombatUnit = nullptr;
+		OnCombatUnitDeselected.Broadcast();
 	}
 }
 
@@ -30,7 +48,13 @@ void AEMPBaseCampGameMode::HandleSquadDissolved(class UEMPSquadData* squadDissol
 	}
 }
 
-
+void AEMPBaseCampGameMode::HandleCombatUnitRemovedFromSquad(UEMPCombatUnitData* combatUnitRemoved, UEMPSquadData* squad)
+{
+	if (SelectedCombatUnit && combatUnitRemoved == SelectedCombatUnit)
+	{
+		ClearSelectedCombatUnit();
+	}
+}
 
 void AEMPBaseCampGameMode::BeginPlay()
 {
@@ -40,6 +64,7 @@ void AEMPBaseCampGameMode::BeginPlay()
 	if (squadManager)
 	{
 		squadManager->OnSquadDissolved.AddUniqueDynamic(this, &AEMPBaseCampGameMode::HandleSquadDissolved);
+		squadManager->OnCombatUnitRemovedFromSquad.AddUniqueDynamic(this, &AEMPBaseCampGameMode::HandleCombatUnitRemovedFromSquad);
 	}
 
 	SpawnGrid();

@@ -22,7 +22,7 @@ public:
 		DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSimpleChange);
 
 		/** Broadcasts the data of a combat unit when it is selected */
-		UPROPERTY(BlueprintAssignable, Category = "EMP UI Events")
+		UPROPERTY(BlueprintAssignable, Category = "EMP Events")
 			FOnCombatUnitSelected OnCombatUnitSelected;
 
 		/** Called when the squad is selected */
@@ -46,13 +46,27 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void ClearSelectedSquad();
 
+	/** Set a combat unit as the current selection, broadcasting to UI elements that will change state. */
+	UFUNCTION(BlueprintCallable)
+		void SelectCombatUnit(class UEMPCombatUnitData* combatUnitToLoad);
+
+	/** If a combat unit is currently selected, clear the reference and broadcast the deselection. */
+	UFUNCTION(BlueprintCallable)
+		void ClearSelectedCombatUnit();
+
 protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(Transient)
 		class UEMPSquadData* SelectedSquad;
 
+	UPROPERTY(Transient)
+		class UEMPCombatUnitData* SelectedCombatUnit;
+
 private:
 	UFUNCTION()
 		void HandleSquadDissolved(class UEMPSquadData* squadDissolved);
+
+	UFUNCTION()
+		void HandleCombatUnitRemovedFromSquad(class UEMPCombatUnitData* combatUnitRemoved, class UEMPSquadData* squad);
 };

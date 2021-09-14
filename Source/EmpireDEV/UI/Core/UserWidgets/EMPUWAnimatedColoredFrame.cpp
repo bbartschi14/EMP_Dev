@@ -17,3 +17,18 @@ void UEMPUWAnimatedColoredFrame::NativeDeactivateBorder()
 	bIsFrameActive = false;
 	DeactivateBorder();
 }
+
+void UEMPUWAnimatedColoredFrame::ActivateStaticBorder()
+{
+	StaticFrame->ActivateBorder();
+}
+
+void UEMPUWAnimatedColoredFrame::DeactivateStaticBorder()
+{
+	StaticFrame->DeactivateBorder();
+}
+
+void UEMPUWAnimatedColoredFrame::SetStaticBorderOpacity(float opacity)
+{
+	StaticFrame->SetBorderOpacity(opacity);
+}
