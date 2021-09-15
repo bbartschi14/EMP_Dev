@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "EMPGridGameMode.h"
+#include "BaseGameModeEMP.h"
 #include "EMPBaseCampGameMode.generated.h"
 
 /**
  * 
  */
 UCLASS(Abstract, Blueprintable)
-class EMPIREDEV_API AEMPBaseCampGameMode : public AEMPGridGameMode
+class EMPIREDEV_API AEMPBaseCampGameMode : public ABaseGameModeEMP
 {
 	GENERATED_BODY()
 

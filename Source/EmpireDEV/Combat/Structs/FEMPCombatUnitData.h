@@ -38,15 +38,15 @@ class EMPIREDEV_API UEMPCombatUnitData : public UObject
 	GENERATED_BODY()
 
 public:
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void SetDesiredLocation(FIntPoint newLocation)
 	{
 		DesiredLocationX = newLocation.X;
 		DesiredLocationY = newLocation.Y;
 	}
 
-	UFUNCTION()
-		FIntPoint GetDesiredLocation()
+	UFUNCTION(BlueprintCallable)
+		FIntPoint GetDesiredLocation() const
 	{
 		return FIntPoint(DesiredLocationX, DesiredLocationY);
 	}

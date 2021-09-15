@@ -3,6 +3,7 @@
 
 #include "EMPBaseCampGameMode.h"
 #include "../Subsystems/EMPSquadManager.h"
+
 void AEMPBaseCampGameMode::SelectSquad(UEMPSquadData* squadToLoad)
 {
 	// Start by clearing previous selection
@@ -71,6 +72,4 @@ void AEMPBaseCampGameMode::BeginPlay()
 		squadManager->OnSquadDissolved.AddUniqueDynamic(this, &AEMPBaseCampGameMode::HandleSquadDissolved);
 		squadManager->OnCombatUnitRemovedFromSquad.AddUniqueDynamic(this, &AEMPBaseCampGameMode::HandleCombatUnitRemovedFromSquad);
 	}
-
-	SpawnGrid();
 }

@@ -25,17 +25,17 @@ public:
 		FOnCombatUnitDeath OnCombatUnitDeath;
 
 	/** */
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void InitializeCombatUnitData(class UEMPCombatUnitData* combatUnitData);
 
 	/** */
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void InitializeToGridSquare(FIntPoint inCoordinate);
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		FIntPoint GetGridCoordinate() const;
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		class UEMPCombatUnitData* GetCombatUnitData() const;
 
 
@@ -48,7 +48,7 @@ public:
 		void ResolvedCachedDamage();
 
 	/** */
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void MoveToGridSquare(FIntPoint inCoordinate, bool bNotifyWhenFinished);
 
 	/** Play animation or other indicator of moving to a location */
