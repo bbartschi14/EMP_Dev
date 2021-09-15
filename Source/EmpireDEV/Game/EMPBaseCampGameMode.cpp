@@ -46,6 +46,18 @@ void AEMPBaseCampGameMode::ClearSelectedCombatUnit()
 	}
 }
 
+void AEMPBaseCampGameMode::HoverCombatUnit(UEMPCombatUnitData* combatUnitToLoad)
+{
+	HoveredCombatUnit = combatUnitToLoad;
+	OnCombatUnitHovered.Broadcast(HoveredCombatUnit);
+}
+
+void AEMPBaseCampGameMode::UnhoverCombatUnit()
+{
+	HoveredCombatUnit = nullptr;
+	OnCombatUnitUnhovered.Broadcast();
+}
+
 void AEMPBaseCampGameMode::HandleSquadDissolved(class UEMPSquadData* squadDissolved)
 {
 	if (squadDissolved == SelectedSquad)

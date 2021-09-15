@@ -27,10 +27,13 @@ protected:
 		FVector GetWorldLocationFromGridLocation(FIntPoint gridLocation);
 
 	UFUNCTION()
-		virtual void HandleGridSquareClicked(class AEMPGridSquare* inGridSquare);
+		void HandleGridSquareClicked(class AEMPGridSquare* inGridSquare);
 
 	UFUNCTION()
-		virtual void HandleSetGridHighlighted(class AEMPGridSquare* inGridSquare, bool isHighlighted);
+		void HandleGridSquareRightClicked(class AEMPGridSquare* inGridSquare);
+
+	UFUNCTION()
+		void HandleSetGridHighlighted(class AEMPGridSquare* inGridSquare, bool isHighlighted);
 
 	UFUNCTION()
 		void HandleSetGridAreaHighlighted(FIntPoint areaCoordinate, bool isHighlighted);
@@ -40,6 +43,18 @@ protected:
 
 	UFUNCTION()
 		void HandleGridSquareUnhovered(class AEMPGridSquare* inGridSquare);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnGridSquareClicked(class AEMPGridSquare* inGridSquare);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnGridSquareRightClicked(class AEMPGridSquare* inGridSquare);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnGridSquareHovered(class AEMPGridSquare* inGridSquare);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnGridSquareUnhovered(class AEMPGridSquare* inGridSquare);
 
 	UFUNCTION()
 		bool IsGridCoordinateInAreaCoordinate(FIntPoint gridCoordinate, FIntPoint areaCoordinate);

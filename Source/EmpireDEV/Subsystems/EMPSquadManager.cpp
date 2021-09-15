@@ -71,6 +71,20 @@ bool UEMPSquadManager::AssignCombatUnitToSquad(UEMPCombatUnitData* combatUnit, U
 	return false;
 }
 
+void UEMPSquadManager::MoveCombatUnitToNewDesiredLocation(UEMPCombatUnitData* combatUnit, FIntPoint newDesiredLocation)
+{
+	check(combatUnit->OwningSquad); // Should only be moving with this function if the unit is in a squad
+
+	UEMPCombatUnitData* potentialUnitAtDestination = combatUnit->OwningSquad->GetCombatUnitAtDesiredLocation(newDesiredLocation);
+	if (potentialUnitAtDestination)
+	{
+		potentialUnitAtDestination->SetDesiredLocation(combatUnit->GetDesiredLocation());
+		OnCombatUnitMovedToNewDesiredLocation.Broadcast(potentialUnitAtDestination, potentialUnitAtDestination->OwningSquad);
+	}
+	combatUnit->SetDesiredLocation(newDesiredLocation);
+	OnCombatUnitMovedToNewDesiredLocation.Broadcast(combatUnit, combatUnit->OwningSquad);
+}
+
 void UEMPSquadManager::CreateNewSquad()
 {
 	UEMPSquadData* newSquad = NewObject<UEMPSquadData>();

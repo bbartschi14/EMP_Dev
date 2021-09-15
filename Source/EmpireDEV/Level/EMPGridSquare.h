@@ -21,9 +21,13 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGridSquareBeginCursorOver, AEMPGridSquare*, GridSquare);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGridSquareEndCursorOver, AEMPGridSquare*, GridSquare);
 
-	/** Called when the grid square is clicked on */
+	/** Called when the grid square is left clicked on */
 	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
 		FOnGridSquareClicked OnGridSquareClicked;
+
+	/** Called when the grid square is right clicked on */
+	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
+		FOnGridSquareClicked OnGridSquareRightClicked;
 
 	/** Called when the grid square is moused over */
 	UPROPERTY(BlueprintAssignable, Category = "EMP Events")

@@ -45,7 +45,14 @@ void AEMPGridSquare::NativeHandleGridSquareClicked(AActor* TouchedActor, FKey Bu
 {
 	if (bEnableDebugMode) UE_LOG(LogTemp, Warning, TEXT("Grid square clicked, Coordinate: (%i, %i)"), GridCoordinate.X, GridCoordinate.Y);
 	//HandleGridSquareClicked();
-	OnGridSquareClicked.Broadcast(this);
+	if (ButtonPressed == EKeys::LeftMouseButton)
+	{
+		OnGridSquareClicked.Broadcast(this);
+	}
+	else if (ButtonPressed == EKeys::RightMouseButton)
+	{
+		OnGridSquareRightClicked.Broadcast(this);
+	}
 }
 
 void AEMPGridSquare::NativeHandleGridSquareBeginCursorOver(AActor* TouchedActor)

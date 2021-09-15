@@ -11,6 +11,7 @@ void AEMPPlayerController::SetupInputComponent()
     Super::SetupInputComponent();
 
     InputComponent->BindAction("CancelAction", IE_Pressed, this, &AEMPPlayerController::HandleCancelActionPressed);
+    ClickEventKeys.Add(EKeys::RightMouseButton);
 }
 
 void AEMPPlayerController::HandleCancelActionPressed()

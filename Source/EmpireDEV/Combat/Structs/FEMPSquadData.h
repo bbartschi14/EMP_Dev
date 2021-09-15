@@ -16,6 +16,18 @@ class EMPIREDEV_API UEMPSquadData : public UObject
 	GENERATED_BODY()
 
 public:
+	UFUNCTION() UEMPCombatUnitData* GetCombatUnitAtDesiredLocation(FIntPoint desiredLocation)
+	{
+		for (UEMPCombatUnitData* combatUnit : CombatUnitsInSquad)
+		{
+			if (combatUnit->GetDesiredLocation() == desiredLocation)
+			{
+				return combatUnit;
+			}
+		}
+		return nullptr;
+	}
+
 	UPROPERTY(Transient, BlueprintReadWrite)
 		FString SquadName;
 

@@ -28,6 +28,7 @@ void AEMPGrid::SpawnGrid()
 			GridSquareActor->SetActorScale3D(FVector(SingleGridSquareSize.X, SingleGridSquareSize.Y, 1));
 			GridSquareActor->InitializeGridSquare(FIntPoint(i, j));
 			GridSquareActor->OnGridSquareClicked.AddUniqueDynamic(this, &AEMPGrid::HandleGridSquareClicked);
+			GridSquareActor->OnGridSquareRightClicked.AddUniqueDynamic(this, &AEMPGrid::HandleGridSquareRightClicked);
 			GridSquareActor->OnGridSquareBeginCursorOver.AddUniqueDynamic(this, &AEMPGrid::HandleGridSquareHovered);
 			GridSquareActor->OnGridSquareEndCursorOver.AddUniqueDynamic(this, &AEMPGrid::HandleGridSquareUnhovered);
 			GridSquares.Add(GridSquareActor);
@@ -38,16 +39,23 @@ void AEMPGrid::SpawnGrid()
 void AEMPGrid::HandleGridSquareHovered(AEMPGridSquare* inGridSquare)
 {
 	HoveredGridSquare = inGridSquare;
+	OnGridSquareHovered(inGridSquare);
 }
 
 void AEMPGrid::HandleGridSquareUnhovered(AEMPGridSquare* inGridSquare)
 {
 	HoveredGridSquare = nullptr;
+	OnGridSquareUnhovered(inGridSquare);
 }
 
 void AEMPGrid::HandleGridSquareClicked(AEMPGridSquare* inGridSquare)
 {
-	// No default behavior
+	OnGridSquareClicked(inGridSquare);
+}
+
+void AEMPGrid::HandleGridSquareRightClicked(AEMPGridSquare* inGridSquare)
+{
+	OnGridSquareRightClicked(inGridSquare);
 }
 
 void AEMPGrid::HandleSetGridHighlighted(class AEMPGridSquare* inGridSquare, bool isHighlighted)

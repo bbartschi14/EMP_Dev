@@ -40,6 +40,10 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
 		FOnCombatUnitSquadInteraction OnCombatUnitRemovedFromSquad;
 
+	/** Called when a combat unit is moved within a squad */
+	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
+		FOnCombatUnitSquadInteraction OnCombatUnitMovedToNewDesiredLocation;
+
 #pragma endregion Delegates
 
 	UFUNCTION(BlueprintCallable)
@@ -55,6 +59,9 @@ public:
 	/** Return true if successful. Combat Unit should not already be in a squad */
 	UFUNCTION(BlueprintCallable)
 		bool AssignCombatUnitToSquad(class UEMPCombatUnitData* combatUnit, class UEMPSquadData* squad);
+
+	UFUNCTION(BlueprintCallable)
+		void MoveCombatUnitToNewDesiredLocation(class UEMPCombatUnitData* combatUnit, FIntPoint newDesiredLocation);
 
 	/** Create a new squad, given a random-esque name */
 	UFUNCTION(BlueprintCallable)

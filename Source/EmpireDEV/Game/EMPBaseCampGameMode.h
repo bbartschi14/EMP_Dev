@@ -17,13 +17,17 @@ class EMPIREDEV_API AEMPBaseCampGameMode : public ABaseGameModeEMP
 public:
 
 #pragma region Delegates
-		DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCombatUnitSelected, class UEMPCombatUnitData*, combatUnitData);
+		DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCombatUnitInteraction, class UEMPCombatUnitData*, combatUnitData);
 		DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSquadSelected, class UEMPSquadData*, squadData);
 		DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSimpleChange);
 
 		/** Broadcasts the data of a combat unit when it is selected */
 		UPROPERTY(BlueprintAssignable, Category = "EMP Events")
-			FOnCombatUnitSelected OnCombatUnitSelected;
+			FOnCombatUnitInteraction OnCombatUnitSelected;
+
+		/** Broadcasts the data of a combat unit when it is hovered */
+		UPROPERTY(BlueprintAssignable, Category = "EMP Events")
+			FOnCombatUnitInteraction OnCombatUnitHovered;
 
 		/** Called when the squad is selected */
 		UPROPERTY(BlueprintAssignable, Category = "EMP Events")
@@ -36,6 +40,11 @@ public:
 		/** */
 		UPROPERTY(BlueprintAssignable, Category = "EMP Events")
 			FOnSimpleChange OnCombatUnitDeselected;
+
+		/** */
+		UPROPERTY(BlueprintAssignable, Category = "EMP Events")
+			FOnSimpleChange OnCombatUnitUnhovered;
+
 	#pragma endregion Delegates
 
 	/** Set a squad as the current selection, broadcasting to UI elements that will change state. */
@@ -57,6 +66,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void ClearSelectedCombatUnit();
 
+	/** Set a combat unit as the current "hovered" unit, broadcasting to UI elements that will change state.  Hovering used for indicating the unit before selecting. */
+	UFUNCTION(BlueprintCallable)
+		void HoverCombatUnit(class UEMPCombatUnitData* combatUnitToLoad);
+
+	/** "Unhover" the unit. Hovering used for indicating the unit before selecting. */
+	UFUNCTION(BlueprintCallable)
+		void UnhoverCombatUnit();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -65,6 +82,9 @@ protected:
 
 	UPROPERTY(Transient)
 		class UEMPCombatUnitData* SelectedCombatUnit;
+
+	UPROPERTY(Transient)
+		class UEMPCombatUnitData* HoveredCombatUnit;
 
 private:
 	UFUNCTION()
