@@ -3,6 +3,7 @@
 
 #include "EMPGrid.h"
 #include "EMPGridSquare.h"
+#include "../Combat/EMPCombatUnit.h"
 
 AEMPGrid::AEMPGrid()
 {
@@ -78,6 +79,18 @@ AEMPGridSquare* AEMPGrid::GetGridSquareAtCoordinate(FIntPoint gridCoordinate) co
 	check(transformedIndex < GridSquares.Num()); // Sanity check array index
 
 	return GridSquares[transformedIndex];
+}
+
+AEMPCombatUnit* AEMPGrid::GetCombatUnitAtCoordinate(FIntPoint gridCoordinate) const
+{
+	for (AEMPCombatUnit* unitToCheck : CombatUnits)
+	{
+		if (unitToCheck->GetGridCoordinate() == gridCoordinate)
+		{
+			return unitToCheck;
+		}
+	}
+	return nullptr;
 }
 
 

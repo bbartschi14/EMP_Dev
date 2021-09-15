@@ -45,8 +45,11 @@ protected:
 		bool IsGridCoordinateInAreaCoordinate(FIntPoint gridCoordinate, FIntPoint areaCoordinate);
 
 	/** Helper function for getting the grid square in 1D array from 2D coordinate */
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		AEMPGridSquare* GetGridSquareAtCoordinate(FIntPoint gridCoordinate) const;
+
+	UFUNCTION(BlueprintCallable)
+		class AEMPCombatUnit* GetCombatUnitAtCoordinate(FIntPoint gridCoordinate) const;
 
 	/** An area coordinate is the coordinate of the 5x5 section. I.e., the first 5 grid squares in the first 5 columns is in area (0, 0) */
 	UFUNCTION()
