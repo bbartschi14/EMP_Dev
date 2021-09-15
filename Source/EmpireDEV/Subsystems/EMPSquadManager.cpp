@@ -57,11 +57,13 @@ bool UEMPSquadManager::AssignCombatUnitToSquad(UEMPCombatUnitData* combatUnit, U
 	if (UnassignedCombatUnits.Contains(combatUnit) && squad->CombatUnitsInSquad.Num() < MaxSquadSize)
 	{
 		squad->CombatUnitsInSquad.Add(combatUnit);
+		combatUnit->OwningSquad = squad;
 		if (!DoesCombatUnitHaveUniqueLocationInSquad(squad, combatUnit))
 		{
 			FIntPoint newLocation = FindUniqueLocationInSquad(squad);
 			combatUnit->SetDesiredLocation(newLocation);
 		}
+		UnassignedCombatUnits.Remove(combatUnit);
 		OnCombatUnitAssignedToSquad.Broadcast(combatUnit, squad);
 		return true;
 	}

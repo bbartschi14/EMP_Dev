@@ -46,6 +46,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void ClearSelectedSquad();
 
+	UFUNCTION(BlueprintCallable)
+		class UEMPSquadData* GetSelectedSquad() const;
+
 	/** Set a combat unit as the current selection, broadcasting to UI elements that will change state. */
 	UFUNCTION(BlueprintCallable)
 		void SelectCombatUnit(class UEMPCombatUnitData* combatUnitToLoad);

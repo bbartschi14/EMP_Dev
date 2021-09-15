@@ -24,6 +24,11 @@ void AEMPBaseCampGameMode::ClearSelectedSquad()
 	}
 }
 
+UEMPSquadData* AEMPBaseCampGameMode::GetSelectedSquad() const
+{
+	return SelectedSquad;
+}
+
 void AEMPBaseCampGameMode::SelectCombatUnit(UEMPCombatUnitData* combatUnitToLoad)
 {
 	ClearSelectedCombatUnit();

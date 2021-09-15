@@ -15,14 +15,20 @@ class EMPIREDEV_API UEMPUWRadioButton : public UEMPUserWidget
 	GENERATED_BODY()
 
 public:
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnRadioButtonClicked, UEMPUWRadioButton*, radioButton);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnRadioButtonEvent, UEMPUWRadioButton*, radioButton);
 
 	/** Called when the button is clicked interactively by the user */
 	UPROPERTY(BlueprintAssignable, Category = "EMP UI Events")
-		FOnRadioButtonClicked OnRadioButtonClicked;
+		FOnRadioButtonEvent OnRadioButtonClicked;
+
+	UPROPERTY(BlueprintAssignable, Category = "EMP UI Events")
+		FOnRadioButtonEvent OnRadioButtonHovered;
+
+	UPROPERTY(BlueprintAssignable, Category = "EMP UI Events")
+		FOnRadioButtonEvent OnRadioButtonUnhovered;
 
 	/** Controls the toggled state of the controlled button */
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void SetToggleOnOff(bool isOn);
 
 	UFUNCTION(BlueprintCallable)
@@ -36,4 +42,10 @@ protected:
 private:
 	UFUNCTION()
 		void HandleTextButtonClicked();
+
+	UFUNCTION()
+		void HandleTextButtonHovered();
+
+	UFUNCTION()
+		void HandleTextButtonUnhovered();
 };
