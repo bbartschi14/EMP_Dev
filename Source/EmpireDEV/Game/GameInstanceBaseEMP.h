@@ -17,7 +17,8 @@ class EMPIREDEV_API UGameInstanceBaseEMP : public UGameInstance
 public:
 	UPROPERTY(EditDefaultsOnly)
 		class UEMPSquadsDatabase* TestOnlySquadsDatabase;
-
+	UPROPERTY(EditDefaultsOnly)
+		class UEMPArmyDatabase* TestOnlyArmyDatabase;
 protected:
 	void Init() override;
 
