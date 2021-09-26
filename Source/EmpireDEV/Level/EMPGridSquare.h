@@ -92,7 +92,7 @@ protected:
 	UFUNCTION()
 		void SetLocationFromGridSize(FVector2D inGridSize);
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 		FIntPoint GridCoordinate;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)

@@ -35,7 +35,7 @@ public:
 		bool GetIsToggleOn() const;
 
 	/** Controls the toggled state of this button */
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		virtual void SetToggleOnOff(bool isOn);
 protected:
 	/** Use NativeConstruct to bind delegates to native button */

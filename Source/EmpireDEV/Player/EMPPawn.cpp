@@ -49,6 +49,11 @@ void AEMPPawn::Tick(float deltaTime)
 #pragma endregion OverrideFunctions
 
 #pragma region ZoomHandling
+int AEMPPawn::GetZoomTargetIndex() const
+{
+	return ZoomTargetIndex;
+}
+
 void AEMPPawn::LerpSpringArmLengthToZoomTarget(float deltaTime)
 {
 	float currentLength = CameraBoom->TargetArmLength;
@@ -68,6 +73,7 @@ void AEMPPawn::HandleZoomInput(float zoomAxisValue)
 		if (ZoomTargetIndex + 1 < SpringArmZoomLengths.Num())
 		{
 			ZoomTargetIndex++;
+			OnZoomTargetIndexChanged.Broadcast(ZoomTargetIndex);
 		}
 	}
 	else if (zoomAxisValue > 0.95f)
@@ -76,6 +82,7 @@ void AEMPPawn::HandleZoomInput(float zoomAxisValue)
 		if (ZoomTargetIndex - 1 >= 0)
 		{
 			ZoomTargetIndex--;
+			OnZoomTargetIndexChanged.Broadcast(ZoomTargetIndex);
 		}
 	}
 

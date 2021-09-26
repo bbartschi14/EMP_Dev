@@ -45,7 +45,7 @@ public:
 		UPROPERTY(BlueprintAssignable, Category = "EMP Events")
 			FOnSimpleChange OnCombatUnitUnhovered;
 
-	#pragma endregion Delegates
+#pragma endregion Delegates
 
 	/** Set a squad as the current selection, broadcasting to UI elements that will change state. */
 	UFUNCTION(BlueprintCallable)
@@ -73,6 +73,7 @@ public:
 	/** "Unhover" the unit. Hovering used for indicating the unit before selecting. */
 	UFUNCTION(BlueprintCallable)
 		void UnhoverCombatUnit();
+
 
 protected:
 	virtual void BeginPlay() override;

@@ -4,36 +4,106 @@
 #include "EMPGrid.h"
 #include "EMPGridSquare.h"
 #include "../Combat/EMPCombatUnit.h"
+#include "EMPProceduralTerrain.h"
+#include "DrawDebugHelpers.h"
 
 AEMPGrid::AEMPGrid()
 {
 	PrimaryActorTick.bCanEverTick = true;
 }
 
+int32 AEMPGrid::GetGridDimension() const
+{
+	return GridDimensions;
+}
+
+void AEMPGrid::SetGridDimension(int32 InDimension)
+{
+	GridDimensions = InDimension;
+}
+
+TArray<int32> AEMPGrid::GetHeights() const
+{
+	return Heights;
+}
+
+void AEMPGrid::SetHeights(TArray<int32> InHeights)
+{
+	Heights = InHeights;
+}
+
+int32 AEMPGrid::GetHeightOfAreaCoordinate(FIntPoint areaCoordinate) const
+{
+	int32 index = areaCoordinate.Y * GridDimensions + areaCoordinate.X;
+	if (Heights.IsValidIndex(index))
+	{
+		return Heights[index];
+	}
+	return 0;
+}
+
 void AEMPGrid::BeginPlay()
 {
 	Super::BeginPlay();
-
+	SpawnLandscape();
 	SpawnGrid();
+}
+
+void AEMPGrid::SpawnLandscape()
+{
+	AEMPProceduralTerrain* ProceduralTerrain = GetWorld()->SpawnActor<AEMPProceduralTerrain>(ProceduralTerrainClass, FVector(0), FRotator(0, 0, 0));
+	ProceduralTerrain->CreateLandscapeMesh(Heights, NumberOfHeightLevels, GridDimensions, SingleGridSquareSize * 5, BorderOffset);
 }
 
 void AEMPGrid::SpawnGrid()
 {
-	for (int j = 0; j < GridDimensions.Y; j++)
+	float gridAreaSize = SingleGridSquareSize * 5 + (2 * BorderOffset);
+	GridSquares.SetNum(GridDimensions * GridDimensions * 5 * 5);
+
+	for (int gridY = 0; gridY < GridDimensions; gridY++)
 	{
-		for (int i = 0; i < GridDimensions.X; i++)
+		for (int gridX = 0; gridX < GridDimensions; gridX++)
 		{
-			FVector location = GetWorldLocationFromGridLocation(FIntPoint(i, j));
-			AEMPGridSquare* GridSquareActor = GetWorld()->SpawnActor<AEMPGridSquare>(GridSquareClass, location, FRotator(0, 0, 0));
-			GridSquareActor->SetActorScale3D(FVector(SingleGridSquareSize.X, SingleGridSquareSize.Y, 1));
-			GridSquareActor->InitializeGridSquare(FIntPoint(i, j));
-			GridSquareActor->OnGridSquareClicked.AddUniqueDynamic(this, &AEMPGrid::HandleGridSquareClicked);
-			GridSquareActor->OnGridSquareRightClicked.AddUniqueDynamic(this, &AEMPGrid::HandleGridSquareRightClicked);
-			GridSquareActor->OnGridSquareBeginCursorOver.AddUniqueDynamic(this, &AEMPGrid::HandleGridSquareHovered);
-			GridSquareActor->OnGridSquareEndCursorOver.AddUniqueDynamic(this, &AEMPGrid::HandleGridSquareUnhovered);
-			GridSquares.Add(GridSquareActor);
+			for (int j = 0; j < 5; j++)
+			{
+				for (int i = 0; i < 5; i++)
+				{
+					int32 currentX = gridX * 5 + i;
+					int32 currentY = gridY * 5 + j;
+
+					FVector gridAreaOrigin = FVector(gridAreaSize * gridX, gridAreaSize * gridY, 0);
+					// Raycast down into landscape mesh
+					float cornerOffset = .35;
+					FVector start = FVector(gridAreaOrigin.X + (SingleGridSquareSize * (i + cornerOffset) + BorderOffset), gridAreaOrigin.Y + (SingleGridSquareSize * (j + cornerOffset) + BorderOffset), 10000.0f);
+					FVector end = start + FVector(0, 0, -1) * 20000.0f;
+
+					FHitResult outHit;
+					FCollisionQueryParams collisionParams;
+					collisionParams.bTraceComplex = true;
+
+					//DrawDebugLine(GetWorld(), start, end, FColor::Green, true, 1, 0, 1);
+
+					if (GetWorld()->LineTraceSingleByChannel(outHit, start, end, ECC_Visibility, collisionParams))
+					{
+						check(Cast<AEMPProceduralTerrain>(outHit.GetActor()));
+
+						FVector location = FVector(start.X, start.Y, outHit.ImpactPoint.Z);
+						AEMPGridSquare* GridSquareActor = GetWorld()->SpawnActor<AEMPGridSquare>(GridSquareClass, location, FRotator(0, 0, 0));
+						GridSquareActor->SetActorScale3D(FVector(SingleGridSquareSize, SingleGridSquareSize, 1));
+						GridSquareActor->InitializeGridSquare(FIntPoint(currentX, currentY));
+						GridSquareActor->OnGridSquareClicked.AddUniqueDynamic(this, &AEMPGrid::HandleGridSquareClicked);
+						GridSquareActor->OnGridSquareRightClicked.AddUniqueDynamic(this, &AEMPGrid::HandleGridSquareRightClicked);
+						GridSquareActor->OnGridSquareBeginCursorOver.AddUniqueDynamic(this, &AEMPGrid::HandleGridSquareHovered);
+						GridSquareActor->OnGridSquareEndCursorOver.AddUniqueDynamic(this, &AEMPGrid::HandleGridSquareUnhovered);
+
+						int32 transformedIndex = GridDimensions * 5 * currentY + currentX;
+						GridSquares[transformedIndex] = GridSquareActor;
+					}
+				}
+			}
 		}
 	}
+	
 }
 
 void AEMPGrid::HandleGridSquareHovered(AEMPGridSquare* inGridSquare)
@@ -73,6 +143,16 @@ void AEMPGrid::HandleSetGridAreaHighlighted(FIntPoint areaCoordinate, bool isHig
 	}
 }
 
+void AEMPGrid::HandleSetGridAreaSelected(FIntPoint areaCoordinate, bool isSelected)
+{
+	TArray<AEMPGridSquare*> gridSquaresToSelect = GetGridSquaresInArea(areaCoordinate);
+
+	for (AEMPGridSquare* gridSquare : gridSquaresToSelect)
+	{
+		gridSquare->SetSelected(isSelected);
+	}
+}
+
 bool AEMPGrid::IsGridCoordinateInAreaCoordinate(FIntPoint gridCoordinate, FIntPoint areaCoordinate)
 {
 	bool bIsInX = gridCoordinate.X >= areaCoordinate.X * GridAreaSize && gridCoordinate.X < (areaCoordinate.X + 1)* GridAreaSize;
@@ -83,7 +163,7 @@ bool AEMPGrid::IsGridCoordinateInAreaCoordinate(FIntPoint gridCoordinate, FIntPo
 
 AEMPGridSquare* AEMPGrid::GetGridSquareAtCoordinate(FIntPoint gridCoordinate) const
 {
-	int32 transformedIndex = GridDimensions.X * gridCoordinate.Y + gridCoordinate.X;
+	int32 transformedIndex = GridDimensions * 5 * gridCoordinate.Y + gridCoordinate.X;
 	check(transformedIndex < GridSquares.Num()); // Sanity check array index
 
 	return GridSquares[transformedIndex];
@@ -126,5 +206,19 @@ TArray<AEMPGridSquare*> AEMPGrid::GetGridSquaresInArea(FIntPoint areaCoordinate)
 
 FVector AEMPGrid::GetWorldLocationFromGridLocation(FIntPoint gridLocation)
 {
-	return FVector(SingleGridSquareSize.X * gridLocation.X, SingleGridSquareSize.Y * gridLocation.Y, GridBaseHeight);
+	return GridSquares[GridDimensions * 5 * gridLocation.Y + gridLocation.X]->GetActorLocation();
+	//return FVector(SingleGridSquareSize * gridLocation.X + SingleGridSquareSize/2, SingleGridSquareSize * gridLocation.Y + SingleGridSquareSize / 2, GridBaseHeight);
+}
+
+AEMPCombatUnit* AEMPGrid::GetCombatUnitFromData(UEMPCombatUnitData* combatUnitData) const
+{
+	for (AEMPCombatUnit* unit : CombatUnits)
+	{
+		if (unit->GetCombatUnitData() == combatUnitData)
+		{
+			return unit;
+		}
+	}
+
+	return nullptr;
 }

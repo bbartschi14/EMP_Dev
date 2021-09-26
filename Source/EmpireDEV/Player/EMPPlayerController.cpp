@@ -4,7 +4,7 @@
 #include "EMPPlayerController.h"
 #include <Kismet/GameplayStatics.h>
 #include "../Game/BasicLevelGameModeEMP.h"
-#include "../Game/EMPBetweenGameMenuMode.h"
+#include "../Game/EMPCombatMapGameMode.h"
 
 void AEMPPlayerController::SetupInputComponent()
 {
@@ -16,15 +16,9 @@ void AEMPPlayerController::SetupInputComponent()
 
 void AEMPPlayerController::HandleCancelActionPressed()
 {
-    ABasicLevelGameModeEMP* basicLevelMode = Cast<ABasicLevelGameModeEMP>(UGameplayStatics::GetGameMode(GetWorld()));
-    if (basicLevelMode)
+    AEMPCombatMapGameMode* combatMapMode = Cast<AEMPCombatMapGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+    if (combatMapMode)
     {
-        basicLevelMode->HandleCancelActionPressed();
-    }
-
-    AEMPBetweenGameMenuMode* betweenGameMode = Cast<AEMPBetweenGameMenuMode>(UGameplayStatics::GetGameMode(GetWorld()));
-    if (betweenGameMode)
-    {
-        betweenGameMode->HandleCancelActionPressed();
+        combatMapMode->HandleCancelActionPressed();
     }
 }

@@ -38,6 +38,18 @@ class EMPIREDEV_API UEMPCombatUnitData : public UObject
 	GENERATED_BODY()
 
 public:
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDamageTaken);
+
+	UPROPERTY(BlueprintAssignable)
+		FOnDamageTaken OnDamageTaken;
+
+	UFUNCTION(BlueprintCallable)
+		void TakeDamage(int32 damage)
+	{
+		CurrentHealth -= damage;
+		OnDamageTaken.Broadcast();
+	}
+
 	UFUNCTION(BlueprintCallable)
 		void SetDesiredLocation(FIntPoint newLocation)
 	{
@@ -63,6 +75,14 @@ public:
 	// If null, this unit is currently unassigned
 	UPROPERTY(Transient, BlueprintReadWrite)
 		class UEMPSquadData* OwningSquad;
+
+	// Combat. Only used when on the combat map. This can allow us to serialzie in-combat data too (:
+
+	UPROPERTY(Transient, BlueprintReadWrite)
+		FIntPoint CombatLocation;
+
+	UPROPERTY(Transient, BlueprintReadWrite)
+		int32 CurrentHealth;
 
 	// Classes and Ranks
 	
@@ -107,6 +127,11 @@ public:
 		combatUnitData->DesiredLocationX = DesiredLocationX;
 		combatUnitData->DesiredLocationY = DesiredLocationY;
 
+		// Combat
+		
+		combatUnitData->CombatLocation = CombatLocation;
+		combatUnitData->CurrentHealth = CurrentHealth;
+
 		// Classes and Ranks
 
 		combatUnitData->CombatClass = CombatClass;
@@ -132,6 +157,14 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0", UIMin = "0", ClampMax = "4", UIMax = "4"))
 		int32 DesiredLocationY;
+
+	// Combat
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FIntPoint CombatLocation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int32 CurrentHealth = 1;
 
 	// Classes and Ranks
 

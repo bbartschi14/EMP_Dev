@@ -6,21 +6,6 @@
 #include "GameFramework/Actor.h"
 #include "EMPSquad.generated.h"
 
-/*
- * Squads start in the "awaiting orders" state at the start of a turn.
- * When given a movement order, they will be in the "Move queued" state, meaning
- * that they can't be given another order or rearranged. If the squad is rearranged,
- * it will be put in the "Rearranged" state, and can be continuously rearranged but
- * not given a movement order.
- */
-UENUM(BlueprintType)
-enum class ESquadStateEMP : uint8
-{
-	SS_AWAITING_ORDERS     UMETA(DisplayName = "Awaiting Orders"),
-	SS_MOVE_QUEUED     UMETA(DisplayName = "Move queued"),
-	SS_REARRANGED     UMETA(DisplayName = "Rearranged"),
-};
-
 UCLASS()
 class EMPIREDEV_API AEMPSquad : public AActor
 {

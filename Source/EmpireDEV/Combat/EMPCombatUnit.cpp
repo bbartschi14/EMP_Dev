@@ -11,6 +11,22 @@ AEMPCombatUnit::AEMPCombatUnit()
 
 }
 
+void AEMPCombatUnit::TriggerAttack()
+{
+	bAttackTriggered = true;
+}
+
+void AEMPCombatUnit::SetAttackTargetLocation(FVector location)
+{
+	TargetLocation = location;
+	HandleAttackTargetLocationSet();
+}
+
+void AEMPCombatUnit::SetReadyStance(bool isReady)
+{
+	bIsReadyStance = isReady;
+}
+
 // Called when the game starts or when spawned
 void AEMPCombatUnit::BeginPlay()
 {
@@ -23,11 +39,16 @@ void AEMPCombatUnit::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (bAttackTriggered)
+	{
+		bAttackTriggered = false;
+	}
 }
 
 void AEMPCombatUnit::InitializeCombatUnitData(class UEMPCombatUnitData* combatUnitData)
 {
 	CombatUnitData = combatUnitData;
+	HandleCombatUnitDataInitialized();
 }
 
 UEMPCombatUnitData* AEMPCombatUnit::GetCombatUnitData() const
@@ -35,17 +56,22 @@ UEMPCombatUnitData* AEMPCombatUnit::GetCombatUnitData() const
 	return CombatUnitData;
 }
 
-
 void AEMPCombatUnit::InitializeToGridSquare(FIntPoint inCoordinate)
 {
 	SetGridCoordinate(inCoordinate);
-	HandleMoveToLocation(false);
+	HandleMoveToLocation_Timed(.5f);
 }
 
 void AEMPCombatUnit::MoveToGridSquare(FIntPoint inCoordinate, bool bNotifyWhenFinished)
 {
 	SetGridCoordinate(inCoordinate);
 	HandleMoveToLocation(bNotifyWhenFinished);
+}
+
+void AEMPCombatUnit::MoveToGridSquare_Timed(FIntPoint inCoordinate, float animationTime)
+{
+	SetGridCoordinate(inCoordinate);
+	HandleMoveToLocation_Timed(animationTime);
 }
 
 void AEMPCombatUnit::SetGridCoordinate(FIntPoint inCoordinate)

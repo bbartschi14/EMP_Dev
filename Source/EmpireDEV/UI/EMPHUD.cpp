@@ -7,6 +7,7 @@
 #include <Kismet/GameplayStatics.h>
 #include "../Game/BasicLevelGameModeEMP.h"
 #include "../Game/EMPBaseCampGameMode.h"
+#include "../Game/EMPCombatMapGameMode.h"
 
 void AEMPHUD::ShowCombatUI()
 {
@@ -25,6 +26,13 @@ void AEMPHUD::ShowBaseCampUI()
 	CurrentRoot->AddToViewport();
 }
 
+void AEMPHUD::ShowCombatMapUI()
+{
+	APlayerController* PC = Cast<APlayerController>(GetOwner());
+	CurrentRoot = CreateWidget<UUserWidget>(PC, CombatMapMenuClass);
+
+	CurrentRoot->AddToViewport();
+}
 
 void AEMPHUD::HideUI()
 {
@@ -60,4 +68,15 @@ void AEMPHUD::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("When loading main UI, game mode was not AEMPBaseCampGameMode"));
 	}
+
+	AEMPCombatMapGameMode* combatMapGameMode = Cast<AEMPCombatMapGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (combatMapGameMode)
+	{
+		ShowCombatMapUI();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("When loading main UI, game mode was not AEMPCombatMapGameMode"));
+	}
+	
 }

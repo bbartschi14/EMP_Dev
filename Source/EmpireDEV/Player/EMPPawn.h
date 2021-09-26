@@ -18,6 +18,13 @@ public:
 
 	AEMPPawn();
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnZoomTargetIndexChanged, int, TargetIndex);
+
+	UPROPERTY(BlueprintAssignable)
+		FOnZoomTargetIndexChanged OnZoomTargetIndexChanged;
+
+	UFUNCTION(BlueprintCallable)
+		int GetZoomTargetIndex() const;
 protected:
 
 	virtual void Tick(float deltaTime) override;

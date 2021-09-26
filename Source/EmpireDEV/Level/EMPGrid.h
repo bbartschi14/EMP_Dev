@@ -15,6 +15,20 @@ public:
 	// Sets default values for this actor's properties
 	AEMPGrid();
 
+	UFUNCTION(BlueprintCallable)
+		int32 GetGridDimension() const;
+
+	UFUNCTION(BlueprintCallable)
+		void SetGridDimension(int32 InDimension);
+
+	UFUNCTION(BlueprintCallable)
+		TArray<int32> GetHeights() const;
+
+	UFUNCTION(BlueprintCallable)
+		void SetHeights(TArray<int32> InHeights);
+
+	UFUNCTION(BlueprintCallable)
+		int32 GetHeightOfAreaCoordinate(FIntPoint areaCoordinate) const;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -23,8 +37,14 @@ protected:
 	UFUNCTION()
 		void SpawnGrid();
 
+	UFUNCTION()
+		void SpawnLandscape();
+
 	UFUNCTION(BlueprintCallable)
 		FVector GetWorldLocationFromGridLocation(FIntPoint gridLocation);
+
+	UFUNCTION(BlueprintCallable)
+		class AEMPCombatUnit* GetCombatUnitFromData(class UEMPCombatUnitData* combatUnitData) const;
 
 	UFUNCTION()
 		void HandleGridSquareClicked(class AEMPGridSquare* inGridSquare);
@@ -35,8 +55,11 @@ protected:
 	UFUNCTION()
 		void HandleSetGridHighlighted(class AEMPGridSquare* inGridSquare, bool isHighlighted);
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void HandleSetGridAreaHighlighted(FIntPoint areaCoordinate, bool isHighlighted);
+
+	UFUNCTION(BlueprintCallable)
+		void HandleSetGridAreaSelected(FIntPoint areaCoordinate, bool isSelected);
 
 	UFUNCTION()
 		void HandleGridSquareHovered(class AEMPGridSquare* inGridSquare);
@@ -67,7 +90,7 @@ protected:
 		class AEMPCombatUnit* GetCombatUnitAtCoordinate(FIntPoint gridCoordinate) const;
 
 	/** An area coordinate is the coordinate of the 5x5 section. I.e., the first 5 grid squares in the first 5 columns is in area (0, 0) */
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		FIntPoint GetAreaCoordinateOfGridCoordinate(FIntPoint gridCoordinate) const;
 
 	UFUNCTION()
@@ -86,10 +109,23 @@ protected:
 		TSubclassOf<class AEMPGridSquare> GridSquareClass;
 
 	UPROPERTY(EditDefaultsOnly)
-		FIntPoint GridDimensions;
+		TSubclassOf<class AEMPProceduralTerrain> ProceduralTerrainClass;
+
+	/** In units of grid areas, so 1x1 will make 5x5 squares */
+	UPROPERTY(EditAnywhere)
+		int32 GridDimensions;
+
+	UPROPERTY(EditAnywhere)
+		TArray<int32> Heights;
+
+	UPROPERTY(EditAnywhere)
+		int32 NumberOfHeightLevels;
 
 	UPROPERTY(EditDefaultsOnly)
-		FVector2D SingleGridSquareSize;
+		float SingleGridSquareSize;
+
+	UPROPERTY(EditDefaultsOnly)
+		float BorderOffset;
 
 	UPROPERTY(EditDefaultsOnly)
 		float GridBaseHeight;
