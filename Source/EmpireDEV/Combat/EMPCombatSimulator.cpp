@@ -90,15 +90,12 @@ void UEMPCombatSimulator::ResolveDamage()
 {
 	for (FEMPCombatHitResult hitResult : RoundHitResults)
 	{
-		if (hitResult.bHitSuccessful)
+		hitResult.DefendingUnit->TakeHit(hitResult);
+		if (hitResult.DefendingUnit->CurrentHealth <= 0)
 		{
-			hitResult.DefendingUnit->TakeDamage(hitResult.DamageDealt);
-			if (hitResult.DefendingUnit->CurrentHealth <= 0)
-			{
-				// Unit died
-				hitResult.DefendingUnit->OwningSquad->HandleCombatUnitDied(hitResult.DefendingUnit);
-				OwningCombatGameMode->OnCombatUnitDied.Broadcast(hitResult.DefendingUnit);
-			}
+			// Unit died
+			hitResult.DefendingUnit->OwningSquad->HandleCombatUnitDied(hitResult.DefendingUnit);
+			OwningCombatGameMode->OnCombatUnitDied.Broadcast(hitResult.DefendingUnit);
 		}
 	}
 }
@@ -254,4 +251,35 @@ TArray<UEMPCombatUnitData*> UEMPCombatSimulator::GetUnitsInLine(UEMPSquadData* s
 	}
 
 	return combatUnitsInLine;
+}
+
+void UEMPCombatSimulator::PerformMoraleRolls(float animationTime)
+{
+	TArray<UEMPSquadData*> squads = TArray<UEMPSquadData*>{ CombatSquadOne, CombatSquadTwo };
+	MoraleRolls.Empty();
+
+	for (UEMPSquadData* squad : squads)
+	{
+		int32 moraleRoll = FMath::RandRange(0, 100);
+		OwningCombatGameMode->OnMoraleRoll.Broadcast(squad, moraleRoll, animationTime);
+		MoraleRolls.Add(moraleRoll);
+	}
+}
+
+bool UEMPCombatSimulator::ResolveMoraleRolls(float animationTime)
+{
+	TArray<UEMPSquadData*> squads = TArray<UEMPSquadData*>{ CombatSquadOne, CombatSquadTwo };
+	bool bIsAnimating = false;
+
+	for (int i = 0; i < squads.Num(); i++)
+	{
+		if (MoraleRolls[i] > squads[i]->GetSquadMorale())
+		{
+			bIsAnimating = true;
+			// Retreat squad
+			OwningCombatGameMode->RemoveSquadFromCombat(squads[i], animationTime);
+		}
+	}
+
+	return bIsAnimating;
 }

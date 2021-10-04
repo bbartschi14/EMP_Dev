@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Engine/UserDefinedStruct.h"
-#include "FEMPCombatUnitData.h"
 #include "FEMPCombatHitResult.generated.h"
 
 /**
@@ -17,10 +16,10 @@ struct FEMPCombatHitResult
 
 public:
 	UPROPERTY(Transient, BlueprintReadOnly)
-		UEMPCombatUnitData* AttackingUnit;
+		class UEMPCombatUnitData* AttackingUnit;
 
 	UPROPERTY(Transient, BlueprintReadOnly)
-		UEMPCombatUnitData* DefendingUnit;
+		class UEMPCombatUnitData* DefendingUnit;
 
 	UPROPERTY(Transient, BlueprintReadOnly)
 		bool bHitSuccessful;

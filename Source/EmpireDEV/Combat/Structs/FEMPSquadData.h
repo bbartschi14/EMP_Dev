@@ -58,6 +58,38 @@ public:
 		return nullptr;
 	}
 
+	// Can return null if there is no officer
+	UFUNCTION(BlueprintCallable) UEMPCombatUnitData* GetSquadOfficer() const
+	{
+		for (UEMPCombatUnitData* combatUnit : CombatUnitsInSquad)
+		{
+			if (combatUnit->OfficerRank != EEMPOfficerRank::OR_NONE)
+			{
+				return combatUnit;
+			}
+		}
+		return nullptr;
+	}
+
+	// Returns the current morale of the squad, calculated by combat unit data in the squad
+	UFUNCTION(BlueprintCallable) int32 GetSquadMorale() const
+	{
+		int32 morale = 0;
+		for (UEMPCombatUnitData* combatUnit : CombatUnitsInSquad)
+		{
+			morale += 5; // 5 base morale per unit 
+			if (combatUnit->OfficerRank != EEMPOfficerRank::OR_NONE)
+			{
+				morale += 75; // 75 additional morale per officer
+			}
+			else if (combatUnit->NCORank != EEMPNCORank::NCO_NONE)
+			{
+				morale += 15; // 15 additional morale per NCO
+			}
+		}
+		return morale;
+	}
+
 	UFUNCTION(BlueprintCallable) bool CanMoveToAreaCoordinate(FIntPoint areaCoordinate) const
 	{
 		int32 distance = FMath::Abs(CombatAreaLocation.X - areaCoordinate.X) + FMath::Abs(CombatAreaLocation.Y - areaCoordinate.Y);
@@ -68,7 +100,6 @@ public:
 	{
 		CombatUnitsInSquad.Remove(deadCombatUnit);
 	}
-
 
 	UPROPERTY(Transient, BlueprintReadWrite)
 		FString SquadName;

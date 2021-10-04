@@ -4,7 +4,21 @@
 
 #include "CoreMinimal.h"
 #include "Engine/UserDefinedStruct.h"
+#include "FEMPCombatHitResult.h"
 #include "FEMPCombatUnitData.generated.h"
+
+UENUM(BlueprintType)
+enum class EEMPNCORank : uint8
+{
+	NCO_NONE		UMETA(DisplayName = "None"),
+};
+
+UENUM(BlueprintType)
+enum class EEMPOfficerRank : uint8
+{
+	OR_NONE		UMETA(DisplayName = "None"),
+	OR_LIEUTENANT		UMETA(DisplayName = "Lieutenant"),
+};
 
 UENUM(BlueprintType)
 enum class EEMPCombatClassRank : uint8
@@ -38,16 +52,16 @@ class EMPIREDEV_API UEMPCombatUnitData : public UObject
 	GENERATED_BODY()
 
 public:
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDamageTaken);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDamageTaken, FEMPCombatHitResult, hitResult);
 
 	UPROPERTY(BlueprintAssignable)
 		FOnDamageTaken OnDamageTaken;
 
 	UFUNCTION(BlueprintCallable)
-		void TakeDamage(int32 damage)
+		void TakeHit(FEMPCombatHitResult hit)
 	{
-		CurrentHealth -= damage;
-		OnDamageTaken.Broadcast();
+		CurrentHealth -= hit.DamageDealt;
+		OnDamageTaken.Broadcast(hit);
 	}
 
 	UFUNCTION(BlueprintCallable)
@@ -92,6 +106,14 @@ public:
 	UPROPERTY(Transient, BlueprintReadWrite)
 		EEMPCombatClassRank CombatClassRank;
 
+	// Officer status
+
+	UPROPERTY(Transient, BlueprintReadWrite)
+		EEMPNCORank NCORank;
+
+	UPROPERTY(Transient, BlueprintReadWrite)
+		EEMPOfficerRank OfficerRank;
+
 	// Stats
 
 	UPROPERTY(Transient, BlueprintReadWrite)
@@ -108,6 +130,9 @@ public:
 
 	UPROPERTY(Transient, BlueprintReadWrite)
 		int32 Range;
+
+	UPROPERTY(Transient, BlueprintReadWrite)
+		bool bIsFriendlyUnit;
 };
 
 /**
@@ -136,6 +161,11 @@ public:
 
 		combatUnitData->CombatClass = CombatClass;
 		combatUnitData->CombatClassRank = CombatClassRank;
+
+		// Officer status
+
+		combatUnitData->NCORank = NCORank;
+		combatUnitData->OfficerRank = OfficerRank;
 
 		// Stats
 		combatUnitData->Health = Health;
@@ -173,6 +203,14 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		EEMPCombatClassRank CombatClassRank;
+
+	// Officer status
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		EEMPNCORank NCORank;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		EEMPOfficerRank OfficerRank;
 
 	// Stats
 

@@ -38,6 +38,14 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void RetreatUnits(class UEMPSquadData* squad, FIntPoint squadOrigin, FIntPoint attackingDirection, float animationTime);
+
+	UFUNCTION(BlueprintCallable)
+		void PerformMoraleRolls(float animationTime);
+
+	// Returns true if any squads are animating after resolving the morale rolls
+	UFUNCTION(BlueprintCallable)
+		bool ResolveMoraleRolls(float animationTime);
+
 protected:
 
 	/** Calculates all data from attacks from one squad to another. Doesn't resolve damage yet, as all attacks technically occur simultaneously. */
@@ -66,4 +74,8 @@ protected:
 
 	UPROPERTY(Transient, BlueprintReadOnly)
 		TArray<FEMPCombatHitResult> RoundHitResults;
+
+	UPROPERTY(Transient)
+		TArray<int32> MoraleRolls;
+
 };

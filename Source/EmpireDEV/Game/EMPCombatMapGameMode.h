@@ -34,6 +34,7 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCombatUnitAnimate, class UEMPCombatUnitData*, combatUnit, float, animationTime);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnCombatUnitAttackAnimate, class UEMPCombatUnitData*, attackingCombatUnit, class UEMPCombatUnitData*, defendingCombatUnit, float, animationTime);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnActionQueued, class UEMPCombatActionData*, actionData);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnMoraleRoll, class UEMPSquadData*, squadData, int32, moraleRoll, float, animationTime);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSimpleChange);
 
 	/** */
@@ -66,6 +67,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
 		FOnCombatUnitAttackAnimate OnCombatUnitAttackAnimate;
 
+	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
+		FOnCombatUnitAnimate OnCombatUnitRetreat;
+
 	/** Called when a combat action is queued */
 	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
 		FOnActionQueued OnActionQueued;
@@ -85,6 +89,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "EMP Events")
 		FOnCombatEvent OnCombatEnded;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "EMP Events")
+		FOnMoraleRoll OnMoraleRoll;
 
 	/** Set a squad as the current selection, broadcasting to UI elements that will change state. */
 	UFUNCTION(BlueprintCallable)
@@ -142,6 +149,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void FinishSimulating();
+
+	UFUNCTION()
+		void RemoveSquadFromCombat(class UEMPSquadData* squadToRemove, float animationTime);
 
 	UFUNCTION()
 		void HandleCancelActionPressed();

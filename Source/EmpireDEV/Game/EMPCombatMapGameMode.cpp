@@ -59,10 +59,12 @@ TArray<UEMPSquadData*> AEMPCombatMapGameMode::SpawnSquads(TArray<UEMPSquadData*>
 				combatUnit->CurrentHealth = combatUnit->Health; // Resetting health here on spawn. Maybe could be moved somewhere else.
 				if (bIsEnemySquad)
 				{
+					combatUnit->bIsFriendlyUnit = false;
 					Grid->SpawnEnemyCombatUnit(combatUnit);
 				}
 				else
 				{
+					combatUnit->bIsFriendlyUnit = true;
 					Grid->SpawnFriendlyCombatUnit(combatUnit);
 				}
 			}
@@ -239,6 +241,8 @@ UEMPCombatSimulator* AEMPCombatMapGameMode::InitiateCombat(UEMPSquadData* squadO
 	return simulator;
 }
 
+
+
 void AEMPCombatMapGameMode::FinishSimulating()
 {
 	// Cleanup and reset relevant data
@@ -248,6 +252,23 @@ void AEMPCombatMapGameMode::FinishSimulating()
 	}
 
 	SetCombatMapState(EEMPCombatMapState::GS_SELECTING_SQUAD);
+}
+
+void AEMPCombatMapGameMode::RemoveSquadFromCombat(UEMPSquadData* squadToRemove, float animationTime)
+{
+	if (FriendlySquads.Contains(squadToRemove))
+	{
+		FriendlySquads.Remove(squadToRemove);
+	}
+	else if (EnemySquads.Contains(squadToRemove))
+	{
+		EnemySquads.Remove(squadToRemove);
+	}
+
+	for (UEMPCombatUnitData* combatUnit : squadToRemove->CombatUnitsInSquad)
+	{
+		OnCombatUnitRetreat.Broadcast(combatUnit, animationTime);
+	}
 }
 
 void AEMPCombatMapGameMode::HandleCancelActionPressed()
