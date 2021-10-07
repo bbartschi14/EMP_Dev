@@ -102,11 +102,17 @@ protected:
 	UPROPERTY(Transient)
 		TArray<class AEMPGridSquare*> GridSquares;
 
+	UPROPERTY(Transient)
+		TArray<class AEMPGridAreaHighlight*> GridAreaHighlights;
+
 	UPROPERTY(Transient, BlueprintReadWrite)
 		TArray<class AEMPCombatUnit*> CombatUnits;
 
 	UPROPERTY(EditDefaultsOnly)
 		TSubclassOf<class AEMPGridSquare> GridSquareClass;
+
+	UPROPERTY(EditDefaultsOnly)
+		TSubclassOf<class AEMPGridAreaHighlight> GridAreaHighlightClass;
 
 	UPROPERTY(EditDefaultsOnly)
 		TSubclassOf<class AEMPProceduralTerrain> ProceduralTerrainClass;

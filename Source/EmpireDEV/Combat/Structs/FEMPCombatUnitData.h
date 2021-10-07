@@ -90,7 +90,7 @@ public:
 	UPROPERTY(Transient, BlueprintReadWrite)
 		class UEMPSquadData* OwningSquad;
 
-	// Combat. Only used when on the combat map. This can allow us to serialzie in-combat data too (:
+	// Combat. Only used when on the combat map. This can allow us to serialize in-combat data too (:
 
 	UPROPERTY(Transient, BlueprintReadWrite)
 		FIntPoint CombatLocation;

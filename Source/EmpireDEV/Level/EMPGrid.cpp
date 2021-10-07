@@ -4,6 +4,7 @@
 #include "EMPGrid.h"
 #include "EMPGridSquare.h"
 #include "../Combat/EMPCombatUnit.h"
+#include "EMPGridAreaHighlight.h"
 #include "EMPProceduralTerrain.h"
 #include "DrawDebugHelpers.h"
 
@@ -98,6 +99,14 @@ void AEMPGrid::SpawnGrid()
 
 						int32 transformedIndex = GridDimensions * 5 * currentY + currentX;
 						GridSquares[transformedIndex] = GridSquareActor;
+
+						// Spawn Area highlight at center point
+						if ((i - 2) % 5 == 0 && (j - 2) % 5 == 0)
+						{
+							AEMPGridAreaHighlight* GridAreaHighlightActor = GetWorld()->SpawnActor<AEMPGridAreaHighlight>(GridAreaHighlightClass, location, FRotator(0, 0, 0));
+							GridAreaHighlights.Add(GridAreaHighlightActor);
+						}
+
 					}
 				}
 			}
