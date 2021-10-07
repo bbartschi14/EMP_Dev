@@ -227,6 +227,7 @@ EEMPCombatMapState AEMPCombatMapGameMode::GetCombatMapState() const
 
 void AEMPCombatMapGameMode::SetCombatMapState(EEMPCombatMapState newState)
 {
+	OnExitGameState.Broadcast(CurrentState);
 	CurrentState = newState;
 	OnGameStateChanged.Broadcast(newState);
 }

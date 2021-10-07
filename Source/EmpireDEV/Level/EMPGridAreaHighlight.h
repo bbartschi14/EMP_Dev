@@ -15,12 +15,27 @@ public:
 	// Sets default values for this actor's properties
 	AEMPGridAreaHighlight();
 
+	UFUNCTION(BlueprintCallable)
+		void SetForceVisible(bool inIsForceVisible);
+
+	UFUNCTION(BlueprintCallable)
+		void SetHovered(bool inIsHovered);
+
+	UFUNCTION(BlueprintCallable)
+		void SetSelected(bool inIsSelected);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+		void RefreshVisuals();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UPROPERTY(BlueprintReadOnly, Transient)
+		bool bIsHovered;
 
+	UPROPERTY(BlueprintReadOnly, Transient)
+		bool bIsSelected;
+
+	UPROPERTY(BlueprintReadOnly, Transient)
+		bool bIsForceVisible;
 };

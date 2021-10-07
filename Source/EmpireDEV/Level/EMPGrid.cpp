@@ -43,6 +43,16 @@ int32 AEMPGrid::GetHeightOfAreaCoordinate(FIntPoint areaCoordinate) const
 	return 0;
 }
 
+AEMPGridAreaHighlight* AEMPGrid::GetGridAreaHighlightAtCoordinate(FIntPoint areaCoordinate) const
+{
+	int32 transformedCoord = areaCoordinate.Y * GridDimensions + areaCoordinate.X;
+	if (GridAreaHighlights.IsValidIndex(transformedCoord))
+	{
+		return GridAreaHighlights[transformedCoord];
+	}
+	return nullptr;
+}
+
 void AEMPGrid::BeginPlay()
 {
 	Super::BeginPlay();
@@ -144,22 +154,27 @@ void AEMPGrid::HandleSetGridHighlighted(class AEMPGridSquare* inGridSquare, bool
 
 void AEMPGrid::HandleSetGridAreaHighlighted(FIntPoint areaCoordinate, bool isHighlighted)
 {
-	TArray<AEMPGridSquare*> gridSquaresToHighlight = GetGridSquaresInArea(areaCoordinate);
+	AEMPGridAreaHighlight* areaHighlight = GetGridAreaHighlightAtCoordinate(areaCoordinate);
+	areaHighlight->SetHovered(isHighlighted);
+	//TArray<AEMPGridSquare*> gridSquaresToHighlight = GetGridSquaresInArea(areaCoordinate);
 
-	for (AEMPGridSquare* gridSquare : gridSquaresToHighlight)
-	{
-		gridSquare->SetHighlighted(isHighlighted);
-	}
+	//for (AEMPGridSquare* gridSquare : gridSquaresToHighlight)
+	//{
+	//	gridSquare->SetHighlighted(isHighlighted);
+	//}
 }
 
 void AEMPGrid::HandleSetGridAreaSelected(FIntPoint areaCoordinate, bool isSelected)
 {
-	TArray<AEMPGridSquare*> gridSquaresToSelect = GetGridSquaresInArea(areaCoordinate);
+	AEMPGridAreaHighlight* areaHighlight = GetGridAreaHighlightAtCoordinate(areaCoordinate);
+	areaHighlight->SetSelected(isSelected);
 
-	for (AEMPGridSquare* gridSquare : gridSquaresToSelect)
-	{
-		gridSquare->SetSelected(isSelected);
-	}
+	//TArray<AEMPGridSquare*> gridSquaresToSelect = GetGridSquaresInArea(areaCoordinate);
+
+	//for (AEMPGridSquare* gridSquare : gridSquaresToSelect)
+	//{
+	//	gridSquare->SetSelected(isSelected);
+	//}
 }
 
 bool AEMPGrid::IsGridCoordinateInAreaCoordinate(FIntPoint gridCoordinate, FIntPoint areaCoordinate)

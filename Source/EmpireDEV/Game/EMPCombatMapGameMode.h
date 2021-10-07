@@ -41,6 +41,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
 		FOnGameStateChanged OnGameStateChanged;
 
+	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
+		FOnGameStateChanged OnExitGameState;
+
 	/** Called when the squad is selected */
 	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
 		FOnSquadSelected OnSquadSelected;

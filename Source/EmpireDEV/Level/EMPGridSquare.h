@@ -56,6 +56,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "EMP|Grid")
 		void SetSelected(bool isSelected);
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+		void SetForceHidden(bool inIsForceHidden);
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 protected:
@@ -106,4 +109,7 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite)
 		bool bIsSelected;
+
+	UPROPERTY(BlueprintReadWrite)
+		bool bIsForceHidden;
 };

@@ -3,25 +3,32 @@
 
 #include "EMPGridAreaHighlight.h"
 
-// Sets default values
 AEMPGridAreaHighlight::AEMPGridAreaHighlight()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 }
 
-// Called when the game starts or when spawned
+void AEMPGridAreaHighlight::SetForceVisible(bool inIsForceVisible)
+{
+	bIsForceVisible = inIsForceVisible;
+	RefreshVisuals();
+}
+
+void AEMPGridAreaHighlight::SetHovered(bool inIsHovered)
+{
+	bIsHovered = inIsHovered;
+	RefreshVisuals();
+}
+
+void AEMPGridAreaHighlight::SetSelected(bool inIsSelected)
+{
+	bIsSelected = inIsSelected;
+	RefreshVisuals();
+}
+
 void AEMPGridAreaHighlight::BeginPlay()
 {
 	Super::BeginPlay();
-	
-}
-
-// Called every frame
-void AEMPGridAreaHighlight::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
 }
 

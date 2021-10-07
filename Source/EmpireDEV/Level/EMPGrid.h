@@ -29,6 +29,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		int32 GetHeightOfAreaCoordinate(FIntPoint areaCoordinate) const;
+
+	UFUNCTION(BlueprintCallable)
+		class AEMPGridAreaHighlight* GetGridAreaHighlightAtCoordinate(FIntPoint areaCoordinate) const;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -93,16 +96,16 @@ protected:
 	UFUNCTION(BlueprintCallable)
 		FIntPoint GetAreaCoordinateOfGridCoordinate(FIntPoint gridCoordinate) const;
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		TArray<class AEMPGridSquare*> GetGridSquaresInArea(FIntPoint areaCoordinate) const;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 		TSubclassOf<class AEMPCombatUnit> CombatUnitClass;
 
-	UPROPERTY(Transient)
+	UPROPERTY(BlueprintReadOnly, Transient)
 		TArray<class AEMPGridSquare*> GridSquares;
 
-	UPROPERTY(Transient)
+	UPROPERTY(BlueprintReadOnly, Transient)
 		TArray<class AEMPGridAreaHighlight*> GridAreaHighlights;
 
 	UPROPERTY(Transient, BlueprintReadWrite)

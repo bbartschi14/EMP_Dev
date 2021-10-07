@@ -5,6 +5,7 @@
 #include "../Combat/Structs/FEMPCombatUnitData.h"
 #include "../Combat/Structs/FEMPSquadData.h"
 #include "../Combat/EMPCombatStatics.h"
+#include "../Level/EMPGridSquare.h"
 
 void AEMPCombatMapGrid::BeginPlay()
 {
@@ -21,6 +22,11 @@ void AEMPCombatMapGrid::BeginPlay()
 	check(spawnPointSet.Num() == (FriendlySquadSpawnPoints.Num() + EnemySquadSpawnPoints.Num())); // If the number of items in the set is not equal to the number of spawn points, there was an overlap
 	
 	Super::BeginPlay();
+
+	for (AEMPGridSquare* gridSquare : GridSquares)
+	{
+		gridSquare->SetForceHidden(true);
+	}
 }
 
 void AEMPCombatMapGrid::SpawnFriendlyCombatUnit(UEMPCombatUnitData* friendlyCombatUnit)
