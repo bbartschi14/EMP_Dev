@@ -90,6 +90,18 @@ public:
 		return morale;
 	}
 
+	// Get the squad composition as a map of classes (keys) to the number of units with that class (values)
+	UFUNCTION(BlueprintCallable) TMap<EEMPCombatClass, int32> GetSquadComposition() const
+	{
+		TMap<EEMPCombatClass, int32> composition;
+		for (UEMPCombatUnitData* combatUnit : CombatUnitsInSquad)
+		{
+			int32 count = composition.FindOrAdd(combatUnit->CombatClass);
+			composition[combatUnit->CombatClass] = count + 1;
+		}
+		return composition;
+	}
+
 	UFUNCTION(BlueprintCallable) bool CanMoveToAreaCoordinate(FIntPoint areaCoordinate) const
 	{
 		int32 distance = FMath::Abs(CombatAreaLocation.X - areaCoordinate.X) + FMath::Abs(CombatAreaLocation.Y - areaCoordinate.Y);

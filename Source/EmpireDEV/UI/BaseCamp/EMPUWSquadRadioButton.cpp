@@ -7,7 +7,7 @@
 void UEMPUWSquadRadioButton::SetSquadData(UEMPSquadData* inSquad)
 {
 	SquadRepresented = inSquad;
-	SetText(FText::FromString(SquadRepresented->SquadName));
+	HandleSquadDataSet();
 }
 
 UEMPSquadData* UEMPUWSquadRadioButton::GetSquadData() const

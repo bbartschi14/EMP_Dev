@@ -7,16 +7,16 @@ int32 UEMPStylesheetLibrary::GetFontSize(const EEMPFontSize& fontSize)
 	switch (fontSize)
 	{
 	case EEMPFontSize::FS_LARGE:
-		return 32;
+		return 28;
 
 	case EEMPFontSize::FS_MEDIUM:
-		return 20;
+		return 12;
 
 	case EEMPFontSize::FS_SMALL:
-		return 12;
+		return 8;
 
 	default:
-		return 12;
+		return 8;
 	}
 }
 

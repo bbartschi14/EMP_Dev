@@ -2,43 +2,36 @@
 
 
 #include "EMPUWRadioButton.h"
-#include "EMPUWTextButtonBase.h"
+#include "EMPUWButtonBase.h"
 
 void UEMPUWRadioButton::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
-	if (TextButton)
+	if (Button)
 	{
-		TextButton->OnClick.AddUniqueDynamic(this, &UEMPUWRadioButton::HandleTextButtonClicked);
-		TextButton->OnHover.AddUniqueDynamic(this, &UEMPUWRadioButton::HandleTextButtonHovered);
-		TextButton->OnUnhover.AddUniqueDynamic(this, &UEMPUWRadioButton::HandleTextButtonUnhovered);
-	}
-}
-
-void UEMPUWRadioButton::SetText(FText inText)
-{
-	if (TextButton)
-	{
-		TextButton->SetButtonText(inText);
+		Button->OnClick.AddUniqueDynamic(this, &UEMPUWRadioButton::HandleButtonClicked);
+		Button->OnHover.AddUniqueDynamic(this, &UEMPUWRadioButton::HandleButtonHovered);
+		Button->OnUnhover.AddUniqueDynamic(this, &UEMPUWRadioButton::HandleButtonUnhovered);
 	}
 }
 
 void UEMPUWRadioButton::SetToggleOnOff(bool isOn)
 {
-	TextButton->SetToggleOnOff(isOn);
+	Button->SetToggleOnOff(isOn);
+	HandleToggleOnOff(isOn);
 }
 
-void UEMPUWRadioButton::HandleTextButtonClicked()
+void UEMPUWRadioButton::HandleButtonClicked()
 {
 	OnRadioButtonClicked.Broadcast(this);
 }
 
-void UEMPUWRadioButton::HandleTextButtonHovered()
+void UEMPUWRadioButton::HandleButtonHovered()
 {
 	OnRadioButtonHovered.Broadcast(this);
 }
 
-void UEMPUWRadioButton::HandleTextButtonUnhovered()
+void UEMPUWRadioButton::HandleButtonUnhovered()
 {
 	OnRadioButtonUnhovered.Broadcast(this);
 }

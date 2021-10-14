@@ -31,21 +31,21 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void SetToggleOnOff(bool isOn);
 
-	UFUNCTION(BlueprintCallable)
-		void SetText(FText inText);
+	UFUNCTION(BlueprintImplementableEvent)
+		void HandleToggleOnOff(bool isOn);
 protected:
 	void NativeOnInitialized() override;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-		class UEMPUWTextButtonBase* TextButton;
+		class UEMPUWButtonBase* Button;
 
 private:
 	UFUNCTION()
-		void HandleTextButtonClicked();
+		void HandleButtonClicked();
 
 	UFUNCTION()
-		void HandleTextButtonHovered();
+		void HandleButtonHovered();
 
 	UFUNCTION()
-		void HandleTextButtonUnhovered();
+		void HandleButtonUnhovered();
 };

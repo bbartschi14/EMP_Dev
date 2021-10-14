@@ -6,9 +6,9 @@
 #include "Components/PanelWidget.h"
 #include "Buttons/EMPUWButtonBase.h"
 
-void UEMPUWRadioButtonList::AddRadioButtonToList(UEMPUWRadioButton* radioButtonWidget)
+void UEMPUWRadioButtonList::AddRadioButtonToList(UEMPUWRadioButton* radioButtonWidget, bool bManualAddToWidget)
 {
-	RadioButtonsContainer->AddChild(radioButtonWidget);
+	if (!bManualAddToWidget) RadioButtonsContainer->AddChild(radioButtonWidget);
 	radioButtonWidget->OnRadioButtonClicked.AddUniqueDynamic(this, &UEMPUWRadioButtonList::HandleRadioButtonClicked);
 }
 

@@ -24,6 +24,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 		UEMPSquadData* GetSquadData() const;
 
+	/** Called when the squad data is set, and allows for the custom UI layout display to update */
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+		void HandleSquadDataSet();
 protected:
 	/** Reference to the squad that this button represents */
 	UPROPERTY(Transient)

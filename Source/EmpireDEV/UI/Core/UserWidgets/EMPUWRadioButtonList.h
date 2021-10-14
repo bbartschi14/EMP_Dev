@@ -23,7 +23,7 @@ public:
 		FOnRadioButtonSelected OnRadioButtonSelected;
 
 	UFUNCTION(BlueprintCallable)
-		void AddRadioButtonToList(class UEMPUWRadioButton* radioButtonWidget);
+		void AddRadioButtonToList(class UEMPUWRadioButton* radioButtonWidget, bool bManualAddToWidget);
 
 	UFUNCTION(BlueprintCallable)
 		void ClearList();
@@ -52,7 +52,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		bool bTogglesSelf;
 
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 		class UPanelWidget* RadioButtonsContainer;
 
 	UPROPERTY(Transient)
