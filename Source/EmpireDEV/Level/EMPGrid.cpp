@@ -5,7 +5,7 @@
 #include "EMPGridSquare.h"
 #include "../Combat/EMPCombatUnit.h"
 #include "EMPGridAreaHighlight.h"
-#include "EMPProceduralTerrain.h"
+#include "EMPOrigamiLandscape.h"
 #include "DrawDebugHelpers.h"
 
 AEMPGrid::AEMPGrid()
@@ -62,8 +62,10 @@ void AEMPGrid::BeginPlay()
 
 void AEMPGrid::SpawnLandscape()
 {
-	AEMPProceduralTerrain* ProceduralTerrain = GetWorld()->SpawnActor<AEMPProceduralTerrain>(ProceduralTerrainClass, FVector(0), FRotator(0, 0, 0));
-	ProceduralTerrain->CreateLandscapeMesh(Heights, NumberOfHeightLevels, GridDimensions, SingleGridSquareSize * 5, BorderOffset);
+	AEMPOrigamiLandscape* OrigamiLandscape = GetWorld()->SpawnActor<AEMPOrigamiLandscape>(OrigamiLandscapeClass, FVector(0), FRotator(0, 0, 0));
+	OrigamiLandscape->SpawnLandscape(GridDimensions, Heights, SingleGridSquareSize * 5, BorderOffset);
+
+	//ProceduralTerrain->CreateLandscapeMesh(Heights, NumberOfHeightLevels, GridDimensions, SingleGridSquareSize * 5, BorderOffset);
 }
 
 void AEMPGrid::SpawnGrid()
@@ -90,14 +92,11 @@ void AEMPGrid::SpawnGrid()
 
 					FHitResult outHit;
 					FCollisionQueryParams collisionParams;
-					collisionParams.bTraceComplex = true;
 
 					//DrawDebugLine(GetWorld(), start, end, FColor::Green, true, 1, 0, 1);
 
 					if (GetWorld()->LineTraceSingleByChannel(outHit, start, end, ECC_Visibility, collisionParams))
 					{
-						check(Cast<AEMPProceduralTerrain>(outHit.GetActor()));
-
 						FVector location = FVector(start.X, start.Y, outHit.ImpactPoint.Z);
 						AEMPGridSquare* GridSquareActor = GetWorld()->SpawnActor<AEMPGridSquare>(GridSquareClass, location, FRotator(0, 0, 0));
 						GridSquareActor->SetActorScale3D(FVector(SingleGridSquareSize, SingleGridSquareSize, 1));

@@ -85,12 +85,14 @@ void UEMPSquadManager::MoveCombatUnitToNewDesiredLocation(UEMPCombatUnitData* co
 	OnCombatUnitMovedToNewDesiredLocation.Broadcast(combatUnit, combatUnit->OwningSquad);
 }
 
-void UEMPSquadManager::CreateNewSquad()
+UEMPSquadData* UEMPSquadManager::CreateNewSquad()
 {
 	UEMPSquadData* newSquad = NewObject<UEMPSquadData>();
 	newSquad->SquadName = FString::Printf(TEXT("New Squad %i"), Squads.Num());
 	Squads.Add(newSquad);
 	OnSquadCreated.Broadcast(newSquad);
+
+	return newSquad;
 }
 
 bool UEMPSquadManager::DissolveSquad(UEMPSquadData* squadToDissolve)

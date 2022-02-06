@@ -13,7 +13,7 @@ struct FEMPCombatUnitMeshData
 	GENERATED_USTRUCT_BODY()
 
 public:
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadWrite)
 		bool bIsFriendlyUnit;
 };
 
@@ -89,13 +89,11 @@ public:
 		void HandleMovementFailed_Timed(float animationTime);
 
 	UFUNCTION(BlueprintCallable)
-		void TriggerAttack();
+		void TriggerAttack(FVector InTargetLocation);
 
-	UFUNCTION(BlueprintCallable)
-		void SetAttackTargetLocation(FVector location);
-
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "EMP|Combat Unit")
-		void HandleAttackTargetLocationSet();
+	/** Activates attack animations */
+	UFUNCTION(BlueprintImplementableEvent, Category = "EMP|Combat Unit")
+		void HandleAttackTriggered();
 
 	UFUNCTION(BlueprintCallable)
 		void SetReadyStance(bool isReady);
@@ -118,9 +116,6 @@ protected:
 
 	UPROPERTY(Transient)
 		class UEMPCombatUnitData* CombatUnitData;
-
-	UPROPERTY(BlueprintReadWrite)
-		bool bAttackTriggered;
 
 	UPROPERTY(BlueprintReadWrite)
 		FVector TargetLocation;

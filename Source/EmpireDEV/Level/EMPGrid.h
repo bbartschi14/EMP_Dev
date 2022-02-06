@@ -118,7 +118,7 @@ protected:
 		TSubclassOf<class AEMPGridAreaHighlight> GridAreaHighlightClass;
 
 	UPROPERTY(EditDefaultsOnly)
-		TSubclassOf<class AEMPProceduralTerrain> ProceduralTerrainClass;
+		TSubclassOf<class AEMPOrigamiLandscape> OrigamiLandscapeClass;
 
 	/** In units of grid areas, so 1x1 will make 5x5 squares */
 	UPROPERTY(EditAnywhere)

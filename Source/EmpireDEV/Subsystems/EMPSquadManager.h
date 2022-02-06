@@ -65,7 +65,7 @@ public:
 
 	/** Create a new squad, given a random-esque name */
 	UFUNCTION(BlueprintCallable)
-		void CreateNewSquad();
+		UEMPSquadData* CreateNewSquad();
 
 	/** Dissolve a squad. Returns true if successful. Can fail if the squad requested doesn't match any squads in this manager */
 	UFUNCTION(BlueprintCallable)

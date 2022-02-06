@@ -11,15 +11,10 @@ AEMPCombatUnit::AEMPCombatUnit()
 
 }
 
-void AEMPCombatUnit::TriggerAttack()
+void AEMPCombatUnit::TriggerAttack(FVector InTargetLocation)
 {
-	bAttackTriggered = true;
-}
-
-void AEMPCombatUnit::SetAttackTargetLocation(FVector location)
-{
-	TargetLocation = location;
-	HandleAttackTargetLocationSet();
+	TargetLocation = InTargetLocation;
+	HandleAttackTriggered();
 }
 
 void AEMPCombatUnit::SetReadyStance(bool isReady)
@@ -38,11 +33,6 @@ void AEMPCombatUnit::BeginPlay()
 void AEMPCombatUnit::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	if (bAttackTriggered)
-	{
-		bAttackTriggered = false;
-	}
 }
 
 void AEMPCombatUnit::InitializeCombatUnitData(class UEMPCombatUnitData* combatUnitData)
