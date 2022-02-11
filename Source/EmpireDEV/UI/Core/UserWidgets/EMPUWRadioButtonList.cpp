@@ -10,6 +10,7 @@ void UEMPUWRadioButtonList::AddRadioButtonToList(UEMPUWRadioButton* radioButtonW
 {
 	if (!bManualAddToWidget) RadioButtonsContainer->AddChild(radioButtonWidget);
 	radioButtonWidget->OnRadioButtonClicked.AddUniqueDynamic(this, &UEMPUWRadioButtonList::HandleRadioButtonClicked);
+	RadioButtons.Add(radioButtonWidget);
 }
 
 void UEMPUWRadioButtonList::ClearList()
@@ -32,29 +33,16 @@ void UEMPUWRadioButtonList::SetSelectedIndex(int32 indexToSelect)
 	ClearSelected();
 
 	int32 currentIndex = 0;
-	for (UWidget* child : RadioButtonsContainer->GetAllChildren())
+	for (UEMPUWRadioButton* radioButton : RadioButtons)
 	{
-		UEMPUWRadioButton* radioButton = Cast<UEMPUWRadioButton>(child);
-		if (radioButton)
-		{
-			if (currentIndex == indexToSelect) SetAsSelected(radioButton);
-			currentIndex++;
-		}
+		if (currentIndex == indexToSelect) SetAsSelected(radioButton);
+		currentIndex++;
 	}
 }
 
 TArray<UEMPUWRadioButton*> UEMPUWRadioButtonList::GetRadioButtons() const
 {
-	TArray<UEMPUWRadioButton*> radioButtons;
-	for (UWidget* child : RadioButtonsContainer->GetAllChildren())
-	{
-		UEMPUWRadioButton* radioButton = Cast<UEMPUWRadioButton>(child);
-		if (radioButton)
-		{
-			radioButtons.Add(radioButton);
-		}
-	}
-	return radioButtons;
+	return RadioButtons;
 }
 
 
@@ -65,9 +53,8 @@ UEMPUWRadioButton* UEMPUWRadioButtonList::GetSelectedRadioButton()
 
 void  UEMPUWRadioButtonList::RemoveRadioButton(class UEMPUWRadioButton* radioButtonToRemove)
 {
-	for (UWidget* child : RadioButtonsContainer->GetAllChildren())
+	for (UEMPUWRadioButton* radioButton : RadioButtons)
 	{
-		UEMPUWRadioButton* radioButton = Cast<UEMPUWRadioButton>(child);
 		if (radioButton && radioButton == radioButtonToRemove)
 		{
 			// Found button to remove. Check if it is currently the selected one
@@ -77,6 +64,7 @@ void  UEMPUWRadioButtonList::RemoveRadioButton(class UEMPUWRadioButton* radioBut
 			break;
 		}
 	}
+	RadioButtons.Remove(radioButtonToRemove);
 }
 
 
@@ -101,14 +89,10 @@ void UEMPUWRadioButtonList::SetAsSelected(class UEMPUWRadioButton* buttonToSetSe
 int32 UEMPUWRadioButtonList::GetIndexOfButton(UEMPUWRadioButton* buttonToGetIndex)
 {
 	int32 currentIndex = 0;
-	for (UWidget* child : RadioButtonsContainer->GetAllChildren())
+	for (UEMPUWRadioButton* radioButton : RadioButtons)
 	{
-		UEMPUWRadioButton* radioButton = Cast<UEMPUWRadioButton>(child);
-		if (radioButton)
-		{
-			if (radioButton == buttonToGetIndex) return currentIndex;
-			currentIndex++;
-		}
+		if (radioButton == buttonToGetIndex) return currentIndex;
+		currentIndex++;
 	}
 	return -1;
 }

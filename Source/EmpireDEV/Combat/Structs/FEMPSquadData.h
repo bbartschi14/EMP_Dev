@@ -6,6 +6,7 @@
 #include "Engine/UserDefinedStruct.h"
 #include "FEMPCombatUnitData.h"
 #include "../Enums/EEMPCombatDirection.h"
+#include "../../Game/GameInstanceBaseEMP.h"
 #include "FEMPSquadData.generated.h"
 
 
@@ -141,7 +142,7 @@ struct FEMPSquadDataStruct
 	GENERATED_USTRUCT_BODY()
 
 public:
-	UEMPSquadData* GetSquadData() const
+	UEMPSquadData* GetSquadData(UGameInstanceBaseEMP* GameInstance) const
 	{
 		UEMPSquadData* squadData = NewObject<UEMPSquadData>();
 		squadData->SquadName = SquadName;
@@ -150,7 +151,7 @@ public:
 		squadData->CurrentSquadState = CurrentSquadState;
 		for (FEMPCombatUnitDataStruct combatUnit : CombatUnitsInSquad)
 		{
-			UEMPCombatUnitData* combatUnitData = combatUnit.GetCombatUnitData();
+			UEMPCombatUnitData* combatUnitData = combatUnit.GetCombatUnitData(GameInstance);
 			combatUnitData->OwningSquad = squadData;
 			squadData->CombatUnitsInSquad.Add(combatUnitData);
 		}

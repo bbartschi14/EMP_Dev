@@ -58,6 +58,9 @@ protected:
 	UPROPERTY(Transient)
 		class UEMPUWRadioButton* SelectedRadioButton;
 
+	UPROPERTY()
+	TArray<class UEMPUWRadioButton*> RadioButtons;
+
 private:
 	UFUNCTION()
 		int32 GetIndexOfButton(class UEMPUWRadioButton* buttonToGetIndex);

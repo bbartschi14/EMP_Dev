@@ -59,14 +59,6 @@ public:
 		void SetupCombatUnitMesh(FEMPCombatUnitMeshData meshData);
 
 	/** */
-	UFUNCTION()
-		void TakeCachedDamage(int32 damageToCache);
-
-	/** */
-	UFUNCTION()
-		void ResolvedCachedDamage();
-
-	/** */
 	UFUNCTION(BlueprintCallable)
 		void MoveToGridSquare(FIntPoint inCoordinate, bool bNotifyWhenFinished);
 
@@ -105,22 +97,16 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		FIntPoint GridCoordinate = FIntPoint(-1, -1);
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		int32 MaxHealth = 10;
-
-	UPROPERTY(Transient)
-		int32 CurrentHealth;
-
 	UPROPERTY(Transient)
 		int32 CachedDamage;
 
-	UPROPERTY(Transient)
+	UPROPERTY(Transient, VisibleAnywhere)
 		class UEMPCombatUnitData* CombatUnitData;
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(BlueprintReadWrite, Transient)
 		FVector TargetLocation;
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(BlueprintReadWrite, Transient)
 		bool bIsReadyStance;
 
 	/** */

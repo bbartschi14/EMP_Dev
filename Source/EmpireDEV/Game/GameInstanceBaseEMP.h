@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "../Combat/Structs/FEMPCombatUnitData.h"
+#include "../Combat/Structs/FEMPDefaultSkills.h"
 #include "GameInstanceBaseEMP.generated.h"
+
 
 /**
  * 
@@ -19,8 +22,15 @@ public:
 		class UEMPSquadsDatabase* TestOnlySquadsDatabase;
 	UPROPERTY(EditDefaultsOnly)
 		class UEMPArmyDatabase* TestOnlyArmyDatabase;
+
+	UFUNCTION()
+	void GetDefaultSkillsForClass(EEMPCombatClass InClass, TArray<TSubclassOf<UEMPCombatSkill>>& OutSkills) const;
 protected:
 	void Init() override;
 
+	UPROPERTY(EditDefaultsOnly)
+		class UDataTable* DefaultCombatSkillsDataTable;
 
+	UPROPERTY(EditDefaultsOnly)
+	TMap<EEMPCombatClass, FEMPDefaultSkills> DefaultCombatSkillsMap;
 };

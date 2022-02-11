@@ -3,6 +3,7 @@
 
 #include "EMPCombatSimulator.h"
 #include "../Game/EMPCombatMapGameMode.h"
+#include "Skills/EMPStatModifierCombatSkill.h"
 #include "Structs/FEMPSquadData.h"
 #include "EMPCombatStatics.h"
 
@@ -55,16 +56,58 @@ void UEMPCombatSimulator::SimulateSquadAttacks(UEMPSquadData* attackingSquad, UE
 		}
 		// Enemy has been found, simulate attack (Roll chance. If hits, die)
 
-		float hitRoll = FMath::RandRange(0.0f, 1.0f);
-		//if (bEnableDebugMode) UE_LOG(LogTemp, Warning, TEXT("Unit (%s) rolling to hit (%s). Result: %f"), *unit->GetName(), *potentialEnemy->GetName(), hitRoll);
-
+#pragma region Apply Stat Modifiers
 		FEMPCombatHitResult hitResult;
 		hitResult.AttackingUnit = unit;
 		hitResult.DefendingUnit = potentialEnemy;
-		if (hitRoll > .5f)
+
+		TArray<UEMPStatModifierCombatSkill*> attackingStatMods;
+		hitResult.AttackingUnit->GetStatModifierCombatSkills(attackingStatMods);
+		TArray<UEMPStatModifierCombatSkill*> defendingStatMods;
+		hitResult.DefendingUnit->GetStatModifierCombatSkills(defendingStatMods);
+
+		FEMPStatModifierCombatSkillData attackingData;
+		attackingData.OwningUnit = hitResult.AttackingUnit;
+		attackingData.OtherUnit = hitResult.DefendingUnit;
+		attackingData.bIsAttack = true;
+
+		FEMPStatModifierCombatSkillData defendingData;
+		defendingData.OwningUnit = hitResult.DefendingUnit;
+		defendingData.OtherUnit = hitResult.AttackingUnit;
+		defendingData.bIsAttack = false;
+
+		float hitChance = 0.5f;
+		int damage = hitResult.AttackingUnit->Damage;
+		int armor = hitResult.DefendingUnit->Armor;
+
+		for (auto mod : attackingStatMods)
+		{
+			mod->SetData(attackingData);
+		}
+
+		for (auto mod : defendingStatMods)
+		{
+			mod->SetData(defendingData);
+		}
+
+		TArray<UEMPStatModifierCombatSkill*> allStatMods; 
+		allStatMods.Append(attackingStatMods); 
+		allStatMods.Append(defendingStatMods);
+
+		for (auto mod : allStatMods)
+		{
+			hitChance = mod->ModifyHitChance(hitChance);
+			damage = mod->ModifyDamage(damage);
+			armor = mod->ModifyArmor(armor);
+		}
+#pragma endregion Apply Stat Modifiers
+
+		float hitRoll = FMath::RandRange(0.0f, 1.0f);
+		
+		if (hitRoll >= (1.0f - hitChance))
 		{
 			hitResult.bHitSuccessful = true;
-			hitResult.DamageDealt = FMath::Max(hitResult.AttackingUnit->Damage - hitResult.DefendingUnit->Armor, 0);
+			hitResult.DamageDealt = FMath::Max(damage - armor, 0);
 		}
 		else
 		{
@@ -123,7 +166,8 @@ void UEMPCombatSimulator::UpdateCombatMovement(float animationTime)
 	//        Origin ^
 
 	FIntPoint originGridCoordinate = UEMPCombatStatics::TransformGridCoordinate_LocalToGlobal(rotatedLocalOrigin, CombatSquadOne->CombatAreaLocation);
-	UE_LOG(LogTemp, Warning, TEXT("Origin: %s, Direction: %s"), *originGridCoordinate.ToString(), *SquadOneAttackingDirection.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("Origin: %s, Direction: %s"), *originGridCoordinate.ToString(), *SquadOneAttackingDirection.ToString());
+	// 
 	// Check each column
 	for (int lineIndex = 0; lineIndex < 5; lineIndex++)
 	{

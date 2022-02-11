@@ -361,12 +361,12 @@ void ABasicLevelGameModeEMP::SimulateCombatDamage(AEMPSquad* squadOne, AEMPSquad
 	// Update unit states
 	for (AEMPCombatUnit* unit : squadOne->GetCombatUnitsInSquad())
 	{
-		unit->ResolvedCachedDamage();
+		//unit->ResolvedCachedDamage();
 	}
 
 	for (AEMPCombatUnit* unit : squadTwo->GetCombatUnitsInSquad())
 	{
-		unit->ResolvedCachedDamage();
+		//unit->ResolvedCachedDamage();
 	}
 }
 
@@ -485,7 +485,7 @@ void ABasicLevelGameModeEMP::SimulateSquadAttacks(AEMPSquad* attackingSquad, AEM
 		if (bEnableDebugMode) UE_LOG(LogTemp, Warning, TEXT("Unit (%s) rolling to hit (%s). Result: %f"), *unit->GetName(), *potentialEnemy->GetName(), hitRoll);
 		if (hitRoll > .5f)
 		{
-			potentialEnemy->TakeCachedDamage(10);
+			//potentialEnemy->TakeCachedDamage(10);
 		}
 	}
 }

@@ -26,7 +26,6 @@ void AEMPCombatUnit::SetReadyStance(bool isReady)
 void AEMPCombatUnit::BeginPlay()
 {
 	Super::BeginPlay();
-	CurrentHealth = MaxHealth;
 }
 
 // Called every frame
@@ -72,22 +71,6 @@ void AEMPCombatUnit::SetGridCoordinate(FIntPoint inCoordinate)
 FIntPoint AEMPCombatUnit::GetGridCoordinate() const
 {
 	return GridCoordinate;
-}
-
-void AEMPCombatUnit::TakeCachedDamage(int32 damageToCache)
-{
-	CachedDamage += damageToCache;
-}
-
-void AEMPCombatUnit::ResolvedCachedDamage()
-{
-	CurrentHealth -= CachedDamage;
-	CachedDamage = 0;
-
-	if (CurrentHealth <= 0)
-	{
-		HandleCombatUnitDeath();
-	}
 }
 
 void AEMPCombatUnit::HandleCombatUnitDeath()

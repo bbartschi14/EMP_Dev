@@ -13,14 +13,14 @@ void UEMPSquadManager::Initialize(FSubsystemCollectionBase& Collection)
 	
 	for (FEMPSquadDataStruct squadData : gameInstance->TestOnlySquadsDatabase->Squads)
 	{
-		UEMPSquadData* dataToStore = squadData.GetSquadData();
+		UEMPSquadData* dataToStore = squadData.GetSquadData(gameInstance);
 		bool bSquadValidated = ValidateSquad(dataToStore);
 		if (bSquadValidated) Squads.Add(dataToStore);
 	}
 
 	for (FEMPCombatUnitDataStruct unitData : gameInstance->TestOnlySquadsDatabase->UnassignedCombatUnits)
 	{
-		UnassignedCombatUnits.Add(unitData.GetCombatUnitData());
+		UnassignedCombatUnits.Add(unitData.GetCombatUnitData(gameInstance));
 	}
 }
 
