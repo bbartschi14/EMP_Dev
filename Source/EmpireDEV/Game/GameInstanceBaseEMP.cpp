@@ -6,9 +6,9 @@
 
 void UGameInstanceBaseEMP::GetDefaultSkillsForClass(EEMPCombatClass InClass, TArray<TSubclassOf<UEMPCombatSkill>>& OutSkills) const
 {
-	if (DefaultCombatSkillsMap.Contains(InClass))
+	if (DefaultCombatSkillsData->DefaultCombatSkillsMap.Contains(InClass))
 	{
-		for (TSubclassOf<UEMPCombatSkill> skill : DefaultCombatSkillsMap.Find(InClass)->CombatSkills)
+		for (TSubclassOf<UEMPCombatSkill> skill : DefaultCombatSkillsData->DefaultCombatSkillsMap.Find(InClass)->CombatSkills)
 		{
 			OutSkills.Add(skill);
 		}
@@ -17,9 +17,5 @@ void UGameInstanceBaseEMP::GetDefaultSkillsForClass(EEMPCombatClass InClass, TAr
 
 void UGameInstanceBaseEMP::Init() 
 {
-	// Initialize data map before allowing subsystems to initialize
-	DefaultCombatSkillsMap.Empty();
-	DefaultCombatSkillsDataTable->ForeachRow<FEMPDefaultSkillsRow>("Add to map", [&](const FName& Key, const FEMPDefaultSkillsRow& Value) { DefaultCombatSkillsMap.Add(Value.CombatClass, Value.CombatSkills); });
-
 	Super::Init();
 }

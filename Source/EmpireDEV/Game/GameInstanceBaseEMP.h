@@ -19,18 +19,20 @@ class EMPIREDEV_API UGameInstanceBaseEMP : public UGameInstance
 
 public:
 	UPROPERTY(EditDefaultsOnly)
-		class UEMPSquadsDatabase* TestOnlySquadsDatabase;
+	class UEMPSquadsDatabase* TestOnlySquadsDatabase;
+
 	UPROPERTY(EditDefaultsOnly)
-		class UEMPArmyDatabase* TestOnlyArmyDatabase;
+	class UEMPArmyDatabase* TestOnlyArmyDatabase;
 
 	UFUNCTION()
 	void GetDefaultSkillsForClass(EEMPCombatClass InClass, TArray<TSubclassOf<UEMPCombatSkill>>& OutSkills) const;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UEMPStatsDatabase* DefaultCombatStatsData;
+
 protected:
 	void Init() override;
 
 	UPROPERTY(EditDefaultsOnly)
-		class UDataTable* DefaultCombatSkillsDataTable;
-
-	UPROPERTY(EditDefaultsOnly)
-	TMap<EEMPCombatClass, FEMPDefaultSkills> DefaultCombatSkillsMap;
+	UEMPDefaultSkillsData* DefaultCombatSkillsData;
 };

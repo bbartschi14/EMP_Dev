@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Engine/DataTable.h"
 #include "FEMPCombatUnitData.h"
+#include "Engine/DataAsset.h"
 #include "FEMPDefaultSkills.generated.h"
 /**
  * 
@@ -20,16 +20,11 @@ public:
 	TArray<TSubclassOf<UEMPCombatSkill>> CombatSkills;
 };
 
-USTRUCT(BlueprintType)
-struct FEMPDefaultSkillsRow : public FTableRowBase
+UCLASS(BlueprintType)
+class EMPIREDEV_API UEMPDefaultSkillsData : public UDataAsset
 {
 	GENERATED_BODY()
 public:
-	FEMPDefaultSkillsRow() {}
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		EEMPCombatClass CombatClass;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FEMPDefaultSkills CombatSkills;
+	UPROPERTY(EditAnywhere)
+	TMap<EEMPCombatClass, FEMPDefaultSkills> DefaultCombatSkillsMap;
 };

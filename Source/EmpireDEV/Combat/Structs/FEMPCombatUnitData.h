@@ -192,21 +192,4 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		EEMPOfficerRank OfficerRank;
-
-	// Stats
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		int32 Health = 1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		int32 Damage = 1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		int32 Armor = 1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		int32 Speed = 1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		int32 Range = 1;
 };

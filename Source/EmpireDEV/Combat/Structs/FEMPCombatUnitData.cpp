@@ -4,6 +4,7 @@
 #include "../Skills/CombatSkill.h"
 #include "../Skills/EMPStatModifierCombatSkill.h"
 #include "../../Game/GameInstanceBaseEMP.h"
+#include "EMPStatsDatabase.h"
 
 UEMPCombatUnitData::UEMPCombatUnitData()
 {
@@ -63,16 +64,26 @@ UEMPCombatUnitData* FEMPCombatUnitDataStruct::GetCombatUnitData(UGameInstanceBas
 	combatUnitData->NCORank = NCORank;
 	combatUnitData->OfficerRank = OfficerRank;
 
-	// Stats
-	combatUnitData->Health = Health;
-	combatUnitData->Damage = Damage;
-	combatUnitData->Armor = Armor;
-	combatUnitData->Speed = Speed;
-	combatUnitData->Range = Range;
 
 	TArray<TSubclassOf<UEMPCombatSkill>> OutSkills;
 	GameInstance->GetDefaultSkillsForClass(combatUnitData->CombatClass, OutSkills);
 	combatUnitData->InitializeDefaultSkills(OutSkills);
+
+	// Stats
+
+	if (GameInstance->DefaultCombatStatsData->ClassToStatsMap.Contains(CombatClass))
+	{
+		auto rankMap = GameInstance->DefaultCombatStatsData->ClassToStatsMap.Find(CombatClass);
+		if (rankMap->RankToStatsMap.Contains(CombatClassRank))
+		{
+			auto stats = rankMap->RankToStatsMap.Find(CombatClassRank);
+			combatUnitData->Health = stats->Health;
+			combatUnitData->Damage = stats->Damage;
+			combatUnitData->Armor = stats->Armor;
+			combatUnitData->Speed = stats->Speed;
+			combatUnitData->Range = stats->Range;
+		}
+	}
 
 	return combatUnitData;
 }
