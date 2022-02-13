@@ -4,20 +4,20 @@
 
 #include "CoreMinimal.h"
 #include "BaseGameModeEMP.h"
+#include "../Combat/Structs/FEMPCombatHitResult.h"
 #include "EMPCombatMapGameMode.generated.h"
 
 UENUM(BlueprintType)
 enum class EEMPCombatMapState : uint8
 {
 	GS_SELECTING_SQUAD     UMETA(DisplayName = "Selecting Squad"),
-	GS_MOVING_SQUAD      UMETA(DisplayName = "Moving a Squad"),
-	GS_REARRANGING_SQUAD      UMETA(DisplayName = "Rearranging a Squad"),
+	GS_QUEUEING_ACTION      UMETA(DisplayName = "Queueing an Action"),
 	GS_SIMULATING	UMETA(DisplayName = "Simulating"),
 };
 
 /**
 * The game mode for controlling a basic game loop encounter.
-* Two commanders fight against eachother, ordering their squadrons into
+* Two commanders fight against each other, ordering their squadrons into
 * positions to then simulate combat against the other team. The game mode
 * ends when one team has eliminated the other, or one concedes.
 ***********************************************************************************/
@@ -33,7 +33,7 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCombatUnitChange, class UEMPCombatUnitData*, combatUnit);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCombatUnitAnimate, class UEMPCombatUnitData*, combatUnit, float, animationTime);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnCombatUnitAttackAnimate, class UEMPCombatUnitData*, attackingCombatUnit, class UEMPCombatUnitData*, defendingCombatUnit, float, animationTime);
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnActionQueued, class UEMPCombatActionData*, actionData);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnActionQueued, class UEMPCombatActionSkill*, actionData);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnMoraleRoll, class UEMPSquadData*, squadData, int32, moraleRoll, float, animationTime);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSimpleChange);
 
@@ -90,17 +90,22 @@ public:
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "EMP Events")
 		FOnCombatEvent OnCombatInitiated;
 
+	/** Called once units retreat during combat. */
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "EMP Events")
 		FOnCombatEvent OnCombatEnded;
 
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "EMP Events")
 		FOnMoraleRoll OnMoraleRoll;
 
+	/** Called when the combat is completely finished and the simulator is cleaned up. */
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "EMP Events")
+		FOnSimpleChange OnCombatSimuationFinished;
+
 	/** Set a squad as the current selection, broadcasting to UI elements that will change state. */
 	UFUNCTION(BlueprintCallable)
 		void SelectSquad(class UEMPSquadData* squadToLoad);
 
-	/** If a squad is currently selected, clear the reference and broadcast the deselection. */
+	/** If a squad is currently selected, clear the reference and broadcast the de-selection. */
 	UFUNCTION(BlueprintCallable)
 		void ClearSelectedSquad();
 
@@ -121,10 +126,13 @@ public:
 		class UEMPSquadData* GetEnemySquadAtAreaCoordinate(FIntPoint areaCoordinate) const;
 
 	UFUNCTION(BlueprintCallable)
-		void EnterMovingSquadState();
+		class UEMPCombatUnitData* GetEnemyUnitAtGridCoordinate(FIntPoint gridCoordinate) const;
 
 	UFUNCTION(BlueprintCallable)
-		void QueueAction_MoveSelectedSquad(FIntPoint newLocation);
+		void EnterQueueingActionState(class UEMPCombatActionSkill* InActionQueueing);
+
+	UFUNCTION(BlueprintCallable)
+		void QueueAction(class UEMPCombatActionSkill* ActionToQueue);
 
 	UFUNCTION(BlueprintCallable)
 		void MoveSquadToAreaLocation(class UEMPSquadData* squadToMove, FIntPoint destination, float animationTime);
@@ -139,19 +147,16 @@ public:
 		void HandleSquadMovementFailed(class UEMPSquadData* squadToMove, float animationTime);
 
 	UFUNCTION(BlueprintCallable)
-		void EnterRearrangingSquadState();
-
-	UFUNCTION(BlueprintCallable)
 		EEMPCombatMapState GetCombatMapState() const;
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 		void EndTurn();
 
 	UFUNCTION(BlueprintCallable)
-		class UEMPCombatSimulator* InitiateCombat(class UEMPSquadData* squadOne, class UEMPSquadData* squadTwo);
-
-	UFUNCTION(BlueprintCallable)
 		void FinishSimulating();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+		void InitiateCombat(class UEMPSquadData* squadOne, class UEMPSquadData* squadTwo);
 
 	UFUNCTION()
 		void RemoveSquadFromCombat(class UEMPSquadData* squadToRemove, float animationTime);
@@ -159,6 +164,8 @@ public:
 	UFUNCTION()
 		void HandleCancelActionPressed();
 
+	UFUNCTION(BlueprintCallable)
+		void ResolveHit(FEMPCombatHitResult InHit);
 protected:
 	virtual void BeginPlay() override;
 
@@ -170,6 +177,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 		void SetCombatMapState(EEMPCombatMapState newState);
+
+	UFUNCTION(BlueprintCallable)
+		class UEMPCombatSimulator* SetupCombat(class UEMPSquadData* squadOne, class UEMPSquadData* squadTwo);
 
 	UPROPERTY(Transient, BlueprintReadOnly)
 		class AEMPCombatMapGrid* Grid;
@@ -187,12 +197,16 @@ protected:
 		class UEMPCombatUnitData* SelectedCombatUnit;
 
 	UPROPERTY(Transient, BlueprintReadOnly)
-		TArray<class UEMPCombatActionData*> QueuedActions;
+		TArray<class UEMPCombatActionSkill*> QueuedActions;
 
 	UPROPERTY(Transient, BlueprintReadWrite)
 		class UEMPCombatSimulator* CombatSimulator;
 
 	UPROPERTY(BlueprintReadOnly)
 		EEMPCombatMapState CurrentState;
+
+public:
+	UPROPERTY(BlueprintReadOnly)
+		class UEMPCombatActionSkill* ActionBeingQueued;
 
 };

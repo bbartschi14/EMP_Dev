@@ -15,7 +15,11 @@ void UEMPSquadManager::Initialize(FSubsystemCollectionBase& Collection)
 	{
 		UEMPSquadData* dataToStore = squadData.GetSquadData(gameInstance);
 		bool bSquadValidated = ValidateSquad(dataToStore);
-		if (bSquadValidated) Squads.Add(dataToStore);
+		if (bSquadValidated)
+		{
+			dataToStore->bIsFriendlySquad = true;
+			Squads.Add(dataToStore);
+		}
 	}
 
 	for (FEMPCombatUnitDataStruct unitData : gameInstance->TestOnlySquadsDatabase->UnassignedCombatUnits)

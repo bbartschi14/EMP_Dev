@@ -6,6 +6,7 @@
 #include "Engine/GameInstance.h"
 #include "../Combat/Structs/FEMPCombatUnitData.h"
 #include "../Combat/Structs/FEMPDefaultSkills.h"
+#include "../Combat/Structs/EMPCombatSkillsDatabase.h"
 #include "GameInstanceBaseEMP.generated.h"
 
 
@@ -29,6 +30,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	class UEMPStatsDatabase* DefaultCombatStatsData;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UEMPCombatSkillsDatabase* SquadCombatSkills;
 
 protected:
 	void Init() override;

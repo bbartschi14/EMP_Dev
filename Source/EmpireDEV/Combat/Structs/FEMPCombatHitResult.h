@@ -15,15 +15,15 @@ struct FEMPCombatHitResult
 	GENERATED_USTRUCT_BODY()
 
 public:
-	UPROPERTY(Transient, BlueprintReadOnly)
+	UPROPERTY(Transient, BlueprintReadWrite)
 		class UEMPCombatUnitData* AttackingUnit;
 
-	UPROPERTY(Transient, BlueprintReadOnly)
+	UPROPERTY(Transient, BlueprintReadWrite)
 		class UEMPCombatUnitData* DefendingUnit;
 
-	UPROPERTY(Transient, BlueprintReadOnly)
+	UPROPERTY(Transient, BlueprintReadWrite)
 		bool bHitSuccessful;
 
-	UPROPERTY(Transient, BlueprintReadOnly)
+	UPROPERTY(Transient, BlueprintReadWrite)
 		int32 DamageDealt;
 };

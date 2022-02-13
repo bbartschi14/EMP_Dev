@@ -43,6 +43,14 @@ int32 AEMPGrid::GetHeightOfAreaCoordinate(FIntPoint areaCoordinate) const
 	return 0;
 }
 
+void AEMPGrid::GetAllAreaCoordinates(TArray<FIntPoint>& OutAreaCoordinates) const
+{
+	for (int i = 0; i < GridAreaHighlights.Num(); i++)
+	{
+		OutAreaCoordinates.Add(FIntPoint(i % GridDimensions, i / GridDimensions));
+	}
+}
+
 AEMPGridAreaHighlight* AEMPGrid::GetGridAreaHighlightAtCoordinate(FIntPoint areaCoordinate) const
 {
 	int32 transformedCoord = areaCoordinate.Y * GridDimensions + areaCoordinate.X;
@@ -58,6 +66,7 @@ void AEMPGrid::BeginPlay()
 	Super::BeginPlay();
 	SpawnLandscape();
 	SpawnGrid();
+	RefreshGridVisuals();
 }
 
 void AEMPGrid::SpawnLandscape()
@@ -227,7 +236,7 @@ TArray<AEMPGridSquare*> AEMPGrid::GetGridSquaresInArea(FIntPoint areaCoordinate)
 	return gridSquaresInArea;
 }
 
-FVector AEMPGrid::GetWorldLocationFromGridLocation(FIntPoint gridLocation)
+FVector AEMPGrid::GetWorldLocationFromGridLocation(FIntPoint gridLocation) const
 {
 	return GridSquares[GridDimensions * 5 * gridLocation.Y + gridLocation.X]->GetActorLocation();
 	//return FVector(SingleGridSquareSize * gridLocation.X + SingleGridSquareSize/2, SingleGridSquareSize * gridLocation.Y + SingleGridSquareSize / 2, GridBaseHeight);

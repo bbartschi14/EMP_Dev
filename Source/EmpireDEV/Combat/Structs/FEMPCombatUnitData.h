@@ -40,7 +40,8 @@ enum class EEMPCombatClass : uint8
 	CC_ARCHER				UMETA(DisplayName = "Archer"),
 	CC_ENGINEER				UMETA(DisplayName = "Engineer"),
 	CC_SCOUT				UMETA(DisplayName = "Scout"),
-	CC_PIKEMAN				UMETA(DisplayName = "Pikeman")
+	CC_PIKEMAN				UMETA(DisplayName = "Pikeman"),
+	CC_WIZARD				UMETA(DisplayName = "Wizard")
 };
 
 /**
@@ -133,6 +134,9 @@ public:
 
 	UPROPERTY(Transient, BlueprintReadWrite, VisibleAnywhere)
 	bool bIsFriendlyUnit;
+
+	UPROPERTY(Transient, BlueprintReadWrite, VisibleAnywhere)
+	class AEMPCombatUnit* CombatUnitActor;
 
 	/** Manages personal combat skills */
 	UPROPERTY(Transient, BlueprintReadWrite, VisibleAnywhere)

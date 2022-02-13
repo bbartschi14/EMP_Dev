@@ -16,6 +16,12 @@ class EMPIREDEV_API UEMPCombatSkill : public UObject
 
 public:
 	UFUNCTION()
+	void SetOwningSquad(class UEMPSquadData* InOwningSquad);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	bool AreSkillRequirementsMet(class UEMPSquadData* Squad, class UEMPCombatUnitData* CombatUnit);
+
+	UFUNCTION()
 	virtual FName GetSkillType() const;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
@@ -23,4 +29,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	FText SkillDescription;
+
+protected:
+	UPROPERTY(Transient, BlueprintReadOnly, VisibleAnywhere)
+	class UEMPSquadData* OwningSquad;
 };

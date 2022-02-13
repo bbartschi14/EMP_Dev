@@ -16,7 +16,9 @@ TArray<UEMPSquadData*> AEMPEnemySquadLevelData::GetSquadData() const
 	TArray<UEMPSquadData*> squadData;
 	for (FEMPSquadDataStruct data : EnemySquads)
 	{
-		squadData.Add(data.GetSquadData(gameInstance));
+		UEMPSquadData* squad = data.GetSquadData(gameInstance);
+		squad->bIsFriendlySquad = false;
+		squadData.Add(squad);
 	}
 	return squadData;
 }

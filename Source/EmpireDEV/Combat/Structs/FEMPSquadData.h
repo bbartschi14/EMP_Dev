@@ -9,22 +9,15 @@
 #include "../../Game/GameInstanceBaseEMP.h"
 #include "FEMPSquadData.generated.h"
 
-
 /*
  * Squads start in the "awaiting orders" state at the start of a turn.
- * When given a movement order, they will be in the "Move queued" state, meaning
- * that they can't be given another order or rearranged. If the squad is rearranged,
- * it will be put in the "Rearranged" state, and can be continuously rearranged but
- * not given a movement order.
  */
 UENUM(BlueprintType)
 enum class ESquadStateEMP : uint8
 {
 	SS_AWAITING_ORDERS     UMETA(DisplayName = "Awaiting Orders"),
-	SS_MOVE_QUEUED     UMETA(DisplayName = "Move queued"),
-	SS_REARRANGED     UMETA(DisplayName = "Rearranged"),
+	SS_ACTION_QUEUED     UMETA(DisplayName = "Action queued"),
 };
-
 
 /**
  * Class version of Squad Data
@@ -35,106 +28,60 @@ class EMPIREDEV_API UEMPSquadData : public UObject
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable) UEMPCombatUnitData* GetCombatUnitAtDesiredLocation(FIntPoint desiredLocation)
-	{
-		for (UEMPCombatUnitData* combatUnit : CombatUnitsInSquad)
-		{
-			if (combatUnit->GetDesiredLocation() == desiredLocation)
-			{
-				return combatUnit;
-			}
-		}
-		return nullptr;
-	}
+	UFUNCTION(BlueprintCallable) UEMPCombatUnitData* GetCombatUnitAtDesiredLocation(FIntPoint desiredLocation) const;
 
-	UFUNCTION(BlueprintCallable) UEMPCombatUnitData* GetCombatUnitAtCombatLocation(FIntPoint combatLocation)
-	{
-		for (UEMPCombatUnitData* combatUnit : CombatUnitsInSquad)
-		{
-			if (combatUnit->CombatLocation == combatLocation)
-			{
-				return combatUnit;
-			}
-		}
-		return nullptr;
-	}
+	UFUNCTION(BlueprintCallable) UEMPCombatUnitData* GetCombatUnitAtCombatLocation(FIntPoint combatLocation) const;
 
 	// Can return null if there is no officer
-	UFUNCTION(BlueprintCallable) UEMPCombatUnitData* GetSquadOfficer() const
-	{
-		for (UEMPCombatUnitData* combatUnit : CombatUnitsInSquad)
-		{
-			if (combatUnit->OfficerRank != EEMPOfficerRank::OR_NONE)
-			{
-				return combatUnit;
-			}
-		}
-		return nullptr;
-	}
+	UFUNCTION(BlueprintCallable) UEMPCombatUnitData* GetSquadOfficer() const;
 
 	// Returns the current morale of the squad, calculated by combat unit data in the squad
-	UFUNCTION(BlueprintCallable) int32 GetSquadMorale() const
-	{
-		int32 morale = 0;
-		for (UEMPCombatUnitData* combatUnit : CombatUnitsInSquad)
-		{
-			morale += 5; // 5 base morale per unit 
-			if (combatUnit->OfficerRank != EEMPOfficerRank::OR_NONE)
-			{
-				morale += 75; // 75 additional morale per officer
-			}
-			else if (combatUnit->NCORank != EEMPNCORank::NCO_NONE)
-			{
-				morale += 15; // 15 additional morale per NCO
-			}
-		}
-		return morale;
-	}
+	UFUNCTION(BlueprintCallable) int32 GetSquadMorale() const;
 
 	// Get the squad composition as a map of classes (keys) to the number of units with that class (values)
-	UFUNCTION(BlueprintCallable) TMap<EEMPCombatClass, int32> GetSquadComposition() const
-	{
-		TMap<EEMPCombatClass, int32> composition;
-		for (UEMPCombatUnitData* combatUnit : CombatUnitsInSquad)
-		{
-			int32 count = composition.FindOrAdd(combatUnit->CombatClass);
-			composition[combatUnit->CombatClass] = count + 1;
-		}
-		return composition;
-	}
+	UFUNCTION(BlueprintCallable) TMap<EEMPCombatClass, int32> GetSquadComposition() const;
 
-	UFUNCTION(BlueprintCallable) bool CanMoveToAreaCoordinate(FIntPoint areaCoordinate) const
-	{
-		int32 distance = FMath::Abs(CombatAreaLocation.X - areaCoordinate.X) + FMath::Abs(CombatAreaLocation.Y - areaCoordinate.Y);
-		return distance == 1;
-	}
+	UFUNCTION(BlueprintCallable) bool CanMoveToAreaCoordinate(FIntPoint areaCoordinate) const;
 
-	UFUNCTION(BlueprintCallable) void HandleCombatUnitDied(UEMPCombatUnitData* deadCombatUnit)
-	{
-		CombatUnitsInSquad.Remove(deadCombatUnit);
-	}
+	UFUNCTION(BlueprintCallable) void HandleCombatUnitDied(UEMPCombatUnitData* deadCombatUnit);
+
+	UFUNCTION(BlueprintCallable) void GetCombatActionSkills(TArray<class UEMPCombatActionSkill*>& OutSkills) const;
+
+	UFUNCTION(BlueprintCallable) void GetCombatUnitsOfClass(EEMPCombatClass InClass, TArray<class UEMPCombatUnitData*>& OutUnits) const;
+
+	UFUNCTION(BlueprintCallable) int32 GetNumberOfCombatUnitsOfClass(EEMPCombatClass InClass) const;
+public:
+	UPROPERTY(Transient, BlueprintReadWrite)
+	FString SquadName;
 
 	UPROPERTY(Transient, BlueprintReadWrite)
-		FString SquadName;
-
-	UPROPERTY(Transient, BlueprintReadWrite)
-		TArray<UEMPCombatUnitData*> CombatUnitsInSquad;
+	TArray<UEMPCombatUnitData*> CombatUnitsInSquad;
 
 	// Combat
 
 	UPROPERTY(Transient, BlueprintReadWrite)
-		FIntPoint CombatAreaLocation;
+	FIntPoint CombatAreaLocation;
 
 	UPROPERTY(Transient, BlueprintReadWrite)
-		EEMPCombatDirection CombatDirection;
+	EEMPCombatDirection CombatDirection;
 
 	UPROPERTY(Transient, BlueprintReadWrite)
-		ESquadStateEMP CurrentSquadState;
+	ESquadStateEMP CurrentSquadState;
+
+	UPROPERTY(Transient, BlueprintReadOnly)
+	bool bIsFriendlySquad;
+
+	/** Manages squad combat skills */
+	UPROPERTY(Transient, BlueprintReadWrite, VisibleAnywhere)
+	TArray<class UEMPCombatSkill*> CombatSkills;
+
+	UPROPERTY(Transient, BlueprintReadOnly)
+	class UEMPCombatActionSkill* QueuedAction;
 
 };
 
 /**
- * Holds all the serializable/persistent data for a squad
+ * Holds all the serialized/persistent data for a squad
  */
 USTRUCT(BlueprintType)
 struct FEMPSquadDataStruct
@@ -142,21 +89,7 @@ struct FEMPSquadDataStruct
 	GENERATED_USTRUCT_BODY()
 
 public:
-	UEMPSquadData* GetSquadData(UGameInstanceBaseEMP* GameInstance) const
-	{
-		UEMPSquadData* squadData = NewObject<UEMPSquadData>();
-		squadData->SquadName = SquadName;
-		squadData->CombatAreaLocation = CombatAreaLocation;
-		squadData->CombatDirection = CombatDirection;
-		squadData->CurrentSquadState = CurrentSquadState;
-		for (FEMPCombatUnitDataStruct combatUnit : CombatUnitsInSquad)
-		{
-			UEMPCombatUnitData* combatUnitData = combatUnit.GetCombatUnitData(GameInstance);
-			combatUnitData->OwningSquad = squadData;
-			squadData->CombatUnitsInSquad.Add(combatUnitData);
-		}
-		return squadData;
-	}
+	UEMPSquadData* GetSquadData(UGameInstanceBaseEMP* GameInstance) const;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

@@ -13,6 +13,8 @@ AEMPGridSquare::AEMPGridSquare()
 	OnClicked.AddDynamic(this, &AEMPGridSquare::NativeHandleGridSquareClicked);
 	OnBeginCursorOver.AddDynamic(this, &AEMPGridSquare::NativeHandleGridSquareBeginCursorOver);
 	OnEndCursorOver.AddDynamic(this, &AEMPGridSquare::NativeHandleGridSquareEndCursorOver);
+
+	bIsEnabled = true;
 }
 
 // Called when the game starts or when spawned

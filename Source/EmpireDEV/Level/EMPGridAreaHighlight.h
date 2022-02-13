@@ -24,6 +24,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void SetSelected(bool inIsSelected);
 
+	/** Blueprint response to setting enabled */
+	UFUNCTION(BlueprintCallable)
+		void SetEnabled(bool isEnabled);
+
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 		void RefreshVisuals();
 protected:
@@ -35,6 +39,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Transient)
 		bool bIsSelected;
+
+	UPROPERTY(BlueprintReadOnly, Transient)
+		bool bIsEnabled;
 
 	UPROPERTY(BlueprintReadOnly, Transient)
 		bool bIsForceVisible;

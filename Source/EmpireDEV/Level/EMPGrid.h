@@ -31,7 +31,13 @@ public:
 		int32 GetHeightOfAreaCoordinate(FIntPoint areaCoordinate) const;
 
 	UFUNCTION(BlueprintCallable)
+		void GetAllAreaCoordinates(TArray<FIntPoint>& OutAreaCoordinates) const;
+
+	UFUNCTION(BlueprintCallable)
 		class AEMPGridAreaHighlight* GetGridAreaHighlightAtCoordinate(FIntPoint areaCoordinate) const;
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void RefreshGridVisuals();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -44,7 +50,7 @@ protected:
 		void SpawnLandscape();
 
 	UFUNCTION(BlueprintCallable)
-		FVector GetWorldLocationFromGridLocation(FIntPoint gridLocation);
+		FVector GetWorldLocationFromGridLocation(FIntPoint gridLocation) const;
 
 	UFUNCTION(BlueprintCallable)
 		class AEMPCombatUnit* GetCombatUnitFromData(class UEMPCombatUnitData* combatUnitData) const;

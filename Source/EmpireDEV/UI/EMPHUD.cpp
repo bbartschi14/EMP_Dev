@@ -5,18 +5,8 @@
 #include <GameFramework/PlayerController.h>
 #include <Blueprint/UserWidget.h>
 #include <Kismet/GameplayStatics.h>
-#include "../Game/BasicLevelGameModeEMP.h"
 #include "../Game/EMPBaseCampGameMode.h"
 #include "../Game/EMPCombatMapGameMode.h"
-
-void AEMPHUD::ShowCombatUI()
-{
-	// Make widget owned by our PlayerController
-	APlayerController* PC = Cast<APlayerController>(GetOwner());
-	CurrentRoot = CreateWidget<UUserWidget>(PC, CombatUIClass);
-
-	CurrentRoot->AddToViewport();
-}
 
 void AEMPHUD::ShowBaseCampUI()
 {
@@ -48,16 +38,6 @@ void AEMPHUD::HideUI()
 void AEMPHUD::BeginPlay()
 {
 	Super::BeginPlay();
-
-	ABasicLevelGameModeEMP* basicLevelMode = Cast<ABasicLevelGameModeEMP>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (basicLevelMode)
-	{
-		ShowCombatUI();
-	}
-	else 
-	{
-		UE_LOG(LogTemp, Warning, TEXT("When loading main UI, game mode was not ABasicLevelGameModeEMP"));
-	}
 
 	AEMPBaseCampGameMode* baseCampGameMode = Cast<AEMPBaseCampGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (baseCampGameMode)

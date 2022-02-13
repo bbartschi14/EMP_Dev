@@ -6,7 +6,7 @@
 AEMPGridAreaHighlight::AEMPGridAreaHighlight()
 {
 	PrimaryActorTick.bCanEverTick = false;
-
+	bIsEnabled = true;
 }
 
 void AEMPGridAreaHighlight::SetForceVisible(bool inIsForceVisible)
@@ -24,6 +24,12 @@ void AEMPGridAreaHighlight::SetHovered(bool inIsHovered)
 void AEMPGridAreaHighlight::SetSelected(bool inIsSelected)
 {
 	bIsSelected = inIsSelected;
+	RefreshVisuals();
+}
+
+void AEMPGridAreaHighlight::SetEnabled(bool isEnabled)
+{
+	bIsEnabled = isEnabled;
 	RefreshVisuals();
 }
 

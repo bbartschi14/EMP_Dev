@@ -59,6 +59,10 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 		void SetForceHidden(bool inIsForceHidden);
 
+	/** Blueprint response to setting enabled */
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "EMP|Grid")
+		void SetEnabled(bool isEnabled);
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 protected:
@@ -112,4 +116,7 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite)
 		bool bIsForceHidden;
+
+	UPROPERTY(BlueprintReadWrite)
+		bool bIsEnabled;
 };

@@ -3,6 +3,11 @@
 
 #include "CombatSkill.h"
 
+void UEMPCombatSkill::SetOwningSquad(class UEMPSquadData* InOwningSquad)
+{
+	OwningSquad = InOwningSquad;
+}
+
 FName UEMPCombatSkill::GetSkillType() const
 {
 	return FName(TEXT("None"));

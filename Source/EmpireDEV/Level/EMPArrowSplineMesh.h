@@ -24,7 +24,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
-		void InitializeArrow(FVector startLocation, FVector endLocatiion, class UEMPCombatActionData* owningAction);
+		void InitializeArrow(FVector startLocation, FVector endLocatiion, class UEMPCombatActionSkill* owningAction);
 
 
 };

@@ -133,13 +133,7 @@ void UEMPCombatSimulator::ResolveDamage()
 {
 	for (FEMPCombatHitResult hitResult : RoundHitResults)
 	{
-		hitResult.DefendingUnit->TakeHit(hitResult);
-		if (hitResult.DefendingUnit->CurrentHealth <= 0)
-		{
-			// Unit died
-			hitResult.DefendingUnit->OwningSquad->HandleCombatUnitDied(hitResult.DefendingUnit);
-			OwningCombatGameMode->OnCombatUnitDied.Broadcast(hitResult.DefendingUnit);
-		}
+		OwningCombatGameMode->ResolveHit(hitResult);
 	}
 }
 

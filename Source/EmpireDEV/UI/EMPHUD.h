@@ -16,8 +16,6 @@ class EMPIREDEV_API AEMPHUD : public AHUD
 	GENERATED_BODY()
 
 	UFUNCTION(BlueprintCallable)
-		void ShowCombatUI();
-	UFUNCTION(BlueprintCallable)
 		void ShowBaseCampUI();
 	UFUNCTION(BlueprintCallable)
 		void ShowCombatMapUI();
@@ -27,9 +25,6 @@ class EMPIREDEV_API AEMPHUD : public AHUD
 
 protected:
 	void BeginPlay() override;
-
-	UPROPERTY(EditDefaultsOnly)
-		TSubclassOf<class UUserWidget> CombatUIClass;
 
 	UPROPERTY(EditDefaultsOnly)
 		TSubclassOf<class UUserWidget> BaseCampMenuClass;

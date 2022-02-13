@@ -3,7 +3,6 @@
 
 #include "EMPPlayerController.h"
 #include <Kismet/GameplayStatics.h>
-#include "../Game/BasicLevelGameModeEMP.h"
 #include "../Game/EMPCombatMapGameMode.h"
 
 void AEMPPlayerController::SetupInputComponent()

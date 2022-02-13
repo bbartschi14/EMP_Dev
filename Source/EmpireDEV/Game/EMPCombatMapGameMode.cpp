@@ -9,8 +9,8 @@
 #include "../Subsystems/EMPSquadManager.h"
 #include "../Combat/EMPEnemySquadLevelData.h"
 #include "../Combat/EMPCombatStatics.h"
-#include "../Combat/CombatActions/EMPMovementActionData.h"
 #include "../Combat/EMPCombatSimulator.h"
+#include "../Combat/Skills/EMPCombatActionSkill.h"
 
 void AEMPCombatMapGameMode::BeginPlay()
 {
@@ -34,6 +34,8 @@ void AEMPCombatMapGameMode::BeginPlay()
 
 	FriendlySquads = SpawnSquads(squadManager->GetSquadData(), Grid->GetFriendlySquadSpawnPoints());
 	EnemySquads = SpawnSquads(enemySquadData->GetSquadData(), Grid->GetEnemySquadSpawnPoints(), true);
+
+	Grid->RefreshGridVisuals();
 }
 
 TArray<UEMPSquadData*> AEMPCombatMapGameMode::SpawnSquads(TArray<UEMPSquadData*> squads, TArray<FIntPoint> spawnLocations, bool bIsEnemySquad)
@@ -146,26 +148,34 @@ UEMPSquadData* AEMPCombatMapGameMode::GetEnemySquadAtAreaCoordinate(FIntPoint ar
 	return nullptr;
 }
 
-void AEMPCombatMapGameMode::EnterMovingSquadState()
+UEMPCombatUnitData* AEMPCombatMapGameMode::GetEnemyUnitAtGridCoordinate(FIntPoint gridCoordinate) const
 {
-	if (SelectedSquad)
+	UEMPSquadData* enemySquad = GetEnemySquadAtAreaCoordinate(FIntPoint(gridCoordinate.X / 5, gridCoordinate.Y / 5));
+	if (enemySquad)
 	{
-		SetCombatMapState(EEMPCombatMapState::GS_MOVING_SQUAD);
+		UEMPCombatUnitData* unit = enemySquad->GetCombatUnitAtCombatLocation(gridCoordinate);
+		return unit;
 	}
+	return nullptr;
 }
 
-void AEMPCombatMapGameMode::QueueAction_MoveSelectedSquad(FIntPoint newLocation)
+void AEMPCombatMapGameMode::EnterQueueingActionState(UEMPCombatActionSkill* InActionQueueing)
 {
-	check(SelectedSquad && SelectedSquad->CanMoveToAreaCoordinate(newLocation));
+	if (ActionBeingQueued && ActionBeingQueued != InActionQueueing)
+	{
+		ActionBeingQueued->CancelQueue();
+		ActionBeingQueued = nullptr;
+	}
+	ActionBeingQueued = InActionQueueing;
+	ActionBeingQueued->RequestActionQueue(this);
+	SetCombatMapState(EEMPCombatMapState::GS_QUEUEING_ACTION);
+}
 
-	SelectedSquad->CurrentSquadState = ESquadStateEMP::SS_MOVE_QUEUED;
-	UEMPMovementActionData* actionData = NewObject<UEMPMovementActionData>();
-	actionData->SquadToMove = SelectedSquad;
-	actionData->Destination = newLocation;
-
-	QueuedActions.Add(actionData);
-	OnActionQueued.Broadcast(actionData);
-
+void AEMPCombatMapGameMode::QueueAction(UEMPCombatActionSkill* ActionToQueue)
+{
+	QueuedActions.Add(ActionToQueue);
+	OnActionQueued.Broadcast(ActionToQueue);
+	ActionBeingQueued = nullptr;
 	ClearSelectedSquad();
 
 	SetCombatMapState(EEMPCombatMapState::GS_SELECTING_SQUAD);
@@ -200,7 +210,7 @@ void AEMPCombatMapGameMode::RearrangeCombatUnitToLocation(UEMPCombatUnitData* un
 			MoveCombatUnitToLocation(potentialUnitAtDestination, unitToMove->CombatLocation, animationTime);
 		}
 		MoveCombatUnitToLocation(unitToMove, destination, animationTime);
-		SelectedSquad->CurrentSquadState = ESquadStateEMP::SS_REARRANGED;
+		//SelectedSquad->CurrentSquadState = ESquadStateEMP::SS_REARRANGED;
 	}
 }
 
@@ -209,14 +219,6 @@ void AEMPCombatMapGameMode::HandleSquadMovementFailed(UEMPSquadData* squadToMove
 	for (UEMPCombatUnitData* combatUnit : squadToMove->CombatUnitsInSquad)
 	{
 		OnCombatUnitMovementFailed.Broadcast(combatUnit, animationTime);
-	}
-}
-
-void AEMPCombatMapGameMode::EnterRearrangingSquadState()
-{
-	if (SelectedSquad)
-	{
-		SetCombatMapState(EEMPCombatMapState::GS_REARRANGING_SQUAD);
 	}
 }
 
@@ -232,16 +234,15 @@ void AEMPCombatMapGameMode::SetCombatMapState(EEMPCombatMapState newState)
 	OnGameStateChanged.Broadcast(newState);
 }
 
-UEMPCombatSimulator* AEMPCombatMapGameMode::InitiateCombat(UEMPSquadData* squadOne, UEMPSquadData* squadTwo)
+UEMPCombatSimulator* AEMPCombatMapGameMode::SetupCombat(UEMPSquadData* squadOne, UEMPSquadData* squadTwo)
 {
-	UEMPCombatSimulator* simulator = NewObject<UEMPCombatSimulator>();
-	simulator->InitializeCombatData(squadOne, squadTwo, this);
+	UEMPCombatSimulator* sim = NewObject<UEMPCombatSimulator>();
+	sim->InitializeCombatData(squadOne, squadTwo, this);
 
 	OnCombatInitiated.Broadcast(squadOne, squadTwo);
 
-	return simulator;
+	return sim;
 }
-
 
 
 void AEMPCombatMapGameMode::FinishSimulating()
@@ -277,18 +278,24 @@ void AEMPCombatMapGameMode::HandleCancelActionPressed()
 	switch (CurrentState)
 	{
 	case EEMPCombatMapState::GS_SELECTING_SQUAD:
-		if (SelectedSquad)
-		{
-			ClearSelectedSquad();
-		}
+		ClearSelectedSquad();
 		break;
-	case EEMPCombatMapState::GS_MOVING_SQUAD:
+	case EEMPCombatMapState::GS_QUEUEING_ACTION:
+		ActionBeingQueued->CancelQueue();
+		ActionBeingQueued = nullptr;
 		ClearSelectedSquad();
 		SetCombatMapState(EEMPCombatMapState::GS_SELECTING_SQUAD);
 		break;
-	case EEMPCombatMapState::GS_REARRANGING_SQUAD:
-		ClearSelectedSquad();
-		SetCombatMapState(EEMPCombatMapState::GS_SELECTING_SQUAD);
-		break;
+	}
+}
+
+void AEMPCombatMapGameMode::ResolveHit(FEMPCombatHitResult InHit)
+{
+	InHit.DefendingUnit->TakeHit(InHit);
+	if (InHit.DefendingUnit->CurrentHealth <= 0)
+	{
+		// Unit died
+		InHit.DefendingUnit->OwningSquad->HandleCombatUnitDied(InHit.DefendingUnit);
+		OnCombatUnitDied.Broadcast(InHit.DefendingUnit);
 	}
 }

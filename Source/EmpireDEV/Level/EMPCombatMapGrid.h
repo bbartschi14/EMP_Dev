@@ -38,6 +38,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void SetCombatUnitsInSquadReady(class UEMPSquadData* squadData, bool isReady);
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+		void SpawnArrowIndicator(class UEMPCombatActionSkill* OwningAction, FIntPoint OriginCoordinate, FIntPoint DestinationCoordinate);
+
 protected:
 	virtual void BeginPlay() override;
 
