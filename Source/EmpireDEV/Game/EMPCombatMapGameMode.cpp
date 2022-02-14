@@ -292,9 +292,11 @@ void AEMPCombatMapGameMode::HandleCancelActionPressed()
 void AEMPCombatMapGameMode::ResolveHit(FEMPCombatHitResult InHit)
 {
 	InHit.DefendingUnit->TakeHit(InHit);
+
 	if (InHit.DefendingUnit->CurrentHealth <= 0)
 	{
 		// Unit died
+		InHit.AttackingUnit->AddKill();
 		InHit.DefendingUnit->OwningSquad->HandleCombatUnitDied(InHit.DefendingUnit);
 		OnCombatUnitDied.Broadcast(InHit.DefendingUnit);
 	}

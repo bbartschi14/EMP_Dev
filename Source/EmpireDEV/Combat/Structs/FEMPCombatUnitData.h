@@ -65,6 +65,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void TakeHit(FEMPCombatHitResult hit)
 	{
+		if (!hit.bHitSuccessful)
+		{
+			AddDodge();
+		}
+
 		CurrentHealth -= hit.DamageDealt;
 		OnDamageTaken.Broadcast(hit);
 	}
@@ -91,6 +96,7 @@ public:
 	UPROPERTY(Transient, BlueprintReadWrite, VisibleAnywhere)
 		int32 DesiredLocationY;
 
+
 	// If null, this unit is currently unassigned
 	UPROPERTY(Transient, BlueprintReadWrite, VisibleAnywhere)
 		class UEMPSquadData* OwningSquad;
@@ -101,6 +107,14 @@ public:
 
 	UPROPERTY(Transient, BlueprintReadWrite, VisibleAnywhere)
 		int32 CurrentHealth;
+
+	// Combat Metadata
+
+	UPROPERTY(Transient, BlueprintReadWrite, VisibleAnywhere)
+		int32 Kills;
+
+	UPROPERTY(Transient, BlueprintReadWrite, VisibleAnywhere)
+		int32 Dodges;
 
 	// Classes and Ranks
 	UPROPERTY(Transient, BlueprintReadWrite, VisibleAnywhere)
@@ -149,6 +163,14 @@ public:
 	/** Get casted stat modifier skills */
 	UFUNCTION(BlueprintCallable)
 	void GetStatModifierCombatSkills(TArray<class UEMPStatModifierCombatSkill*>& OutSkills);
+
+	/** Use to increment unit kill count */
+	UFUNCTION(BlueprintCallable)
+	void AddKill();
+
+	/** Use to increment unit dodge count */
+	UFUNCTION(BlueprintCallable)
+	void AddDodge();
 };
 
 /**
@@ -180,6 +202,14 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		int32 CurrentHealth = 1;
+
+	// Combat Metadata
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int32 Kills;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int32 Dodges;
 
 	// Classes and Ranks
 

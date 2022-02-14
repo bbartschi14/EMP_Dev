@@ -165,6 +165,7 @@ void AEMPBetweenGameMenuMode::SelectSquad(UEMPSquadData* squadToLoad)
 	for (UEMPCombatUnitData* combatUnit : SelectedSquad->CombatUnitsInSquad)
 	{
 		AEMPCombatUnit* newCombatUnit = GetWorld()->SpawnActor<AEMPCombatUnit>(CombatUnitClass);
+		combatUnit->CurrentHealth = combatUnit->Health;
 		newCombatUnit->InitializeCombatUnitData(combatUnit);
 		CombatUnits.Add(newCombatUnit);
 	}

@@ -27,3 +27,13 @@ public:
 	UPROPERTY(Transient, BlueprintReadWrite)
 		int32 DamageDealt;
 };
+
+USTRUCT(BlueprintType)
+struct FEMPCombatHitResults
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	UPROPERTY(Transient, BlueprintReadWrite)
+	TArray<FEMPCombatHitResult> HitResults;
+};

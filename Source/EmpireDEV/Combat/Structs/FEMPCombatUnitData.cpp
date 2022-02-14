@@ -41,6 +41,16 @@ void UEMPCombatUnitData::GetStatModifierCombatSkills(TArray<UEMPStatModifierComb
 	}
 }
 
+void UEMPCombatUnitData::AddKill()
+{
+	Kills++;
+}
+
+void UEMPCombatUnitData::AddDodge()
+{
+	Dodges++;
+}
+
 UEMPCombatUnitData* FEMPCombatUnitDataStruct::GetCombatUnitData(UGameInstanceBaseEMP* GameInstance) const
 {
 	UEMPCombatUnitData* combatUnitData = NewObject<UEMPCombatUnitData>();
@@ -53,6 +63,11 @@ UEMPCombatUnitData* FEMPCombatUnitDataStruct::GetCombatUnitData(UGameInstanceBas
 
 	combatUnitData->CombatLocation = CombatLocation;
 	combatUnitData->CurrentHealth = CurrentHealth;
+
+	// Metadata
+
+	combatUnitData->Kills = Kills;
+	combatUnitData->Dodges = Dodges;
 
 	// Classes and Ranks
 
