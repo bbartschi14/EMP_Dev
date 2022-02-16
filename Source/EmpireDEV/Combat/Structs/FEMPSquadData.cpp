@@ -30,14 +30,20 @@ UEMPCombatUnitData* UEMPSquadData::GetCombatUnitAtCombatLocation(FIntPoint comba
 
 UEMPCombatUnitData* UEMPSquadData::GetSquadOfficer() const
 {
-	for (UEMPCombatUnitData* combatUnit : CombatUnitsInSquad)
+	return ActiveOfficer;
+}
+
+void UEMPSquadData::SetSquadOfficer(UEMPCombatUnitData* NewOfficer)
+{
+	if (CombatUnitsInSquad.Contains(NewOfficer))
 	{
-		if (combatUnit->OfficerRank != EEMPOfficerRank::OR_NONE)
-		{
-			return combatUnit;
-		}
+		ActiveOfficer = NewOfficer;
 	}
-	return nullptr;
+	else if (NewOfficer == nullptr)
+	{
+		ActiveOfficer = nullptr;
+	}
+	RefreshCombatSkills();
 }
 
 int32 UEMPSquadData::GetSquadMorale() const
@@ -77,7 +83,31 @@ bool UEMPSquadData::CanMoveToAreaCoordinate(FIntPoint areaCoordinate) const
 
 void UEMPSquadData::HandleCombatUnitDied(UEMPCombatUnitData* deadCombatUnit)
 {
-	CombatUnitsInSquad.Remove(deadCombatUnit);
+	RemoveCombatUnit(deadCombatUnit);
+}
+
+void UEMPSquadData::RemoveCombatUnit(UEMPCombatUnitData* CombatUnitToRemove)
+{
+	CombatUnitsInSquad.Remove(CombatUnitToRemove);
+	if (GetSquadOfficer() == CombatUnitToRemove)
+	{
+		SetSquadOfficer(nullptr);
+	}
+	RefreshCombatSkills();
+}
+
+void UEMPSquadData::AddCombatUnit(UEMPCombatUnitData* CombatUnitToAdd)
+{
+	CombatUnitsInSquad.Add(CombatUnitToAdd);
+	CombatUnitToAdd->OwningSquad = this;
+
+	// If we add an officer and the squad doesn't already have an officer, we assign this one for convenience
+	if (GetSquadOfficer() == nullptr && CombatUnitToAdd->OfficerRank != EEMPOfficerRank::OR_NONE)
+	{
+		SetSquadOfficer(CombatUnitToAdd);
+	}
+
+	RefreshCombatSkills();
 }
 
 void UEMPSquadData::GetCombatActionSkills(TArray<UEMPCombatActionSkill*>& OutSkills) const
@@ -89,6 +119,46 @@ void UEMPSquadData::GetCombatActionSkills(TArray<UEMPCombatActionSkill*>& OutSki
 		{
 			OutSkills.Add(potentialAction);
 		}
+	}
+}
+
+void UEMPSquadData::RefreshCombatSkills()
+{
+	CombatSkills.Empty();
+
+	// Add Squad combat skills
+	for (TSubclassOf<UEMPCombatSkill> skillClass : GameInstanceRef->SquadCombatSkills->CombatSkills)
+	{
+		UEMPCombatSkill* newSkill = NewObject<UEMPCombatSkill>(this, skillClass);
+		if (newSkill->AreSkillRequirementsMet(this, nullptr))
+		{
+			newSkill->SetOwningSquad(this);
+			CombatSkills.Add(newSkill);
+		}
+	}
+
+	// Add officer combat skills
+	auto officer = GetSquadOfficer();
+	if (officer != nullptr)
+	{
+		for (TSubclassOf<UEMPCombatSkill> skillClass : GameInstanceRef->OfficerCombatSkills->CombatSkills)
+		{
+			UEMPCombatSkill* newSkill = NewObject<UEMPCombatSkill>(this, skillClass);
+			if (newSkill->AreSkillRequirementsMet(this, officer))
+			{
+				CombatSkills.Add(newSkill);
+			}
+		}
+	}
+
+	OnSquadSkillsRefreshed.Broadcast();
+}
+
+void UEMPSquadData::GetCombatSkills(TArray<UEMPCombatSkill*>& OutSkills) const
+{
+	for (auto skill : CombatSkills)
+	{
+		OutSkills.Add(skill);
 	}
 }
 
@@ -116,30 +186,41 @@ int32 UEMPSquadData::GetNumberOfCombatUnitsOfClass(EEMPCombatClass InClass) cons
 	return count;
 }
 
+ESquadStrategyEMP UEMPSquadData::GetSquadStrategy() const
+{
+	return SquadStrategy;
+}
+
+void UEMPSquadData::SetSquadStrategy(ESquadStrategyEMP NewStrategy)
+{
+	SquadStrategy = NewStrategy;
+	OnSquadStrategyChanged.Broadcast();
+}
+
+
 UEMPSquadData* FEMPSquadDataStruct::GetSquadData(UGameInstanceBaseEMP* GameInstance) const
 {
 	UEMPSquadData* squadData = NewObject<UEMPSquadData>();
+	squadData->GameInstanceRef = GameInstance;
 	squadData->SquadName = SquadName;
 	squadData->CombatAreaLocation = CombatAreaLocation;
 	squadData->CombatDirection = CombatDirection;
 	squadData->CurrentSquadState = CurrentSquadState;
+	squadData->SetSquadStrategy(SquadStrategy);
 	for (FEMPCombatUnitDataStruct combatUnit : CombatUnitsInSquad)
 	{
-		UEMPCombatUnitData* combatUnitData = combatUnit.GetCombatUnitData(GameInstance);
+		UEMPCombatUnitData* combatUnitData = combatUnit.GetCombatUnitData(GameInstance, squadData);
 		combatUnitData->OwningSquad = squadData;
 		squadData->CombatUnitsInSquad.Add(combatUnitData);
-	}
 
-	// Add Squad combat skills
-	for (TSubclassOf<UEMPCombatSkill> skillClass : GameInstance->SquadCombatSkills->CombatSkills)
-	{
-		UEMPCombatSkill* newSkill = NewObject<UEMPCombatSkill>(squadData, skillClass);
-		if (newSkill->AreSkillRequirementsMet(squadData, nullptr))
+		// TODO: Change from simply setting the last officer
+		if (combatUnitData->OfficerRank != EEMPOfficerRank::OR_NONE)
 		{
-			newSkill->SetOwningSquad(squadData);
-			squadData->CombatSkills.Add(newSkill);
+			squadData->SetSquadOfficer(combatUnitData);
 		}
 	}
+
+	squadData->RefreshCombatSkills();
 
 	return squadData;
 }

@@ -24,7 +24,7 @@ void UEMPSquadManager::Initialize(FSubsystemCollectionBase& Collection)
 
 	for (FEMPCombatUnitDataStruct unitData : gameInstance->TestOnlySquadsDatabase->UnassignedCombatUnits)
 	{
-		UnassignedCombatUnits.Add(unitData.GetCombatUnitData(gameInstance));
+		UnassignedCombatUnits.Add(unitData.GetCombatUnitData(gameInstance, nullptr));
 	}
 }
 
@@ -47,7 +47,8 @@ bool UEMPSquadManager::RemoveCombatUnitFromSquad(UEMPCombatUnitData* combatUnit,
 {
 	if (squad->CombatUnitsInSquad.Contains(combatUnit))
 	{
-		squad->CombatUnitsInSquad.Remove(combatUnit);
+		squad->RemoveCombatUnit(combatUnit);
+		
 		UnassignedCombatUnits.Add(combatUnit);
 		OnCombatUnitRemovedFromSquad.Broadcast(combatUnit, squad);
 		return true;
@@ -60,8 +61,7 @@ bool UEMPSquadManager::AssignCombatUnitToSquad(UEMPCombatUnitData* combatUnit, U
 {
 	if (UnassignedCombatUnits.Contains(combatUnit) && squad->CombatUnitsInSquad.Num() < MaxSquadSize)
 	{
-		squad->CombatUnitsInSquad.Add(combatUnit);
-		combatUnit->OwningSquad = squad;
+		squad->AddCombatUnit(combatUnit);
 		if (!DoesCombatUnitHaveUniqueLocationInSquad(squad, combatUnit))
 		{
 			FIntPoint newLocation = FindUniqueLocationInSquad(squad);

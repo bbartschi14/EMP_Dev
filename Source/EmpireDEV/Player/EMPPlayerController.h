@@ -21,6 +21,6 @@ public:
 	// ~ Begin Overrides: APlayerController
 	virtual void SetupInputComponent() override;
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void HandleCancelActionPressed();
 };

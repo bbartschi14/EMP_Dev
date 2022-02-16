@@ -260,6 +260,7 @@ void AEMPCombatMapGameMode::RemoveSquadFromCombat(UEMPSquadData* squadToRemove, 
 {
 	if (FriendlySquads.Contains(squadToRemove))
 	{
+		if (SelectedSquad == squadToRemove) ClearSelectedSquad();
 		FriendlySquads.Remove(squadToRemove);
 	}
 	else if (EnemySquads.Contains(squadToRemove))
@@ -283,7 +284,6 @@ void AEMPCombatMapGameMode::HandleCancelActionPressed()
 	case EEMPCombatMapState::GS_QUEUEING_ACTION:
 		ActionBeingQueued->CancelQueue();
 		ActionBeingQueued = nullptr;
-		ClearSelectedSquad();
 		SetCombatMapState(EEMPCombatMapState::GS_SELECTING_SQUAD);
 		break;
 	}

@@ -63,29 +63,13 @@ public:
 	void InitializeDefaultSkills(const TArray<TSubclassOf<UEMPCombatSkill>>& InSkills);
 
 	UFUNCTION(BlueprintCallable)
-		void TakeHit(FEMPCombatHitResult hit)
-	{
-		if (!hit.bHitSuccessful)
-		{
-			AddDodge();
-		}
-
-		CurrentHealth -= hit.DamageDealt;
-		OnDamageTaken.Broadcast(hit);
-	}
+		void TakeHit(FEMPCombatHitResult hit);
 
 	UFUNCTION(BlueprintCallable)
-		void SetDesiredLocation(FIntPoint newLocation)
-	{
-		DesiredLocationX = newLocation.X;
-		DesiredLocationY = newLocation.Y;
-	}
+		void SetDesiredLocation(FIntPoint newLocation);
 
 	UFUNCTION(BlueprintCallable)
-		FIntPoint GetDesiredLocation() const
-	{
-		return FIntPoint(DesiredLocationX, DesiredLocationY);
-	}
+		FIntPoint GetDesiredLocation() const;
 
 	UPROPERTY(Transient, BlueprintReadWrite, VisibleAnywhere)
 		FString CombatUnitName;
@@ -182,7 +166,7 @@ struct FEMPCombatUnitDataStruct
 	GENERATED_USTRUCT_BODY()
 
 public:
-	UEMPCombatUnitData* GetCombatUnitData(class UGameInstanceBaseEMP* GameInstance) const;
+	UEMPCombatUnitData* GetCombatUnitData(class UGameInstanceBaseEMP* GameInstance, class UEMPSquadData* OwningSquad) const;
 
 protected:
 

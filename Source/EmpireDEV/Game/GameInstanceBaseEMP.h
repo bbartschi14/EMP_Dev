@@ -34,6 +34,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class UEMPCombatSkillsDatabase* SquadCombatSkills;
 
+	UPROPERTY(EditDefaultsOnly)
+	class UEMPCombatSkillsDatabase* OfficerCombatSkills;
+
 protected:
 	void Init() override;
 

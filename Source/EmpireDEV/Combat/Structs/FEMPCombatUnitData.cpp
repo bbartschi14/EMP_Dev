@@ -5,6 +5,7 @@
 #include "../Skills/EMPStatModifierCombatSkill.h"
 #include "../../Game/GameInstanceBaseEMP.h"
 #include "EMPStatsDatabase.h"
+#include "FEMPSquadData.h"
 
 UEMPCombatUnitData::UEMPCombatUnitData()
 {
@@ -19,6 +20,28 @@ void UEMPCombatUnitData::InitializeDefaultSkills(const TArray<TSubclassOf<UEMPCo
 	}
 }
 
+void UEMPCombatUnitData::TakeHit(FEMPCombatHitResult hit)
+{
+	if (!hit.bHitSuccessful)
+	{
+		AddDodge();
+	}
+
+	CurrentHealth -= hit.DamageDealt;
+	OnDamageTaken.Broadcast(hit);
+}
+
+void UEMPCombatUnitData::SetDesiredLocation(FIntPoint newLocation)
+{
+	DesiredLocationX = newLocation.X;
+	DesiredLocationY = newLocation.Y;
+}
+
+FIntPoint UEMPCombatUnitData::GetDesiredLocation() const
+{
+	return FIntPoint(DesiredLocationX, DesiredLocationY);
+}
+
 void UEMPCombatUnitData::GetCombatSkillsOfType(TArray<UEMPCombatSkill*>& OutSkills, FName InType)
 {
 	for (auto skill : CombatSkills)
@@ -26,6 +49,17 @@ void UEMPCombatUnitData::GetCombatSkillsOfType(TArray<UEMPCombatSkill*>& OutSkil
 		if (skill->GetSkillType().IsEqual(InType))
 		{
 			OutSkills.Add(skill);
+		}
+	}
+
+	if (OwningSquad)
+	{
+		for (auto skill : OwningSquad->CombatSkills)
+		{
+			if (skill->GetSkillType().IsEqual(InType))
+			{
+				OutSkills.Add(skill);
+			}
 		}
 	}
 }
@@ -51,9 +85,11 @@ void UEMPCombatUnitData::AddDodge()
 	Dodges++;
 }
 
-UEMPCombatUnitData* FEMPCombatUnitDataStruct::GetCombatUnitData(UGameInstanceBaseEMP* GameInstance) const
+UEMPCombatUnitData* FEMPCombatUnitDataStruct::GetCombatUnitData(class UGameInstanceBaseEMP* GameInstance, class UEMPSquadData* OwningSquad) const
 {
 	UEMPCombatUnitData* combatUnitData = NewObject<UEMPCombatUnitData>();
+
+	combatUnitData->OwningSquad = OwningSquad;
 
 	combatUnitData->CombatUnitName = CombatUnitName;
 	combatUnitData->DesiredLocationX = DesiredLocationX;
