@@ -153,6 +153,9 @@ public:
 		void EndTurn();
 
 	UFUNCTION(BlueprintCallable)
+		void ExitCombat();
+
+	UFUNCTION(BlueprintCallable)
 		void FinishSimulating();
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
@@ -180,6 +183,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 		class UEMPCombatSimulator* SetupCombat(class UEMPSquadData* squadOne, class UEMPSquadData* squadTwo);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void GoToBaseCamp();
 
 	UPROPERTY(Transient, BlueprintReadOnly)
 		class AEMPCombatMapGrid* Grid;

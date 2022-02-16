@@ -244,6 +244,18 @@ UEMPCombatSimulator* AEMPCombatMapGameMode::SetupCombat(UEMPSquadData* squadOne,
 	return sim;
 }
 
+void AEMPCombatMapGameMode::ExitCombat()
+{
+	for (UEMPSquadData* squad : FriendlySquads)
+	{
+		squad->QueuedAction = nullptr;
+	}
+	for (UEMPSquadData* squad : EnemySquads)
+	{
+		squad->QueuedAction = nullptr;
+	}
+	GoToBaseCamp();
+}
 
 void AEMPCombatMapGameMode::FinishSimulating()
 {

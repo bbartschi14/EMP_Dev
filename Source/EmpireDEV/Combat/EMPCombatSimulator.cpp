@@ -35,25 +35,35 @@ void UEMPCombatSimulator::SimulateSquadAttacks(UEMPSquadData* attackingSquad, UE
 	{
 		FIntPoint unitPosition = unit->CombatLocation;
 
-		// First check space in front of unit
-		UEMPCombatUnitData* potentialEnemy = defendingSquad->GetCombatUnitAtCombatLocation(unitPosition + attackingDirection);
+		UEMPCombatUnitData* potentialEnemy = nullptr;
 
-		// Check in front and over in both directions
-		if (!potentialEnemy)
+		// For loop indices are inclusive on unit range
+		for (int i = 1; i <= unit->Range; i++)
 		{
-			potentialEnemy = defendingSquad->GetCombatUnitAtCombatLocation(unitPosition + attackingDirection + UEMPCombatStatics::GetPerpendicularDirection_Clockwise(attackingDirection));
+			if (potentialEnemy) break;
+			// Check spaces in front of unit
+			FIntPoint forward = unitPosition + (attackingDirection * i);
+			potentialEnemy = defendingSquad->GetCombatUnitAtCombatLocation(forward);
 
-			if (!potentialEnemy)
+			// Check in front and over in both directions
+			for (int j = 1; j <= unit->Range; j++)
 			{
-				potentialEnemy = defendingSquad->GetCombatUnitAtCombatLocation(unitPosition + attackingDirection + UEMPCombatStatics::GetPerpendicularDirection_CounterClockwise(attackingDirection));
+				if (potentialEnemy) break;
+				FIntPoint clockwise = forward + (UEMPCombatStatics::GetPerpendicularDirection_Clockwise(attackingDirection) * j);
+				potentialEnemy = defendingSquad->GetCombatUnitAtCombatLocation(clockwise);
 
-				if (!potentialEnemy)
-				{
-					// This unit has no enemies to attack, check next unit
-					continue;
-				}
+				if (potentialEnemy) break;
+				FIntPoint counterClockwise = forward + (UEMPCombatStatics::GetPerpendicularDirection_CounterClockwise(attackingDirection) * j);
+				potentialEnemy = defendingSquad->GetCombatUnitAtCombatLocation(counterClockwise);
 			}
 		}
+		
+		if (!potentialEnemy)
+		{
+			// This unit has no enemies to attack, check next unit
+			continue;
+		}
+
 		// Enemy has been found, simulate attack (Roll chance. If hits, die)
 
 #pragma region Apply Stat Modifiers
