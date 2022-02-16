@@ -306,7 +306,7 @@ void UEMPCombatSimulator::PerformMoraleRolls(float animationTime)
 
 bool UEMPCombatSimulator::ResolveMoraleRolls(float animationTime)
 {
-	TArray<UEMPSquadData*> squads = TArray<UEMPSquadData*>{ CombatSquadOne, CombatSquadTwo };ffic
+	TArray<UEMPSquadData*> squads = TArray<UEMPSquadData*>{ CombatSquadOne, CombatSquadTwo };
 	bool bIsAnimating = false;
 
 	for (int i = 0; i < squads.Num(); i++)
