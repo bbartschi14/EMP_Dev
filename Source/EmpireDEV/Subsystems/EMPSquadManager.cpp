@@ -91,7 +91,9 @@ void UEMPSquadManager::MoveCombatUnitToNewDesiredLocation(UEMPCombatUnitData* co
 
 UEMPSquadData* UEMPSquadManager::CreateNewSquad()
 {
-	UEMPSquadData* newSquad = NewObject<UEMPSquadData>();
+	UEMPSquadData* newSquad = NewObject<UEMPSquadData>(); 
+	UGameInstanceBaseEMP* gameInstance = Cast<UGameInstanceBaseEMP>(GetWorld()->GetGameInstance());
+	newSquad->GameInstanceRef = gameInstance;
 	newSquad->SquadName = FString::Printf(TEXT("New Squad %i"), Squads.Num());
 	Squads.Add(newSquad);
 	OnSquadCreated.Broadcast(newSquad);
