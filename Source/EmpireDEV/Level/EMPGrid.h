@@ -38,6 +38,9 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void RefreshGridVisuals();
+
+	UFUNCTION(BlueprintCallable)
+		void Get2DBounds(FVector2D& Min, FVector2D& Max) const;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -143,7 +146,10 @@ protected:
 		float BorderOffset;
 
 	UPROPERTY(EditDefaultsOnly)
-		float GridBaseHeight;
+		float GridBaseHeight; 
+		
+	UPROPERTY(EditDefaultsOnly)
+		bool bShouldSpawnAreaHighlights;
 
 	UPROPERTY()
 		int32 GridAreaSize = 5;

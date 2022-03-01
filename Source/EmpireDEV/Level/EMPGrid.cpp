@@ -61,6 +61,13 @@ AEMPGridAreaHighlight* AEMPGrid::GetGridAreaHighlightAtCoordinate(FIntPoint area
 	return nullptr;
 }
 
+void AEMPGrid::Get2DBounds(FVector2D& Min, FVector2D& Max) const
+{
+	Min = FVector2D(0, 0);
+	float gridAreaSize = SingleGridSquareSize * 5 + (2 * BorderOffset);
+	Max = FVector2D(gridAreaSize * GridDimensions);
+}
+
 void AEMPGrid::BeginPlay()
 {
 	Super::BeginPlay();
@@ -108,6 +115,7 @@ void AEMPGrid::SpawnGrid()
 					{
 						FVector location = FVector(start.X, start.Y, outHit.ImpactPoint.Z);
 						AEMPGridSquare* GridSquareActor = GetWorld()->SpawnActor<AEMPGridSquare>(GridSquareClass, location, FRotator(0, 0, 0));
+						GridSquareActor->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
 						GridSquareActor->SetActorScale3D(FVector(SingleGridSquareSize, SingleGridSquareSize, 1));
 						GridSquareActor->InitializeGridSquare(FIntPoint(currentX, currentY));
 						GridSquareActor->OnGridSquareClicked.AddUniqueDynamic(this, &AEMPGrid::HandleGridSquareClicked);
@@ -119,7 +127,7 @@ void AEMPGrid::SpawnGrid()
 						GridSquares[transformedIndex] = GridSquareActor;
 
 						// Spawn Area highlight at center point
-						if ((i - 2) % 5 == 0 && (j - 2) % 5 == 0)
+						if ((i - 2) % 5 == 0 && (j - 2) % 5 == 0 && bShouldSpawnAreaHighlights)
 						{
 							AEMPGridAreaHighlight* GridAreaHighlightActor = GetWorld()->SpawnActor<AEMPGridAreaHighlight>(GridAreaHighlightClass, location, FRotator(0, 0, 0));
 							GridAreaHighlights.Add(GridAreaHighlightActor);
