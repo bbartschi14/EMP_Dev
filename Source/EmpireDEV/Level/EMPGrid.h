@@ -45,8 +45,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	/** Create grid squares from member properties */
-	UFUNCTION()
+	/** Create landscape, grid and visuals */
+	UFUNCTION(BlueprintCallable)
 		void SpawnGrid();
 
 	UFUNCTION()
@@ -127,7 +127,10 @@ protected:
 		TSubclassOf<class AEMPGridAreaHighlight> GridAreaHighlightClass;
 
 	UPROPERTY(EditDefaultsOnly)
-		TSubclassOf<class AEMPOrigamiLandscape> OrigamiLandscapeClass;
+		TSubclassOf<class AEMPLandscape> LandscapeClass;
+
+	UPROPERTY(EditDefaultsOnly)
+		TSubclassOf<class AActor> ActorRootClass;
 
 	/** In units of grid areas, so 1x1 will make 5x5 squares */
 	UPROPERTY(EditAnywhere)
@@ -156,5 +159,13 @@ protected:
 
 	UPROPERTY(Transient)
 		class AEMPGridSquare* HoveredGridSquare;
+		
+	UPROPERTY(Transient)
+		class AEMPLandscape* Landscape;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+		class AActor* GridSquareRoot;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+		class AActor* GridAreaHighlightRoot;
 };

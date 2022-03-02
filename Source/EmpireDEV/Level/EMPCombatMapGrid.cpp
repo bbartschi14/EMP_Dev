@@ -46,6 +46,7 @@ void AEMPCombatMapGrid::SpawnEnemyCombatUnit(UEMPCombatUnitData* enemyCombatUnit
 void AEMPCombatMapGrid::SpawnCombatUnit(UEMPCombatUnitData* combatUnitData, FEMPCombatUnitMeshData meshData)
 {
 	AEMPCombatUnit* combatUnit = GetWorld()->SpawnActor<AEMPCombatUnit>(CombatUnitClass);
+	combatUnit->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
 	combatUnit->SetupCombatUnitMesh(meshData);
 	combatUnit->InitializeCombatUnitData(combatUnitData);
 	combatUnit->InitializeToGridSquare(combatUnitData->CombatLocation);

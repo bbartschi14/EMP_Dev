@@ -30,6 +30,9 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 		void RefreshVisuals();
+
+	UPROPERTY(BlueprintReadOnly, Transient)
+		FVector2D AreaCoordinate;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -45,4 +48,6 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Transient)
 		bool bIsForceVisible;
+
+	
 };

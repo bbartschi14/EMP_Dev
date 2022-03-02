@@ -5,8 +5,9 @@
 #include "EMPGridSquare.h"
 #include "../Combat/EMPCombatUnit.h"
 #include "EMPGridAreaHighlight.h"
-#include "EMPOrigamiLandscape.h"
+#include "EMPLandscape.h"
 #include "DrawDebugHelpers.h"
+#include "Kismet/GameplayStatics.h"
 
 AEMPGrid::AEMPGrid()
 {
@@ -71,23 +72,78 @@ void AEMPGrid::Get2DBounds(FVector2D& Min, FVector2D& Max) const
 void AEMPGrid::BeginPlay()
 {
 	Super::BeginPlay();
-	SpawnLandscape();
 	SpawnGrid();
-	RefreshGridVisuals();
+
+	// Populate reference arrays
+
+	GridSquares.SetNum(GridDimensions * GridDimensions * 5 * 5);
+	TArray<AActor*> gridSquares;
+	GridSquareRoot->GetAttachedActors(gridSquares);
+	for (int i = 0; i < gridSquares.Num(); i++)
+	{
+		AEMPGridSquare* square = Cast<AEMPGridSquare>(gridSquares[i]);
+		int32 transformedIndex = GridDimensions * 5 * square->GetGridCoordinate().Y + square->GetGridCoordinate().X;
+		GridSquares[transformedIndex] = square;
+	}
+
+	TArray<AActor*> gridAreas;
+	GridAreaHighlightRoot->GetAttachedActors(gridAreas);
+	GridAreaHighlights.SetNum(gridAreas.Num());
+	for (int i = 0; i < gridAreas.Num(); i++)
+	{
+		AEMPGridAreaHighlight* highlight = Cast<AEMPGridAreaHighlight>(gridAreas[i]);
+		int32 transformedCoord = highlight->AreaCoordinate.Y * GridDimensions + highlight->AreaCoordinate.X;
+		GridAreaHighlights[transformedCoord] = highlight;
+	}
 }
 
 void AEMPGrid::SpawnLandscape()
 {
-	AEMPOrigamiLandscape* OrigamiLandscape = GetWorld()->SpawnActor<AEMPOrigamiLandscape>(OrigamiLandscapeClass, FVector(0), FRotator(0, 0, 0));
-	OrigamiLandscape->SpawnLandscape(GridDimensions, Heights, SingleGridSquareSize * 5, BorderOffset);
-
-	//ProceduralTerrain->CreateLandscapeMesh(Heights, NumberOfHeightLevels, GridDimensions, SingleGridSquareSize * 5, BorderOffset);
+	TArray<AActor*> landscapes;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEMPLandscape::StaticClass(), landscapes);
+	if (landscapes.Num() > 0)
+	{
+		Landscape = Cast<AEMPLandscape>(landscapes[0]);
+		Landscape->SpawnLandscape(GridDimensions, Heights, SingleGridSquareSize * 5, BorderOffset);
+	}
 }
 
 void AEMPGrid::SpawnGrid()
 {
+	// Cleanup
+	if (GridSquareRoot)
+	{
+		TArray<AActor*> gridSquares;
+		GridSquareRoot->GetAttachedActors(gridSquares);
+		for (AActor* gridSquare : gridSquares)
+		{
+			gridSquare->Destroy();
+		}
+	}
+	else
+	{
+		GridSquareRoot = GetWorld()->SpawnActor<AActor>(ActorRootClass, FTransform());
+		GridSquareRoot->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
+	}
+	
+	if (GridAreaHighlightRoot)
+	{
+		TArray<AActor*> children;
+		GridAreaHighlightRoot->GetAttachedActors(children);
+		for (AActor* child : children)
+		{
+			child->Destroy();
+		}
+	}
+	else
+	{
+		GridAreaHighlightRoot = GetWorld()->SpawnActor<AActor>(ActorRootClass, FTransform());
+		GridAreaHighlightRoot->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
+	}
+
+	SpawnLandscape();
+
 	float gridAreaSize = SingleGridSquareSize * 5 + (2 * BorderOffset);
-	GridSquares.SetNum(GridDimensions * GridDimensions * 5 * 5);
 
 	for (int gridY = 0; gridY < GridDimensions; gridY++)
 	{
@@ -115,22 +171,20 @@ void AEMPGrid::SpawnGrid()
 					{
 						FVector location = FVector(start.X, start.Y, outHit.ImpactPoint.Z);
 						AEMPGridSquare* GridSquareActor = GetWorld()->SpawnActor<AEMPGridSquare>(GridSquareClass, location, FRotator(0, 0, 0));
-						GridSquareActor->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
+						GridSquareActor->AttachToActor(GridSquareRoot, FAttachmentTransformRules::KeepRelativeTransform);
 						GridSquareActor->SetActorScale3D(FVector(SingleGridSquareSize, SingleGridSquareSize, 1));
 						GridSquareActor->InitializeGridSquare(FIntPoint(currentX, currentY));
 						GridSquareActor->OnGridSquareClicked.AddUniqueDynamic(this, &AEMPGrid::HandleGridSquareClicked);
 						GridSquareActor->OnGridSquareRightClicked.AddUniqueDynamic(this, &AEMPGrid::HandleGridSquareRightClicked);
 						GridSquareActor->OnGridSquareBeginCursorOver.AddUniqueDynamic(this, &AEMPGrid::HandleGridSquareHovered);
-						GridSquareActor->OnGridSquareEndCursorOver.AddUniqueDynamic(this, &AEMPGrid::HandleGridSquareUnhovered);
-
-						int32 transformedIndex = GridDimensions * 5 * currentY + currentX;
-						GridSquares[transformedIndex] = GridSquareActor;
+						GridSquareActor->OnGridSquareEndCursorOver.AddUniqueDynamic(this, &AEMPGrid::HandleGridSquareUnhovered);						
 
 						// Spawn Area highlight at center point
 						if ((i - 2) % 5 == 0 && (j - 2) % 5 == 0 && bShouldSpawnAreaHighlights)
 						{
 							AEMPGridAreaHighlight* GridAreaHighlightActor = GetWorld()->SpawnActor<AEMPGridAreaHighlight>(GridAreaHighlightClass, location, FRotator(0, 0, 0));
-							GridAreaHighlights.Add(GridAreaHighlightActor);
+							GridAreaHighlightActor->AttachToActor(GridAreaHighlightRoot, FAttachmentTransformRules::KeepRelativeTransform);
+							GridAreaHighlightActor->AreaCoordinate = FVector2D(gridX, gridY);
 						}
 
 					}
@@ -138,7 +192,8 @@ void AEMPGrid::SpawnGrid()
 			}
 		}
 	}
-	
+	RefreshGridVisuals();
+
 }
 
 void AEMPGrid::HandleGridSquareHovered(AEMPGridSquare* inGridSquare)
