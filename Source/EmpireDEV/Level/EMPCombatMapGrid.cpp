@@ -49,7 +49,7 @@ void AEMPCombatMapGrid::SpawnCombatUnit(UEMPCombatUnitData* combatUnitData, FEMP
 	combatUnit->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
 	combatUnit->SetupCombatUnitMesh(meshData);
 	combatUnit->InitializeCombatUnitData(combatUnitData);
-	combatUnit->InitializeToGridSquare(combatUnitData->CombatLocation);
+	combatUnit->InitializeToGridSquare(combatUnitData->CombatLocation, .25f);
 	combatUnit->TurnToDirection(combatUnitData->OwningSquad->CombatDirection);
 	CombatUnits.Add(combatUnit);
 }

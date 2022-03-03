@@ -17,6 +17,18 @@ public:
 		bool bIsFriendlyUnit;
 };
 
+USTRUCT(BlueprintType)
+struct FEMPCombatUnitMoveData
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	FEMPCombatUnitMoveData() : bIsDrop(false) {}
+
+	UPROPERTY(BlueprintReadWrite)
+		bool bIsDrop;
+};
+
 UCLASS()
 class EMPIREDEV_API AEMPCombatUnit : public AActor
 {
@@ -44,7 +56,7 @@ public:
 
 	/** */
 	UFUNCTION(BlueprintCallable)
-		void InitializeToGridSquare(FIntPoint inCoordinate);
+		void InitializeToGridSquare(FIntPoint inCoordinate, float animationTime);
 
 	UFUNCTION(BlueprintCallable)
 		FIntPoint GetGridCoordinate() const;
@@ -71,7 +83,7 @@ public:
 		void HandleMoveToLocation(bool bNotifyWhenFinished);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "EMP|Combat Unit")
-		void HandleMoveToLocation_Timed(float animationTime);
+		void HandleMoveToLocation_Timed(float animationTime, const FEMPCombatUnitMoveData& InData);
 
 	/** Play animation or other indicator of a failed movement */
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "EMP|Combat Unit")

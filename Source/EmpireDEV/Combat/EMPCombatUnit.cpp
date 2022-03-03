@@ -44,10 +44,12 @@ UEMPCombatUnitData* AEMPCombatUnit::GetCombatUnitData() const
 	return CombatUnitData;
 }
 
-void AEMPCombatUnit::InitializeToGridSquare(FIntPoint inCoordinate)
+void AEMPCombatUnit::InitializeToGridSquare(FIntPoint inCoordinate, float animationTime)
 {
 	SetGridCoordinate(inCoordinate);
-	HandleMoveToLocation_Timed(.5f);
+	FEMPCombatUnitMoveData data;
+	data.bIsDrop = true;
+	HandleMoveToLocation_Timed(animationTime, data);
 }
 
 void AEMPCombatUnit::MoveToGridSquare(FIntPoint inCoordinate, bool bNotifyWhenFinished)
@@ -59,7 +61,8 @@ void AEMPCombatUnit::MoveToGridSquare(FIntPoint inCoordinate, bool bNotifyWhenFi
 void AEMPCombatUnit::MoveToGridSquare_Timed(FIntPoint inCoordinate, float animationTime)
 {
 	SetGridCoordinate(inCoordinate);
-	HandleMoveToLocation_Timed(animationTime);
+	FEMPCombatUnitMoveData data;
+	HandleMoveToLocation_Timed(animationTime, data);
 }
 
 void AEMPCombatUnit::SetGridCoordinate(FIntPoint inCoordinate)

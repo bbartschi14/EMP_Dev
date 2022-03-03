@@ -178,7 +178,7 @@ void AEMPBetweenGameMenuMode::SelectSquad(UEMPSquadData* squadToLoad)
 		FIntPoint desiredLocation = FIntPoint(data->DesiredLocationX, data->DesiredLocationY);
 
 		check (IsLocationEmpty(desiredLocation)) // Sanity check, because the squad manager should already guarantee that desired positions are unique
-		unitToPlace->InitializeToGridSquare(desiredLocation);
+		unitToPlace->InitializeToGridSquare(desiredLocation, .25f);
 	}
 
 	OnSquadSelected.Broadcast(SelectedSquad);
