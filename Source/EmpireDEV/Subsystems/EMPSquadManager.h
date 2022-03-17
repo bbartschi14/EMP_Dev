@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "../Combat/Structs/FEMPCombatUnitData.h"
 #include "EMPSquadManager.generated.h"
 
 /**
@@ -22,6 +23,7 @@ public:
 
 #pragma region Delegates
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSquadChanged, class UEMPSquadData*, squadCreated);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCombatUnitNotify, class UEMPCombatUnitData*, CombatUnit);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCombatUnitSquadInteraction, class UEMPCombatUnitData*, unit, class UEMPSquadData*, squad);
 
 	/** Called when a new squad is created */
@@ -31,6 +33,9 @@ public:
 	/** Called when a squad is dissolved */
 	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
 		FOnSquadChanged OnSquadDissolved;
+
+	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
+		FOnCombatUnitNotify OnUnassignedUnitCreated;
 
 	/** Called when a combat unit is added to a squad */
 	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
@@ -71,6 +76,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 		bool DissolveSquad(class UEMPSquadData* squadToDissolve);
 
+	UFUNCTION(BlueprintCallable)
+		void CreateUnassignedUnit(FEMPCombatUnitDataStruct Unit);
 private:
 	UPROPERTY(Transient)
 		TArray<class UEMPSquadData*> Squads;

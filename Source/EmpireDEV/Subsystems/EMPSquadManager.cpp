@@ -127,6 +127,14 @@ bool UEMPSquadManager::DissolveSquad(UEMPSquadData* squadToDissolve)
 	return false; // Squad did not exist in this manager
 }
 
+void UEMPSquadManager::CreateUnassignedUnit(FEMPCombatUnitDataStruct Unit)
+{
+	UGameInstanceBaseEMP* gameInstance = Cast<UGameInstanceBaseEMP>(GetWorld()->GetGameInstance());
+	UEMPCombatUnitData* newUnit = Unit.GetCombatUnitData(gameInstance, nullptr);
+	UnassignedCombatUnits.Add(newUnit);
+	OnUnassignedUnitCreated.Broadcast(newUnit);
+}
+
 #pragma region Helpers
 bool UEMPSquadManager::ValidateSquad(UEMPSquadData* squadToValidate)
 {

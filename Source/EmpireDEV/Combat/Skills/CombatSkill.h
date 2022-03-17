@@ -30,6 +30,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	FText SkillDescription;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TSoftObjectPtr<UObject> SkillIcon;
+
 protected:
 	UPROPERTY(Transient, BlueprintReadOnly, VisibleAnywhere)
 	class UEMPSquadData* OwningSquad;

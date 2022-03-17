@@ -4,6 +4,7 @@
 #include "EMPArmyManager.h"
 #include "../Game/GameInstanceBaseEMP.h"
 #include "Structs/EMPArmyDatabase.h"
+#include "EMPSquadManager.h"
 
 void UEMPArmyManager::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -24,4 +25,25 @@ void UEMPArmyManager::Deinitialize()
 UEMPArmyResources* UEMPArmyManager::GetResources() const
 {
 	return Resources;
+}
+
+void UEMPArmyManager::GiveMoney(int32 Amount)
+{
+	Resources->Money += Amount;
+	OnArmyResourcesChanged.Broadcast();
+}
+
+void UEMPArmyManager::RecruitUnit(FEMPCombatUnitDataStruct Unit, int32 Cost)
+{
+	if (Resources->Money >= Cost)
+	{
+		SubtractMoney(Cost);
+		GetGameInstance()->GetSubsystem<UEMPSquadManager>()->CreateUnassignedUnit(Unit);
+	}
+}
+
+void UEMPArmyManager::SubtractMoney(int32 Amount)
+{
+	Resources->Money -= Amount;
+	OnArmyResourcesChanged.Broadcast();
 }

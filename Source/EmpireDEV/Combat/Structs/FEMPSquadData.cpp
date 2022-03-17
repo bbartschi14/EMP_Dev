@@ -77,7 +77,7 @@ TMap<EEMPCombatClass, int32> UEMPSquadData::GetSquadComposition() const
 
 bool UEMPSquadData::CanMoveToAreaCoordinate(FIntPoint areaCoordinate) const
 {
-	int32 distance = FMath::Abs(CombatAreaLocation.X - areaCoordinate.X) + FMath::Abs(CombatAreaLocation.Y - areaCoordinate.Y);
+	int32 distance = FMath::Abs(GetCombatAreaLocation().X - areaCoordinate.X) + FMath::Abs(GetCombatAreaLocation().Y - areaCoordinate.Y);
 	return distance == 1;
 }
 
@@ -186,6 +186,12 @@ int32 UEMPSquadData::GetNumberOfCombatUnitsOfClass(EEMPCombatClass InClass) cons
 	return count;
 }
 
+void UEMPSquadData::SetCombatAreaLocation(FIntPoint val)
+{
+	CombatAreaLocation = val;
+	OnSquadMovedToAreaLocation.Broadcast();
+}
+
 ESquadStrategyEMP UEMPSquadData::GetSquadStrategy() const
 {
 	return SquadStrategy;
@@ -203,7 +209,7 @@ UEMPSquadData* FEMPSquadDataStruct::GetSquadData(UGameInstanceBaseEMP* GameInsta
 	UEMPSquadData* squadData = NewObject<UEMPSquadData>();
 	squadData->GameInstanceRef = GameInstance;
 	squadData->SquadName = SquadName;
-	squadData->CombatAreaLocation = CombatAreaLocation;
+	squadData->SetCombatAreaLocation(CombatAreaLocation);
 	squadData->CombatDirection = CombatDirection;
 	squadData->CurrentSquadState = CurrentSquadState;
 	squadData->SetSquadStrategy(SquadStrategy);

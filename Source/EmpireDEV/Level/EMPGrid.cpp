@@ -72,29 +72,11 @@ void AEMPGrid::Get2DBounds(FVector2D& Min, FVector2D& Max) const
 void AEMPGrid::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void AEMPGrid::MapInitialize()
+{
 	SpawnGrid();
-
-	// Populate reference arrays
-
-	GridSquares.SetNum(GridDimensions * GridDimensions * 5 * 5);
-	TArray<AActor*> gridSquares;
-	GridSquareRoot->GetAttachedActors(gridSquares);
-	for (int i = 0; i < gridSquares.Num(); i++)
-	{
-		AEMPGridSquare* square = Cast<AEMPGridSquare>(gridSquares[i]);
-		int32 transformedIndex = GridDimensions * 5 * square->GetGridCoordinate().Y + square->GetGridCoordinate().X;
-		GridSquares[transformedIndex] = square;
-	}
-
-	TArray<AActor*> gridAreas;
-	GridAreaHighlightRoot->GetAttachedActors(gridAreas);
-	GridAreaHighlights.SetNum(gridAreas.Num());
-	for (int i = 0; i < gridAreas.Num(); i++)
-	{
-		AEMPGridAreaHighlight* highlight = Cast<AEMPGridAreaHighlight>(gridAreas[i]);
-		int32 transformedCoord = highlight->AreaCoordinate.Y * GridDimensions + highlight->AreaCoordinate.X;
-		GridAreaHighlights[transformedCoord] = highlight;
-	}
 }
 
 void AEMPGrid::SpawnLandscape()
@@ -184,7 +166,7 @@ void AEMPGrid::SpawnGrid()
 						{
 							AEMPGridAreaHighlight* GridAreaHighlightActor = GetWorld()->SpawnActor<AEMPGridAreaHighlight>(GridAreaHighlightClass, location, FRotator(0, 0, 0));
 							GridAreaHighlightActor->AttachToActor(GridAreaHighlightRoot, FAttachmentTransformRules::KeepRelativeTransform);
-							GridAreaHighlightActor->AreaCoordinate = FVector2D(gridX, gridY);
+							GridAreaHighlightActor->AreaCoordinate = FIntPoint(gridX, gridY);
 						}
 
 					}
@@ -192,8 +174,32 @@ void AEMPGrid::SpawnGrid()
 			}
 		}
 	}
+
+	// Populate reference arrays
+
+	GridSquares.SetNum(GridDimensions * GridDimensions * 5 * 5);
+	TArray<AActor*> gridSquares;
+	GridSquareRoot->GetAttachedActors(gridSquares);
+	for (int i = 0; i < gridSquares.Num(); i++)
+	{
+		AEMPGridSquare* square = Cast<AEMPGridSquare>(gridSquares[i]);
+		int32 transformedIndex = GridDimensions * 5 * square->GetGridCoordinate().Y + square->GetGridCoordinate().X;
+		GridSquares[transformedIndex] = square;
+	}
+
+	TArray<AActor*> gridAreas;
+	GridAreaHighlightRoot->GetAttachedActors(gridAreas);
+	GridAreaHighlights.SetNum(gridAreas.Num());
+	for (int i = 0; i < gridAreas.Num(); i++)
+	{
+		AEMPGridAreaHighlight* highlight = Cast<AEMPGridAreaHighlight>(gridAreas[i]);
+		int32 transformedCoord = highlight->AreaCoordinate.Y * GridDimensions + highlight->AreaCoordinate.X;
+		GridAreaHighlights[transformedCoord] = highlight;
+	}
+
 	RefreshGridVisuals();
 
+	OnGridSpawned.Broadcast(this);
 }
 
 void AEMPGrid::HandleGridSquareHovered(AEMPGridSquare* inGridSquare)
@@ -303,6 +309,11 @@ FVector AEMPGrid::GetWorldLocationFromGridLocation(FIntPoint gridLocation) const
 {
 	return GridSquares[GridDimensions * 5 * gridLocation.Y + gridLocation.X]->GetActorLocation();
 	//return FVector(SingleGridSquareSize * gridLocation.X + SingleGridSquareSize/2, SingleGridSquareSize * gridLocation.Y + SingleGridSquareSize / 2, GridBaseHeight);
+}
+
+FVector AEMPGrid::GetWorldLocationFromGridArea(FIntPoint gridArea) const
+{
+	return GetWorldLocationFromGridLocation(gridArea * 5 + FIntPoint(2, 2));
 }
 
 AEMPCombatUnit* AEMPGrid::GetCombatUnitFromData(UEMPCombatUnitData* combatUnitData) const

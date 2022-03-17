@@ -82,6 +82,9 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnSimpleSquadChange OnSquadSkillsRefreshed;
 
+	UPROPERTY(BlueprintAssignable)
+	FOnSimpleSquadChange OnSquadMovedToAreaLocation;
+
 	UPROPERTY(Transient, BlueprintReadWrite)
 	FString SquadName;
 
@@ -90,8 +93,11 @@ public:
 
 	// Combat
 
-	UPROPERTY(Transient, BlueprintReadWrite)
-	FIntPoint CombatAreaLocation;
+	UFUNCTION(BlueprintCallable)
+	FIntPoint GetCombatAreaLocation() const { return CombatAreaLocation; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetCombatAreaLocation(FIntPoint val);
 
 	UPROPERTY(Transient, BlueprintReadWrite)
 	EEMPCombatDirection CombatDirection;
@@ -119,6 +125,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ESquadStrategyEMP SquadStrategy;
+
+	UPROPERTY(Transient, BlueprintReadWrite)
+	FIntPoint CombatAreaLocation;
 };
 
 /**

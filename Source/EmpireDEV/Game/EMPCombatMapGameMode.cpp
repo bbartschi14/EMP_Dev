@@ -5,7 +5,6 @@
 #include <Kismet/GameplayStatics.h>
 #include "../Level/EMPCombatMapGrid.h"
 #include "../Combat/Structs/FEMPSquadData.h"
-#include "../Combat/EMPCombatPlayer.h"
 #include "../Subsystems/EMPSquadManager.h"
 #include "../Combat/EMPEnemySquadLevelData.h"
 #include "../Combat/EMPCombatStatics.h"
@@ -32,6 +31,8 @@ void AEMPCombatMapGameMode::BeginPlay()
 	UEMPSquadManager* squadManager = GetWorld()->GetGameInstance()->GetSubsystem<UEMPSquadManager>();
 	check(squadManager);
 
+	Grid->MapInitialize();
+
 	FriendlySquads = SpawnSquads(squadManager->GetSquadData(), Grid->GetFriendlySquadSpawnPoints());
 	EnemySquads = SpawnSquads(enemySquadData->GetSquadData(), Grid->GetEnemySquadSpawnPoints(), true);
 
@@ -50,14 +51,15 @@ TArray<UEMPSquadData*> AEMPCombatMapGameMode::SpawnSquads(TArray<UEMPSquadData*>
 
 			// Spawn squad at spawn location
 			UEMPSquadData* squad = squads[i];
+			squad->SetCombatAreaLocation(spawnLocation);
+			Grid->SpawnCombatSquad(squad);
 
-			squad->CombatAreaLocation = spawnLocation;
 			squad->CombatDirection = bIsEnemySquad ? EEMPCombatDirection::CD_DOWN : EEMPCombatDirection::CD_UP;
 			for (UEMPCombatUnitData* combatUnit : squad->CombatUnitsInSquad)
 			{
 				// Rotating units into starting direction
 				FIntPoint rotatedLocalLocation = UEMPCombatStatics::RotateLocalGridCoordinate(combatUnit->GetDesiredLocation(), squad->CombatDirection);
-				combatUnit->CombatLocation = UEMPCombatStatics::TransformGridCoordinate_LocalToGlobal(rotatedLocalLocation, squad->CombatAreaLocation);
+				combatUnit->CombatLocation = UEMPCombatStatics::TransformGridCoordinate_LocalToGlobal(rotatedLocalLocation, squad->GetCombatAreaLocation());
 				combatUnit->CurrentHealth = combatUnit->Health; // Resetting health here on spawn. Maybe could be moved somewhere else.
 				if (bIsEnemySquad)
 				{
@@ -128,7 +130,7 @@ UEMPSquadData* AEMPCombatMapGameMode::GetFriendlySquadAtAreaCoordinate(FIntPoint
 {
 	for (UEMPSquadData* squad : FriendlySquads)
 	{
-		if (squad->CombatAreaLocation == areaCoordinate)
+		if (squad->GetCombatAreaLocation() == areaCoordinate)
 		{
 			return squad;
 		}
@@ -140,7 +142,7 @@ UEMPSquadData* AEMPCombatMapGameMode::GetEnemySquadAtAreaCoordinate(FIntPoint ar
 {
 	for (UEMPSquadData* squad : EnemySquads)
 	{
-		if (squad->CombatAreaLocation == areaCoordinate)
+		if (squad->GetCombatAreaLocation() == areaCoordinate)
 		{
 			return squad;
 		}
@@ -183,8 +185,8 @@ void AEMPCombatMapGameMode::QueueAction(UEMPCombatActionSkill* ActionToQueue)
 
 void AEMPCombatMapGameMode::MoveSquadToAreaLocation(UEMPSquadData* squadToMove, FIntPoint destination, float animationTime)
 {
-	FIntPoint areaCoordinateDelta = destination - squadToMove->CombatAreaLocation;
-	squadToMove->CombatAreaLocation = destination;
+	FIntPoint areaCoordinateDelta = destination - squadToMove->GetCombatAreaLocation();
+	squadToMove->SetCombatAreaLocation(destination);
 	
 	for (UEMPCombatUnitData* combatUnit : squadToMove->CombatUnitsInSquad)
 	{
@@ -202,7 +204,7 @@ void AEMPCombatMapGameMode::MoveCombatUnitToLocation(UEMPCombatUnitData* unitToM
 
 void AEMPCombatMapGameMode::RearrangeCombatUnitToLocation(UEMPCombatUnitData* unitToMove, FIntPoint destination, float animationTime)
 {
-	if (UEMPCombatStatics::IsGridCoordinateInArea(destination, unitToMove->OwningSquad->CombatAreaLocation))
+	if (UEMPCombatStatics::IsGridCoordinateInArea(destination, unitToMove->OwningSquad->GetCombatAreaLocation()))
 	{
 		UEMPCombatUnitData* potentialUnitAtDestination = SelectedSquad->GetCombatUnitAtCombatLocation(destination);
 		if (potentialUnitAtDestination)
@@ -284,6 +286,25 @@ void AEMPCombatMapGameMode::RemoveSquadFromCombat(UEMPSquadData* squadToRemove, 
 	{
 		OnCombatUnitRetreat.Broadcast(combatUnit, animationTime);
 	}
+
+	OnSquadRemovedFromCombat.Broadcast(squadToRemove);
+
+	if (FriendlySquads.Num() == 0)
+	{
+		FEMPCombatEndData data;
+		data.bWasVictory = false;
+		data.CombatEndType = EEMPCombatEndType::Break;
+		data.MoneyRewarded = 5;
+		OnSideDefeated.Broadcast(data);
+	}
+	else if (EnemySquads.Num() == 0)
+	{
+		FEMPCombatEndData data;
+		data.bWasVictory = true;
+		data.CombatEndType = EEMPCombatEndType::Break;
+		data.MoneyRewarded = 10;
+		OnSideDefeated.Broadcast(data);
+	}
 }
 
 void AEMPCombatMapGameMode::HandleCancelActionPressed()
@@ -312,4 +333,14 @@ void AEMPCombatMapGameMode::ResolveHit(FEMPCombatHitResult InHit)
 		InHit.DefendingUnit->OwningSquad->HandleCombatUnitDied(InHit.DefendingUnit);
 		OnCombatUnitDied.Broadcast(InHit.DefendingUnit);
 	}
+}
+
+int32 AEMPCombatMapGameMode::GetNumberOfFriendlySquads() const
+{
+	return FriendlySquads.Num();
+}
+
+int32 AEMPCombatMapGameMode::GetNumberOfEnemySquads() const
+{
+	return EnemySquads.Num();
 }

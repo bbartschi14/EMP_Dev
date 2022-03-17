@@ -31,8 +31,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 		void RefreshVisuals();
 
-	UPROPERTY(BlueprintReadOnly, Transient)
-		FVector2D AreaCoordinate;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+		FIntPoint AreaCoordinate;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

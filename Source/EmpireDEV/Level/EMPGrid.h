@@ -14,6 +14,11 @@ class EMPIREDEV_API AEMPGrid : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AEMPGrid();
+	
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGridNotify, AEMPGrid*, Grid);
+
+	UPROPERTY(BlueprintAssignable)
+	FOnGridNotify OnGridSpawned;
 
 	UFUNCTION(BlueprintCallable)
 		int32 GetGridDimension() const;
@@ -41,9 +46,13 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void Get2DBounds(FVector2D& Min, FVector2D& Max) const;
+
+	virtual void MapInitialize();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
 
 	/** Create landscape, grid and visuals */
 	UFUNCTION(BlueprintCallable)
@@ -54,6 +63,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 		FVector GetWorldLocationFromGridLocation(FIntPoint gridLocation) const;
+
+	UFUNCTION(BlueprintCallable)
+		FVector GetWorldLocationFromGridArea(FIntPoint gridArea) const;
 
 	UFUNCTION(BlueprintCallable)
 		class AEMPCombatUnit* GetCombatUnitFromData(class UEMPCombatUnitData* combatUnitData) const;
@@ -111,10 +123,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 		TSubclassOf<class AEMPCombatUnit> CombatUnitClass;
 
-	UPROPERTY(BlueprintReadOnly, Transient)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 		TArray<class AEMPGridSquare*> GridSquares;
 
-	UPROPERTY(BlueprintReadOnly, Transient)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 		TArray<class AEMPGridAreaHighlight*> GridAreaHighlights;
 
 	UPROPERTY(Transient, BlueprintReadWrite)

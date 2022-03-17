@@ -5,28 +5,13 @@
 #include "../Combat/Structs/FEMPCombatUnitData.h"
 #include "../Combat/Structs/FEMPSquadData.h"
 #include "../Combat/EMPCombatStatics.h"
+#include "../Combat/Data/CombatMapDataAsset.h"
+#include "../Combat/EMPCombatSquad.h"
 #include "../Level/EMPGridSquare.h"
 
 void AEMPCombatMapGrid::BeginPlay()
 {
-	// Verify unique spawn points
-	TSet<FIntPoint> spawnPointSet;
-	for (FIntPoint point : FriendlySquadSpawnPoints)
-	{
-		spawnPointSet.Add(point);
-	}
-	for (FIntPoint point : EnemySquadSpawnPoints)
-	{
-		spawnPointSet.Add(point);
-	}
-	check(spawnPointSet.Num() == (FriendlySquadSpawnPoints.Num() + EnemySquadSpawnPoints.Num())); // If the number of items in the set is not equal to the number of spawn points, there was an overlap
-	
 	Super::BeginPlay();
-
-	for (AEMPGridSquare* gridSquare : GridSquares)
-	{
-		gridSquare->SetForceHidden(true);
-	}
 }
 
 void AEMPCombatMapGrid::SpawnFriendlyCombatUnit(UEMPCombatUnitData* friendlyCombatUnit)
@@ -54,15 +39,52 @@ void AEMPCombatMapGrid::SpawnCombatUnit(UEMPCombatUnitData* combatUnitData, FEMP
 	CombatUnits.Add(combatUnit);
 }
 
+void AEMPCombatMapGrid::MapInitialize()
+{
+	LoadMapFromGameInstance();
+
+	Super::MapInitialize();
+
+	for (AEMPGridSquare* gridSquare : GridSquares)
+	{
+		gridSquare->SetForceHidden(true);
+	}
+}
+
+void AEMPCombatMapGrid::SpawnCombatSquad(UEMPSquadData* OwningSquad)
+{
+	AEMPCombatSquad* newSquad = GetWorld()->SpawnActorDeferred<AEMPCombatSquad>(CombatSquadClass, FTransform());
+	newSquad->OwningSquadData = OwningSquad;
+	newSquad->OwningGrid = this;
+	newSquad->FinishSpawning(FTransform());
+	newSquad->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
+	CombatSquads.Add(newSquad);
+}
 
 TArray<FIntPoint> AEMPCombatMapGrid::GetFriendlySquadSpawnPoints() const
 {
-	return FriendlySquadSpawnPoints;
+	TArray<FIntPoint> points;
+	for (auto pair : SpawnPoints)
+	{
+		if (pair.Value)
+		{
+			points.Add(pair.Key);
+		}
+	}
+	return points;
 }
 
 TArray<FIntPoint> AEMPCombatMapGrid::GetEnemySquadSpawnPoints() const
 {
-	return EnemySquadSpawnPoints;
+	TArray<FIntPoint> points;
+	for (auto pair : SpawnPoints)
+	{
+		if (!pair.Value)
+		{
+			points.Add(pair.Key);
+		}
+	}
+	return points;
 }
 
 void AEMPCombatMapGrid::TurnCombatUnitsInSquadToDirection(UEMPSquadData* squadData, EEMPCombatDirection direction)
@@ -96,4 +118,13 @@ void AEMPCombatMapGrid::SetCombatUnitsInSquadReady(UEMPSquadData* squadData, boo
 			unit->SetReadyStance(isReady);
 		}
 	}
+}
+
+void AEMPCombatMapGrid::LoadFromDataAsset(class UCombatMapDataAsset* InData)
+{
+	GridDimensions = InData->GridSize;
+	SpawnPoints = InData->SpawnPoints;
+	CombatObjectives = InData->CombatObjectives;
+
+	SpawnGrid();
 }

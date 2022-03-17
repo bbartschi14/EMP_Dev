@@ -15,11 +15,33 @@ enum class EEMPCombatMapState : uint8
 	GS_SIMULATING	UMETA(DisplayName = "Simulating"),
 };
 
+UENUM(BlueprintType)
+enum class EEMPCombatEndType : uint8
+{
+	Break,
+	Retreat
+};
+
+USTRUCT(BlueprintType)
+struct FEMPCombatEndData
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	UPROPERTY(BlueprintReadOnly)
+	bool bWasVictory;
+
+	UPROPERTY(BlueprintReadOnly)
+	EEMPCombatEndType CombatEndType;
+
+	UPROPERTY(BlueprintReadOnly)
+	int32 MoneyRewarded;
+};
+
 /**
 * The game mode for controlling a basic game loop encounter.
 * Two commanders fight against each other, ordering their squadrons into
-* positions to then simulate combat against the other team. The game mode
-* ends when one team has eliminated the other, or one concedes.
+* positions to then simulate combat against the other team.
 ***********************************************************************************/
 
 UCLASS(Abstract, Blueprintable)
@@ -29,11 +51,13 @@ class EMPIREDEV_API AEMPCombatMapGameMode : public ABaseGameModeEMP
 public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameStateChanged, EEMPCombatMapState, NewState);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSquadSelected, class UEMPSquadData*, squadData);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSquadChange, class UEMPSquadData*, squadData);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCombatEvent, class UEMPSquadData*, squadOne, class UEMPSquadData*, squadTwo);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCombatUnitChange, class UEMPCombatUnitData*, combatUnit);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCombatUnitAnimate, class UEMPCombatUnitData*, combatUnit, float, animationTime);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnCombatUnitAttackAnimate, class UEMPCombatUnitData*, attackingCombatUnit, class UEMPCombatUnitData*, defendingCombatUnit, float, animationTime);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnActionQueued, class UEMPCombatActionSkill*, actionData);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCombatEnd, FEMPCombatEndData, Data);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnMoraleRoll, class UEMPSquadData*, squadData, int32, moraleRoll, float, animationTime);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSimpleChange);
 
@@ -43,6 +67,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
 		FOnGameStateChanged OnExitGameState;
+		
+	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
+		FOnCombatEnd OnSideDefeated;
 
 	/** Called when the squad is selected */
 	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
@@ -51,6 +78,9 @@ public:
 	/** Called when the squad is deselected */
 	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
 		FOnSimpleChange OnSquadDeselected;
+	
+	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
+		FOnSquadChange OnSquadRemovedFromCombat;
 
 	UPROPERTY(BlueprintAssignable, Category = "EMP Events")
 		FOnCombatUnitChange OnCombatUnitDied;
@@ -169,6 +199,13 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void ResolveHit(FEMPCombatHitResult InHit);
+
+	UFUNCTION(BlueprintCallable)
+		int32 GetNumberOfFriendlySquads() const;
+
+	UFUNCTION(BlueprintCallable)
+		int32 GetNumberOfEnemySquads() const;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -210,7 +247,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 		EEMPCombatMapState CurrentState;
-
+	
+	UPROPERTY(Transient, BlueprintReadOnly)
+		TArray<class UCombatObjective*> CombatObjectives;
 public:
 	UPROPERTY(BlueprintReadOnly)
 		class UEMPCombatActionSkill* ActionBeingQueued;

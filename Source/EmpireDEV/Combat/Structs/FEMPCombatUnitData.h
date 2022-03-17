@@ -38,10 +38,10 @@ enum class EEMPCombatClass : uint8
 	CC_LIGHT_CAVALRY		UMETA(DisplayName = "Light Cavalry"),
 	CC_HEAVY_CAVALRY		UMETA(DisplayName = "Heavy Cavalry"),
 	CC_ARCHER				UMETA(DisplayName = "Archer"),
-	CC_ENGINEER				UMETA(DisplayName = "Engineer"),
-	CC_SCOUT				UMETA(DisplayName = "Scout"),
-	CC_PIKEMAN				UMETA(DisplayName = "Pikeman"),
-	CC_WIZARD				UMETA(DisplayName = "Wizard")
+	CC_MOUNTED_ARCHER		UMETA(DisplayName = "Mounted Archer"),
+	CC_SHIELDBEARER				UMETA(DisplayName = "Shieldbearer"),
+	CC_HAMMERMEN				UMETA(DisplayName = "Hammermen"),
+	CC_DRUMMER				UMETA(DisplayName = "Drummer")
 };
 
 /**

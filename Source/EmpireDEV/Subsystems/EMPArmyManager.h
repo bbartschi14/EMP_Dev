@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "../Combat/Structs/FEMPCombatUnitData.h"
 #include "EMPArmyManager.generated.h"
 
 /**
@@ -29,7 +30,15 @@ public:
 	UFUNCTION(BlueprintCallable)
 		class UEMPArmyResources* GetResources() const;
 
+	UFUNCTION(BlueprintCallable)
+		void GiveMoney(int32 Amount);
+
+	UFUNCTION(BlueprintCallable)
+		void RecruitUnit(FEMPCombatUnitDataStruct Unit, int32 Cost);
 protected:
+	UFUNCTION()
+		void SubtractMoney(int32 Amount);
+
 	UPROPERTY(Transient)
 		class UEMPArmyResources* Resources;
 

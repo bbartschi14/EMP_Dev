@@ -24,6 +24,9 @@ public:
 		void SpawnEnemyCombatUnit(class UEMPCombatUnitData* enemyCombatUnit);
 
 	UFUNCTION()
+		void SpawnCombatSquad(class UEMPSquadData* OwningSquad);
+
+	UFUNCTION()
 		TArray<FIntPoint> GetFriendlySquadSpawnPoints() const;
 
 	UFUNCTION()
@@ -41,18 +44,36 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 		void SpawnArrowIndicator(class UEMPCombatActionSkill* OwningAction, FIntPoint OriginCoordinate, FIntPoint DestinationCoordinate);
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, CallInEditor)
+		void LoadMapFromGameInstance();
+
+	UFUNCTION()
+		TMap<FIntPoint, bool> GetSpawnPoints() const { return SpawnPoints; }
+
+	UFUNCTION()
+		TArray<class UCombatObjective*> GetCombatObjectives() const { return CombatObjectives; }
+
+	UFUNCTION(BlueprintCallable)
+		void LoadFromDataAsset(class UCombatMapDataAsset* InData);
+
+	void MapInitialize() override;
 protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
 		void SpawnCombatUnit(class UEMPCombatUnitData* combatUnitData, FEMPCombatUnitMeshData meshData);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		TArray<FIntPoint> FriendlySquadSpawnPoints;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TMap<FIntPoint, bool> SpawnPoints; // Maps location to friendly (true), enemy (false)
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		TArray<FIntPoint> EnemySquadSpawnPoints;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
+		TArray<class UCombatObjective*> CombatObjectives;
+
+	UPROPERTY(Transient, BlueprintReadOnly)
+		TArray<class AEMPCombatSquad*> CombatSquads;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-		TSubclassOf<class AEMPCombatUnit> EnemyCombatUnitClass;
+		TSubclassOf<class AEMPCombatSquad> CombatSquadClass;
+
+
 };

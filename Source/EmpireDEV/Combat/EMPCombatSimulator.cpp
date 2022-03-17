@@ -15,7 +15,7 @@ void UEMPCombatSimulator::InitializeCombatData(UEMPSquadData* squadOne, UEMPSqua
 
 	CombatRoundsRemaining = 5; // Hard set to 5 for now
 
-	SquadOneAttackingDirection = CombatSquadTwo->CombatAreaLocation - CombatSquadOne->CombatAreaLocation;
+	SquadOneAttackingDirection = CombatSquadTwo->GetCombatAreaLocation() - CombatSquadOne->GetCombatAreaLocation();
 	SquadTwoAttackingDirection = SquadOneAttackingDirection * -1;
 }
 
@@ -169,7 +169,7 @@ void UEMPCombatSimulator::UpdateCombatMovement(float animationTime)
 	//				|x _ _ _ _|
 	//        Origin ^
 
-	FIntPoint originGridCoordinate = UEMPCombatStatics::TransformGridCoordinate_LocalToGlobal(rotatedLocalOrigin, CombatSquadOne->CombatAreaLocation);
+	FIntPoint originGridCoordinate = UEMPCombatStatics::TransformGridCoordinate_LocalToGlobal(rotatedLocalOrigin, CombatSquadOne->GetCombatAreaLocation());
 	//UE_LOG(LogTemp, Warning, TEXT("Origin: %s, Direction: %s"), *originGridCoordinate.ToString(), *SquadOneAttackingDirection.ToString());
 	// 
 	// Check each column
@@ -245,11 +245,11 @@ void UEMPCombatSimulator::UpdateCombatMovement(float animationTime)
 void UEMPCombatSimulator::ResetCombatUnitsAfterCombat(float animationTime)
 {
 	FIntPoint squadOneRotatedLocalOrigin = UEMPCombatStatics::RotateLocalGridCoordinate(FIntPoint(0, 0), UEMPCombatStatics::IntPointToDirection(SquadOneAttackingDirection));
-	FIntPoint squadOneGlobalOrigin = UEMPCombatStatics::TransformGridCoordinate_LocalToGlobal(squadOneRotatedLocalOrigin, CombatSquadOne->CombatAreaLocation);
+	FIntPoint squadOneGlobalOrigin = UEMPCombatStatics::TransformGridCoordinate_LocalToGlobal(squadOneRotatedLocalOrigin, CombatSquadOne->GetCombatAreaLocation());
 	RetreatUnits(CombatSquadOne, squadOneGlobalOrigin, SquadOneAttackingDirection, animationTime);
 
 	FIntPoint squadTwoRotatedLocalOrigin = UEMPCombatStatics::RotateLocalGridCoordinate(FIntPoint(0, 0), UEMPCombatStatics::IntPointToDirection(SquadTwoAttackingDirection));
-	FIntPoint squadTwoGlobalOrigin = UEMPCombatStatics::TransformGridCoordinate_LocalToGlobal(squadTwoRotatedLocalOrigin, CombatSquadTwo->CombatAreaLocation);
+	FIntPoint squadTwoGlobalOrigin = UEMPCombatStatics::TransformGridCoordinate_LocalToGlobal(squadTwoRotatedLocalOrigin, CombatSquadTwo->GetCombatAreaLocation());
 	RetreatUnits(CombatSquadTwo, squadTwoGlobalOrigin, SquadTwoAttackingDirection, animationTime);
 
 	OwningCombatGameMode->OnCombatEnded.Broadcast(CombatSquadOne, CombatSquadTwo);

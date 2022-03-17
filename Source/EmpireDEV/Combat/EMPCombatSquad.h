@@ -4,30 +4,29 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "EMPCombatPlayer.generated.h"
+#include "EMPCombatSquad.generated.h"
 
 UCLASS()
-class EMPIREDEV_API AEMPCombatPlayer : public AActor
+class EMPIREDEV_API AEMPCombatSquad : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AEMPCombatPlayer();
+	AEMPCombatSquad();
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	
+	UPROPERTY(BlueprintReadOnly)
+		class UEMPSquadData* OwningSquadData;
 
-	UFUNCTION()
-		class AEMPSquad* CreateSquad();
-
-	UFUNCTION()
-		TArray<class AEMPSquad*> GetSquads();
+	UPROPERTY(BlueprintReadOnly)
+		class AEMPCombatMapGrid* OwningGrid;
 
 protected:
 	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	virtual void BeginPlay() override;	
 
-	UPROPERTY(Transient)
-		TArray<class AEMPSquad*> Squads;
+	
 };
