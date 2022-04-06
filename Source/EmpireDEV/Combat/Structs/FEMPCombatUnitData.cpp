@@ -132,6 +132,7 @@ UEMPCombatUnitData* FEMPCombatUnitDataStruct::GetCombatUnitData(class UGameInsta
 			combatUnitData->Damage = stats->Damage;
 			combatUnitData->Armor = stats->Armor;
 			combatUnitData->Speed = stats->Speed;
+			combatUnitData->Weight = stats->Weight;
 			combatUnitData->Range = stats->Range;
 		}
 	}

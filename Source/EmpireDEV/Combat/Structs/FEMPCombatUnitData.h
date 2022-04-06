@@ -41,7 +41,10 @@ enum class EEMPCombatClass : uint8
 	CC_MOUNTED_ARCHER		UMETA(DisplayName = "Mounted Archer"),
 	CC_SHIELDBEARER				UMETA(DisplayName = "Shieldbearer"),
 	CC_HAMMERMEN				UMETA(DisplayName = "Hammermen"),
-	CC_DRUMMER				UMETA(DisplayName = "Drummer")
+	CC_PIKEMAN				UMETA(DisplayName = "Pikeman"),
+	CC_DRUMMER				UMETA(DisplayName = "Drummer"),
+	CC_TEST					UMETA(DisplayName = "Test")
+	
 };
 
 /**
@@ -126,6 +129,9 @@ public:
 
 	UPROPERTY(Transient, BlueprintReadWrite, VisibleAnywhere)
 		int32 Speed;
+
+	UPROPERTY(Transient, BlueprintReadWrite, VisibleAnywhere)
+		int32 Weight;
 
 	UPROPERTY(Transient, BlueprintReadWrite, VisibleAnywhere)
 		int32 Range;

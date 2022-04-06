@@ -28,6 +28,9 @@ public:
 	int Speed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int Weight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int Range;
 };
 
@@ -59,7 +62,7 @@ class EMPIREDEV_API UEMPStatsDatabase : public UDataAsset
 public:
 	UEMPStatsDatabase()
 	{
-		for (int i = 0; i < 8; i++)
+		for (int i = 0; i < 10; i++)
 			ClassToStatsMap.Add((EEMPCombatClass)i, FEMPDefaultStatsRankMap());
 	}
 	UPROPERTY(EditAnywhere)
